@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "cdda-mods-zombie-tamer:lib"
+
+    - path: "./app/Main.hs"
+      component: "cdda-mods-zombie-tamer:exe:cdda-mods-zombie-tamer-exe"
+
+    - path: "./app/Paths_cdda_mods_zombie_tamer.hs"
+      component: "cdda-mods-zombie-tamer:exe:cdda-mods-zombie-tamer-exe"
+
+    - path: "./test"
+      component: "cdda-mods-zombie-tamer:test:cdda-mods-zombie-tamer-test"

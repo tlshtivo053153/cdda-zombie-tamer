@@ -1,0 +1,2 @@
+module Cdda.Monster where
+

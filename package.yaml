@@ -1,0 +1,66 @@
+name:                cdda-mods-zombie-tamer
+version:             0.1.0.0
+github:              "tlshtivo053153/cdda-mods-zombie-tamer"
+license:             BSD3
+author:              "tlshtivo053153"
+maintainer:          "muq8inubwlxpcv4oemcazmpfwowkrco-git@yahoo.co.jp"
+copyright:           "2022 tlshtivo053153"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/tlshtivo053153/cdda-mods-zombie-tamer#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- text
+- containers
+- vector
+- mtl
+- aeson
+- aeson-casing
+- lens
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  cdda-mods-zombie-tamer-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cdda-mods-zombie-tamer
+
+tests:
+  cdda-mods-zombie-tamer-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cdda-mods-zombie-tamer
