@@ -7,6 +7,7 @@ import qualified System.Directory as D
 import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import qualified Data.ByteString.Lazy as BL
 
 import Control.Lens
 import Data.Aeson
@@ -101,12 +102,10 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. spellLevelUp)
   ++ map f (m ^. upgradeRandom)
     where
-      f (path, objs) = (path, packObjects objs)
+      f (path, objs) = (path, encode objs)
 
-cddaJsonToFile :: (FilePath, T.Text) -> IO ()
+cddaJsonToFile :: (FilePath, BL.ByteString) -> IO ()
 cddaJsonToFile (relPath, objs) = do
-  D.createDirectoryIfMissing True $ F.takeDirectory relPath
-  T.writeFile relPath objs
-
-packObjects :: ToJSON a => [a] -> T.Text
-packObjects objs = T.pack $ show $ toJSON objs
+  let path = "mods" F.</> relPath
+  D.createDirectoryIfMissing True $ F.takeDirectory path
+  BL.writeFile relPath objs
