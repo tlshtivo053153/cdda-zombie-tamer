@@ -9,7 +9,7 @@ getItemFood :: FilePath
 getItemFood = "items"</>"petfood.json"
 
 getMonsterVanilla :: FilePath
-getMonsterVanilla = "mosnter"</>"vanilla.json"
+getMonsterVanilla = "monster"</>"vanilla.json"
 
 getMonsterFriend :: Id -> FilePath
 getMonsterFriend (Id i) = "monster"</>"friend"</> T.unpack i <> ".json"
