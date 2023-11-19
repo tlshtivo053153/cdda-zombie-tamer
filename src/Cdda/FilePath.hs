@@ -5,6 +5,9 @@ import qualified Data.Text as T
 
 import Define.Core
 
+getModInfo :: FilePath
+getModInfo = "modinfo.json"
+
 getItemFood :: FilePath
 getItemFood = "items"</>"petfood.json"
 

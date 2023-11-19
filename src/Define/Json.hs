@@ -16,7 +16,8 @@ import qualified Data.Text as T
 type CddaJson a = (FilePath, [a])
 
 data CddaMod = CddaMod
-  { _cddaModItemFood :: CddaJson Item
+  { _cddaModModInfo :: CddaJson ModInfo
+  , _cddaModItemFood :: CddaJson Item
   , _cddaModMonsterVanilla :: [CddaJson Monster]
   , _cddaModMonsterFriend :: [CddaJson Monster]
   , _cddaModTalkVanilla :: [CddaJson Talk]
@@ -27,6 +28,21 @@ data CddaMod = CddaMod
   , _cddaModSpellUpgradeStandard :: [CddaJson Spell]
   , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
   }
+
+data ModInfo = ModInfo
+  { _modInfoCddaType :: T.Text
+  , _modInfoId :: C.Id
+  , _modInfoName :: T.Text
+  , _modInfoAuthors :: [T.Text]
+  , _modInfoDescription :: T.Text
+  , _modInfoCategory :: T.Text
+  , _modInfoDependencies :: [T.Text]
+  , _modInfoVersion :: T.Text
+  }
+  deriving Generic
+
+instance ToJSON ModInfo where
+  toJSON = genericToJSON cddaOption
 
 data Item = Item
   { _itemCopyFrom    :: C.Id

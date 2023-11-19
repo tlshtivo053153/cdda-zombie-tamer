@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cdda.Main where
 
+import System.FilePath ((</>))
 import qualified System.FilePath as F
 import qualified System.Directory as D
 
@@ -30,9 +31,22 @@ import Cdda.Talk.Utils
 import qualified Cdda.Spell as S
 import Cdda.MonsterGroup
 
+makeModInfo :: J.ModInfo
+makeModInfo = J.ModInfo
+  { J._modInfoCddaType     = "MOD_INFO"
+  , J._modInfoId           = Id "zombie_tamer"
+  , J._modInfoName         = "ゾンビテイマー"
+  , J._modInfoAuthors      = [ "tlshtivo053153" ]
+  , J._modInfoDescription  = "ゾンビと友達になることができます。"
+  , J._modInfoCategory     = "content"
+  , J._modInfoDependencies = [ "dda" ]
+  , J._modInfoVersion      = "0.0.1"
+  }
+
 makeCddaMod :: J.CddaMod
 makeCddaMod = J.CddaMod
-  { J._cddaModItemFood       = (FP.getItemFood, map J.convItem allPetfood)
+  { J._cddaModModInfo        = (FP.getModInfo, [makeModInfo])
+  , J._cddaModItemFood       = (FP.getItemFood, map J.convItem allPetfood)
   , J._cddaModMonsterVanilla =
       let f :: Monster -> J.Monster
           f m = J.Monster
@@ -106,6 +120,6 @@ outputCddaMod m = mapM_ cddaJsonToFile $
 
 cddaJsonToFile :: (FilePath, BL.ByteString) -> IO ()
 cddaJsonToFile (relPath, objs) = do
-  let path = "mods" F.</> relPath
+  let path = "mods"</>"zombie_tamer"</> relPath
   D.createDirectoryIfMissing True $ F.takeDirectory path
   BL.writeFile path objs
