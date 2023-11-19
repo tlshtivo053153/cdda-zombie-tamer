@@ -64,7 +64,7 @@ makeCddaMod = J.CddaMod
       let f i = do
             m <- J.convMonsters <$> getMonsterFriend i
             return (FP.getMonsterFriend i, m)
-       in mapMaybe f I.allMonster
+       in mapMaybe f I.allFriendMonster
   , J._cddaModTalkVanilla    =
       let vanilla = concatMap (map J.convTalk . vanillaTalk) allMonsterFriend
        in [(FP.getTalkVanilla, vanilla)]
