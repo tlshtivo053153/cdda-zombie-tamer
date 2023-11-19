@@ -107,7 +107,8 @@ makeCddaMod = J.CddaMod
 
 outputCddaMod :: J.CddaMod -> IO ()
 outputCddaMod m = mapM_ cddaJsonToFile $
-  [ f $ m ^. itemFood ]
+  [ f $ m ^. modInfo ]
+  ++ [ f $ m ^. itemFood ]
   ++ map f (m ^. monsterVanilla)
   ++ map f (m ^. monsterFriend)
   ++ map f (m ^. talkVanilla)
