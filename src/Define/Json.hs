@@ -154,7 +154,8 @@ data Spell = Spell
   }
   deriving Generic
 
-instance ToJSON Spell
+instance ToJSON Spell where
+  toJSON = genericToJSON cddaOption
 
 data MonsterGroup = MonsterGroup
   { _monstergroupName :: C.Id
