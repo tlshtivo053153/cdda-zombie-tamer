@@ -108,4 +108,4 @@ cddaJsonToFile :: (FilePath, BL.ByteString) -> IO ()
 cddaJsonToFile (relPath, objs) = do
   let path = "mods" F.</> relPath
   D.createDirectoryIfMissing True $ F.takeDirectory path
-  BL.writeFile relPath objs
+  BL.writeFile path objs
