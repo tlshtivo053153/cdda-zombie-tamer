@@ -30,14 +30,14 @@ data CddaMod = CddaMod
   }
 
 data ModInfo = ModInfo
-  { _modInfoCddaType :: T.Text
-  , _modInfoId :: C.Id
-  , _modInfoName :: T.Text
-  , _modInfoAuthors :: [T.Text]
-  , _modInfoDescription :: T.Text
-  , _modInfoCategory :: T.Text
-  , _modInfoDependencies :: [T.Text]
-  , _modInfoVersion :: T.Text
+  { _modinfoCddaType :: T.Text
+  , _modinfoId :: C.Id
+  , _modinfoName :: T.Text
+  , _modinfoAuthors :: [T.Text]
+  , _modinfoDescription :: T.Text
+  , _modinfoCategory :: T.Text
+  , _modinfoDependencies :: [T.Text]
+  , _modinfoVersion :: T.Text
   }
   deriving Generic
 

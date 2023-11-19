@@ -33,14 +33,14 @@ import Cdda.MonsterGroup
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
-  { J._modInfoCddaType     = "MOD_INFO"
-  , J._modInfoId           = Id "zombie_tamer"
-  , J._modInfoName         = "ゾンビテイマー"
-  , J._modInfoAuthors      = [ "tlshtivo053153" ]
-  , J._modInfoDescription  = "ゾンビと友達になることができます。"
-  , J._modInfoCategory     = "content"
-  , J._modInfoDependencies = [ "dda" ]
-  , J._modInfoVersion      = "0.0.1"
+  { J._modinfoCddaType     = "MOD_INFO"
+  , J._modinfoId           = Id "zombie_tamer"
+  , J._modinfoName         = "ゾンビテイマー"
+  , J._modinfoAuthors      = [ "tlshtivo053153" ]
+  , J._modinfoDescription  = "ゾンビと友達になることができます。"
+  , J._modinfoCategory     = "content"
+  , J._modinfoDependencies = [ "dda" ]
+  , J._modinfoVersion      = "0.0.1"
   }
 
 makeCddaMod :: J.CddaMod
