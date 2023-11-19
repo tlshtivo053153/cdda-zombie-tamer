@@ -1,2 +1,164 @@
+{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 module Define.Json where
 
+import GHC.Generics
+
+import Define.Aeson
+import qualified Define.Core as C
+import qualified Define.Item as C
+import qualified Define.Monster as C
+import qualified Define.MonsterGroup as C
+import qualified Define.Talk as CT
+
+import Data.Aeson
+import qualified Data.Text as T
+
+type CddaJson a = (FilePath, [a])
+
+data CddaMod = CddaMod
+  { _cddaItemFood :: CddaJson Item
+  , _cddaMonsterVanilla :: [CddaJson Monster]
+  , _cddaMonsterFriend :: [CddaJson Monster]
+  , _cddaTalkVanilla :: [CddaJson Talk]
+  , _cddaTalkFriend :: [CddaJson Talk]
+  , _cddaSpellToFriend :: [CddaJson Spell]
+  , _cddaSpellLevelUp :: [CddaJson Spell]
+  , _cddaUpgradeRandom :: [CddaJson MonsterGroup]
+  }
+
+data Item = Item
+  { _itemCopyFrom    :: C.Id
+  , _itemCddaType    :: T.Text
+  , _itemId          :: C.Id
+  , _itemName        :: C.Name
+  , _itemDescription :: C.Description
+  , _itemUseAction   :: [C.UseAction]
+  , _itemPetfood     :: [C.FoodCategory]
+  }
+  deriving Generic
+
+instance ToJSON Item where
+  toJSON = genericToJSON cddaOption
+
+data Monster = Monster
+  { _monsterCopyFrom       :: C.Id
+  , _monsterId             :: C.Id
+  , _monsterCddaType       :: T.Text
+  , _monsterHp             :: Maybe Int
+  , _monsterSpeed          :: Maybe Int
+  , _monsterDodge          :: Maybe Int
+  , _monsterMeleeSkill     :: Maybe Int
+  , _monsterMeleeDice      :: Maybe Int
+  , _monsterMeleeDiceSides :: Maybe Int
+  , _monsterMeleeDamage    :: Maybe [Damage]
+  , _monsterArmorBash      :: Maybe Int
+  , _monsterArmorBullet    :: Maybe Int
+  , _monsterArmorCut       :: Maybe Int
+  , _monsterArmorStab      :: Maybe Int
+  , _monsterArmorAcid      :: Maybe Int
+  , _monsterArmorFire      :: Maybe Int
+  , _monsterArmorElec      :: Maybe Int
+  , _monsterArmorCold      :: Maybe Int
+  , _monsterArmorPure      :: Maybe Int
+  , _monsterRegenerates    :: Maybe Int
+  , _monsterPetfood        :: Maybe Petfood
+  }
+  deriving Generic
+
+instance ToJSON Monster where
+  toJSON = genericToJSON cddaOption
+
+data Petfood = Petfood
+  { _petfoodFood :: [T.Text]
+  , _petfoodFeed :: Maybe T.Text
+  , _petfoodPet :: Maybe T.Text
+  }
+  deriving Generic
+
+instance ToJSON Petfood where
+  toJSON = genericToJSON cddaOption
+
+data Damage = Damage
+  { _damageDamageType :: T.Text
+  , _damageAmount :: Int
+  , _damageArmorPenetration :: Maybe Int
+  }
+  deriving Generic
+
+instance ToJSON Damage where
+  toJSON = genericToJSON cddaOption
+
+data Talk = Talk
+  { _talkId :: C.Id
+  , _talkCddaType :: T.Text
+  , _talkSpeakerEffect :: Maybe CT.Effect
+  , _talkDynamicLine :: CT.DynamicLine
+  , _talkResponses :: [Response]
+  }
+  deriving Generic
+
+instance ToJSON Talk where
+  toJSON = genericToJSON cddaOption
+
+data Response = Response
+  { _responseText :: T.Text
+  , _responseCondition :: Maybe CT.Condition
+  , _responseTrial :: Trial
+  , _responseSuccess :: TrialResponse
+  , _responseFailure :: Maybe TrialResponse
+  }
+  deriving Generic
+
+instance ToJSON Response where
+  toJSON = genericToJSON cddaOption
+
+data Trial = Trial
+  { _trialCddaType :: T.Text
+  , _trialCondition :: Maybe CT.Condition
+  }
+  deriving Generic
+
+instance ToJSON Trial where
+  toJSON = genericToJSON cddaOption
+
+data TrialResponse = TrialResponse
+  { _trialresponseTopic :: T.Text
+  , _trialresponseEffect :: Maybe TalkEffects
+  }
+  deriving Generic
+
+instance ToJSON TrialResponse where
+  toJSON = genericToJSON cddaOption
+
+newtype TalkEffects = TalkEffects [CT.Effect]
+
+instance ToJSON TalkEffects where
+  toJSON (TalkEffects es) = object [ "effect" .= toJSON es ]
+
+data Spell = Spell
+  { _spellId :: C.Id
+  , _spellCddaType :: T.Text
+  , _spellName :: C.Name
+  , _spellDescription :: C.Description
+  , _spellValidTargets :: [T.Text]
+  , _spellEffect :: T.Text
+  , _spellMinDamage :: Int
+  , _spellMaxDamage :: Int
+  , _spellMinRange :: Int
+  , _spellFlags :: [T.Text]
+  , _spellShape :: T.Text
+  , _spellEffectStr :: C.Id
+  }
+  deriving Generic
+
+instance ToJSON Spell
+
+data MonsterGroup = MonsterGroup
+  { _monstergroupName :: C.Id
+  , _monstergroupCddaType :: T.Text
+  , _monstergroupMonsters :: [C.MGMonster]
+  }
+  deriving Generic
+
+instance ToJSON MonsterGroup where
+  toJSON = genericToJSON cddaOption

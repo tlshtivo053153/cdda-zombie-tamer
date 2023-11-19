@@ -1,10 +1,18 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Define.Item where
 
+import GHC.Generics (Generic)
 import Data.Text
+import Data.Aeson
 
+import Define.Aeson
 import Define.Core
 
 newtype UseAction = UseAction Text
+  deriving Generic
+
+instance ToJSON UseAction where
+  toJSON = genericToJSON cddaOption
 
 data Item = Item
     { _itemCopyFrom :: Id

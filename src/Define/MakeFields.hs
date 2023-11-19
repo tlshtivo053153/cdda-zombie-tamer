@@ -9,6 +9,7 @@ import Define.Item
 import Define.Monster
 import Define.Recipe
 import Define.Talk
+import Define.Spell
 
 makeFields ''E.Effect
 
@@ -32,3 +33,5 @@ makeFields ''TResponse
 makeFields ''Response
 makeFields ''Talk
 makeFields ''TalkConfig
+
+makeFields ''Spell

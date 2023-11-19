@@ -55,8 +55,11 @@ valVarTmpTotalExp = UValVar "tmp_zombie_total_exp"
 valVarTmpNeedExp = UValVar "tmp_zombie_need_exp"
 valVarTmpFriendship = UValVar "tmp_zombie_friendship"
 
-toUValVar (Var n t c) = UValVar undefined
-toNpcValVar (Var n t c) = NpcValVar undefined
+toUValVar :: Var -> Val
+toNpcValVar :: Var -> Val
+
+toUValVar (Var n t c) = UValVar $ t <> "_" <> c <> "_" <> n
+toNpcValVar (Var n t c) = NpcValVar $ t <> "_" <> c <> "_" <> n
 
 showVal :: Val -> String
 showVal (UValVar val) = "<u_val:" <> T.unpack val <> ">"
