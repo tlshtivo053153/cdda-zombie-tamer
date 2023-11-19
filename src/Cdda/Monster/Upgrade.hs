@@ -1,7 +1,9 @@
 {-# LANGUAGE TupleSections #-}
 module Cdda.Monster.Upgrade
-  ( getUpgradeRandom
+  ( allUpgradeRandomType
+  , getUpgradeRandom
   , getUpgradeStandard
+  , allUpgradeStandardList
   ) where
 
 import Define.Monster
@@ -14,6 +16,19 @@ import Cdda.Id.Item
 import Data.Maybe
 import Data.Bifunctor
 import qualified Data.Map as M
+
+allUpgradeRandomType :: [UpgradeRandomType]
+allUpgradeRandomType =
+  [ URNormal
+  , URFat
+  , URMedical
+  , URBoomer
+  , URRust
+  , URLabsecurity
+  , URElectric
+  , URSkeleton
+  , URNone
+  ]
 
 randomUpgradeNormal :: UpgradeRandom
 randomUpgradeNormal = UpgradeRandom (UCHaveItem idTaintedMeatPremium 1) URNormal
@@ -146,6 +161,12 @@ standardUpgradeConfig = M.fromList
   , (,) monSkeletonHulk $ UCHaveItem idTaintedMeatPremium 1
   ]
 
+standardUpgradeList :: [UpgradeStandard]
+standardUpgradeList =
+  let l = concatMap (drop 1) standardUpgradeTree
+      f = UpgradeStandard UCTrue
+   in map f l
+
 standardUpgradeTree :: [[Id]]
 standardUpgradeTree =
   [ [ monZombieRunner, monZombieHunter, monZombiePredator ]
@@ -184,3 +205,9 @@ allUpgradeMap = M.unionsWith (++)
 getUpgradeStandard :: Id -> [UpgradeStandard]
 getUpgradeStandard monId =
   fromMaybe [] $ M.lookup monId allUpgradeMap
+
+allUpgradeStandardList :: [UpgradeStandard]
+allUpgradeStandardList =
+  zombieUpgradeList
+  ++ zombieMedicUpgradeList
+  ++ standardUpgradeList

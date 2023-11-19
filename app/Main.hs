@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+import Cdda.Main
 
 main :: IO ()
-main = someFunc
+main = outputCddaMod makeCddaMod

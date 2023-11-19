@@ -29,6 +29,7 @@ taintedMeatPremium :: Item
 taintedMarrowPremium :: Item
 taintedMeatHighPremium :: Item
 taintedMarrowHighPremium :: Item
+allPetfood :: [Item]
 
 taintedMeatPremium = makeItem
   idTaintedMeat
@@ -61,6 +62,13 @@ taintedMarrowHighPremium = makeItem
   (Description "最上級汚染骨髄の説明")
   [ useActionPetfood ]
   [ foodCategoryTMarrow2 ]
+
+allPetfood =
+  [ taintedMeatPremium
+  , taintedMarrowPremium
+  , taintedMeatHighPremium
+  , taintedMarrowHighPremium
+  ]
 
 idToName :: Id -> Maybe Text
 idToName itemId = M.lookup itemId $ M.fromList

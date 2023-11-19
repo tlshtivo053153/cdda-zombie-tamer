@@ -28,6 +28,8 @@ dependencies:
 - aeson
 - aeson-casing
 - lens
+- filepath
+- directory
 
 ghc-options:
 - -Wall

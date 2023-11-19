@@ -7,6 +7,8 @@ import Define.MakeFields
 
 import Cdda.Monster.Status
 import Cdda.Id.Friend
+import Cdda.Talk.Friend
+import Cdda.Talk.Utils
 
 import qualified Define.Json as J
 
@@ -61,6 +63,7 @@ convMonsters m = map f statuss
           , J._monsterArmorPure      = Just $ monArmor ^. pure
           , J._monsterRegenerates    = Just $ monStatus ^. regenerates
           , J._monsterPetfood        = Just $ convPetfood $ m ^. petfood
+          , J._monsterChatTopics     = Just $ return $ mergeId (m ^. base) (Id "MAIN")
           }
 
 convDamage :: Damage -> J.Damage

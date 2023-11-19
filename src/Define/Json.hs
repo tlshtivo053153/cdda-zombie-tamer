@@ -16,14 +16,16 @@ import qualified Data.Text as T
 type CddaJson a = (FilePath, [a])
 
 data CddaMod = CddaMod
-  { _cddaItemFood :: CddaJson Item
-  , _cddaMonsterVanilla :: [CddaJson Monster]
-  , _cddaMonsterFriend :: [CddaJson Monster]
-  , _cddaTalkVanilla :: [CddaJson Talk]
-  , _cddaTalkFriend :: [CddaJson Talk]
-  , _cddaSpellToFriend :: [CddaJson Spell]
-  , _cddaSpellLevelUp :: [CddaJson Spell]
-  , _cddaUpgradeRandom :: [CddaJson MonsterGroup]
+  { _cddaModItemFood :: CddaJson Item
+  , _cddaModMonsterVanilla :: [CddaJson Monster]
+  , _cddaModMonsterFriend :: [CddaJson Monster]
+  , _cddaModTalkVanilla :: [CddaJson Talk]
+  , _cddaModTalkFriend :: [CddaJson Talk]
+  , _cddaModSpellToFriend :: [CddaJson Spell]
+  , _cddaModSpellLevelUp :: [CddaJson Spell]
+  , _cddaModSpellUpgradeRandom :: [CddaJson Spell]
+  , _cddaModSpellUpgradeStandard :: [CddaJson Spell]
+  , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
   }
 
 data Item = Item
@@ -62,6 +64,7 @@ data Monster = Monster
   , _monsterArmorPure      :: Maybe Int
   , _monsterRegenerates    :: Maybe Int
   , _monsterPetfood        :: Maybe Petfood
+  , _monsterChatTopics     :: Maybe [C.Id]
   }
   deriving Generic
 

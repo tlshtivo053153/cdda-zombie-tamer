@@ -10,6 +10,8 @@ import Define.Monster
 import Define.Recipe
 import Define.Talk
 import Define.Spell
+--import qualified Define.Json as J
+import Define.Json ( CddaMod )
 
 makeFields ''E.Effect
 
@@ -35,3 +37,5 @@ makeFields ''Talk
 makeFields ''TalkConfig
 
 makeFields ''Spell
+
+makeFields ''CddaMod

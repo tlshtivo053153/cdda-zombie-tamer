@@ -87,6 +87,18 @@ mgSkeleton = MonsterGroup idSkeleton $ toFriendMonster
   , (,) monSkeletonMaster 1
   ]
 
+allMonsterGroup :: [MonsterGroup]
+allMonsterGroup =
+  [ mgNormal
+  , mgFat
+  , mgMedical
+  , mgBoomer
+  , mgRust
+  , mgLabsecurity
+  , mgElectric
+  , mgSkeleton
+  ]
+
 upgradeRandomTypeToId :: UpgradeRandomType -> Maybe Id
 upgradeRandomTypeToId urt = case urt of
                                 URNormal      -> Just idNormal
@@ -98,4 +110,3 @@ upgradeRandomTypeToId urt = case urt of
                                 URElectric    -> Just idElectric
                                 URSkeleton    -> Just idSkeleton
                                 URNone        -> Nothing
-
