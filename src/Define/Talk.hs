@@ -125,28 +125,30 @@ data Condition = ConditionAnd [Condition]
                | ConditionNone
 
 instance ToJSON Condition where
-  toJSON c = object [ "condition" .= toJSONCondition c ]
+  toJSON c = case toJSONCondition c of
+               Just c' -> c'
+               Nothing -> toJSON (Nothing :: Maybe Text)
 
-toJSONCondition :: Condition -> Value
-toJSONCondition (ConditionAnd cs)          = object [ "and" .= map toJSONCondition cs ]
-toJSONCondition (ConditionOr cs)           = object [ "or" .= map toJSONCondition cs ]
-toJSONCondition (ConditionNot c)           = object [ "not" .= toJSONCondition c ]
-toJSONCondition (UHasItems itemId n)       = object [ "u_has_items" .= object
+toJSONCondition :: Condition -> Maybe Value
+toJSONCondition (ConditionAnd cs)          = Just $ object [ "and" .= map toJSONCondition cs ]
+toJSONCondition (ConditionOr cs)           = Just $ object [ "or" .= map toJSONCondition cs ]
+toJSONCondition (ConditionNot c)           = Just $ object [ "not" .= toJSONCondition c ]
+toJSONCondition (UHasItems itemId n)       = Just $ object [ "u_has_items" .= object
                                                       [ "item" .= itemId
                                                       , "count" .= n
                                                       ]
                                                     ]
-toJSONCondition ConditionNone              = object [ "type" .= ("NONE" :: Text) ]
+toJSONCondition ConditionNone              = Nothing
 toJSONCondition (ConditionCompareVar cvar) =
   let toCompareVarObject comp (Var v t c) op n =
-          object [ comp .= v
+          Just $ object [ comp .= v
                  , "type" .= t
                  , "context" .= c
                  , "op" .= op
                  , "value" .= n
                  ]
       toCompareTimeObject comp (Var v t c) op time =
-          object [ comp .= v
+          Just $ object [ comp .= v
                  , "type" .= t
                  , "context" .= c
                  , "op" .= op
@@ -170,7 +172,8 @@ data Effect = EffectArithmetic Arithmetic
 
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
-  toJSON (NpcCastSpell spellId b  ) = object [ "npc_cast_spell" .= spellId
+  toJSON (NpcCastSpell spellId b  ) = object [ "npc_cast_spell" .=
+                                                  object [ "id" .= spellId ]
                                              , "hit_self" .= b
                                              ]
   toJSON (UConsumeItem itemId n   ) = object [ "u_consume_item" .= itemId

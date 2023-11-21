@@ -238,11 +238,12 @@ talkUpgradeRandom = do
             UCFalse -> Nothing
             UCHaveItem i n -> Just $ UHasItems i n
       t = fmap (\x -> makeTrial x upgradeTresponse notUpgradeTresponse) c
+  let randomUpgradeResponse = maybeToList $ makeResponse <$> ucText <*> t <*> Just ConditionNone
+  backResponse <- simpleResponse "戻る" =<< talkMain
   makeTalk (Id "UPGRADE_RANDOM")
             Nothing
             (DynamicLineText "ランダム進化メニュー")
-            $ maybeToList
-            $ makeResponse <$> ucText <*> t <*> Just ConditionNone
+            $ randomUpgradeResponse ++ [backResponse]
 
 talkUpgradeStandardMonster :: UpgradeStandard -> Reader TalkConfig Talk
 talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
@@ -311,10 +312,11 @@ talkLevelUp = do
                               ) t
                               $ ConditionCompareVar
                                 $ NpcCompareVar varCurrentExp opGTEQ y
+  let backResponse = simpleResponse "戻る" =<< talkMain
   makeTalk (Id "LEVEL_UP")
             Nothing
             (DynamicLineText $ "レベルアップメニュー(現在レベル" <> T.pack (show l) <> ")")
-            =<< sequence chooseLevelResponse
+            =<< sequence (chooseLevelResponse ++ [backResponse])
 
 --talkSpecialAction = undefined
 

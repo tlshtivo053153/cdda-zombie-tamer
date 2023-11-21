@@ -49,9 +49,8 @@ simpleResponse rtext rtalk = do
 
 makeTResponse :: [Effect] -> Talk -> Reader TalkConfig TResponse
 makeTResponse es t = do
-  monId <- view monsterId
   let talkId = t ^. id
-  return $ TResponse (mergeId monId talkId) es
+  return $ TResponse talkId es
 
 makeTrial :: Condition -> TResponse -> TResponse -> Trial
 makeTrial = Trial

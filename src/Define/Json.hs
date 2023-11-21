@@ -152,7 +152,7 @@ instance ToJSON TrialResponse where
 newtype TalkEffects = TalkEffects [CT.Effect]
 
 instance ToJSON TalkEffects where
-  toJSON (TalkEffects es) = object [ "effect" .= toJSON es ]
+  toJSON (TalkEffects es) = toJSON es
 
 data Spell = Spell
   { _spellId :: C.Id

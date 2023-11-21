@@ -41,9 +41,10 @@ convMonsters m = map f statuss
     f (l, monStatus) =
       let monMelee = monStatus ^. melee
           monArmor = monStatus ^. armor
+          monId = monFriend (m ^. base) l
        in J.Monster
           { J._monsterCopyFrom       = m ^. base
-          , J._monsterId             = monFriend (m ^. base) l
+          , J._monsterId             = monId
           , J._monsterCddaType       = "MONSTER"
           , J._monsterHp             = Just $ monStatus ^. hp
           , J._monsterSpeed          = Just $ monStatus ^. speed
@@ -63,7 +64,7 @@ convMonsters m = map f statuss
           , J._monsterArmorPure      = Just $ monArmor ^. pure
           , J._monsterRegenerates    = Just $ monStatus ^. regenerates
           , J._monsterPetfood        = Just $ convPetfood $ m ^. petfood
-          , J._monsterChatTopics     = Just $ return $ mergeId (m ^. base) (Id "MAIN")
+          , J._monsterChatTopics     = Just $ return $ mergeId monId (Id "MAIN")
           }
 
 convDamage :: Damage -> J.Damage
@@ -97,10 +98,16 @@ convResponse r = J.Response
   , J._responseCondition = case r ^. condition of
                              ConditionNone -> Nothing
                              _ -> Just $ r ^. condition
-  , J._responseTrial     = J.Trial
-    { J._trialCddaType  = "CONDITION"
-    , J._trialCondition = Just cond
-    }
+  , J._responseTrial     =
+      case cond of
+        ConditionNone -> J.Trial
+          { J._trialCddaType  = "NONE"
+          , J._trialCondition = Nothing
+          }
+        _ -> J.Trial
+          { J._trialCddaType  = "CONDITION"
+          , J._trialCondition = Just cond
+          }
   , J._responseSuccess   = convTrialResponse rs
   , J._responseFailure   = case cond of
                              ConditionNone -> Nothing
