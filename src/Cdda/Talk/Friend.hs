@@ -338,9 +338,11 @@ talkLevelUp = do
 talkShowStatus :: Reader TalkConfig Talk
 talkShowStatus = do
   s <- view status
+  level' <- view level
   let showLens t l = t <> show (s^.l)
       statusText = T.pack $ unlines
-                    [ showLens "HP: "hp
+                    [ "レベル: " <> show level'
+                    , showLens "HP: "hp
                        <> showLens " 速度: " speed
                        <> showLens " 回避: " dodge
                     , showLens "耐打: " (armor.bash)
