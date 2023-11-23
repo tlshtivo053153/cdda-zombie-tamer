@@ -198,7 +198,10 @@ talkUpgradeRandomMonster = do
                  UCTrue -> Nothing
                  UCFalse -> Nothing
                  UCHaveItem itemId n -> Just $ UConsumeItem itemId n
-  t <- fmap simpleTrial <$> makeTResponse
+  let cond = case uc of
+               UCHaveItem itemId n -> UHasItems itemId n
+               _ -> ConditionNone
+  t <- fmap simpleTrial $ makeTResponse
                               (catMaybes
                                 [ flip NpcCastSpell False <$> idSpellUpgradeRandom urt
                                 , consume
@@ -211,7 +214,7 @@ talkUpgradeRandomMonster = do
   makeTalk (Id "UPGRADE_RANDOM_MONSTER")
             Nothing
             (DynamicLineText "(口を開けている)")
-            [ makeResponse "口の中に餌を入れる" t ConditionNone
+            [ makeResponse "口の中に餌を入れる" t cond
             , backResponse
             ]
 
@@ -263,11 +266,14 @@ talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
                        ) =<< talkUpgradeDone
 -- tr2 <- makeTResponse [] =<< talkNotUpgrade
 --  let t = makeTrial ConditionNone tr1 tr2
+  let cond = case uc of
+               UCHaveItem itemId n -> UHasItems itemId n
+               _ -> ConditionNone
   makeTalk (Id $ "UPGRADE_STANDARD_MONSTER_" <> T.toUpper monId)
             Nothing
             (DynamicLineText "(口を開けている)")
             =<< sequence
-              [ return $ makeResponse "口の中に餌を入れる" t ConditionNone
+              [ return $ makeResponse "口の中に餌を入れる" t cond
               , simpleResponse "戻る" =<< talkUpgradeStandard
               ]
 upgradeStandardToResponse :: UpgradeStandard -> Reader TalkConfig Response
