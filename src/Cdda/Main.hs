@@ -98,7 +98,8 @@ makeCddaMod = J.CddaMod
         g m = map (J.convSpell . S.spellLevelUp (m ^. base)) [2.. m ^. growth.maxLevel]
      in map (\m -> (f m, g m)) allMonsterFriend
   , J._cddaModSpellUpgradeRandom =
-    let spell = mapMaybe (fmap J.convSpell . S.spellUpgradeRandom) allUpgradeRandomType
+    let spell = mapMaybe (fmap convSpell' . S.spellUpgradeRandom) allUpgradeRandomType
+        convSpell' s = let s' = J.convSpell s in s' { J._spellFlags = "POLYMORPH_GROUP" : J._spellFlags s' }
      in [(FP.getSpellUpgradeRandom, spell)]
   , J._cddaModSpellUpgradeStandard =
     let spell = map (J.convSpell . S.spellUpgradeStandard) allUpgradeStandardList
