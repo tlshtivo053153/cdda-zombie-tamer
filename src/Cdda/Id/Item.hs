@@ -6,7 +6,7 @@ import Define.Core
 idTaintedMeat :: Id
 idTaintedMarrow :: Id
 
-idTaintedMeat = Id "tainted_meat"
+idTaintedMeat = Id "meat_tainted"
 idTaintedMarrow = Id "tainted_marrow"
 
 idTaintedMeatPremium :: Id
