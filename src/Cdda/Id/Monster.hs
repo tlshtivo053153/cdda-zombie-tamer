@@ -279,7 +279,6 @@ allFriendMonster =
   , monZombie
   , monZombieCop
   , monZombieCrawler
-  , monZombieDancer
   , monZombieFat
   , monZombieTough
   , monZombieResortDancer
