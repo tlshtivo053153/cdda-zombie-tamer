@@ -98,29 +98,32 @@ zombieUpgradeList :: [UpgradeStandard]
 zombieUpgradeList = map (\(x,y) -> UpgradeStandard y x)
   [ (,) monGasZombie $ UCHaveItem idGasoline 60000
   , (,) monZombieKevlar1 $ UCHaveItem idSheetKevlar 500
-  , (,) monSkeleton $ UCHaveItem idMealBone 200
-  , (,) monZombieAcidic $ UCHaveItem idChemSulphuricAcid 2
   , (,) monZombieRust $ UCHaveItem idScrap 1000
   , (,) monZombieThorny $ UCHaveItem idVeggy 100
   , (,) monZombieStatic $ UCHaveItem idBurntOutBionic 1
+  ]
+
+zombieNormalUpgradeList :: [UpgradeStandard]
+zombieNormalUpgradeList = map (\(x,y) -> UpgradeStandard y x)
+  [ (,) monSkeleton $ UCHaveItem idMealBone 200
+  , (,) monZombieAcidic $ UCHaveItem idChemSulphuricAcid 2
   ]
 
 zombieUpgradeMap :: M.Map Id [UpgradeStandard]
-zombieUpgradeMap = M.fromList $ map (,zombieUpgradeList) zombieList
+zombieUpgradeMap = M.fromList $ map (,zombies) zombieList
+  where
+    zombies = zombieUpgradeList ++ zombieNormalUpgradeList
 
 zombieMedicUpgradeList :: [UpgradeStandard]
 zombieMedicUpgradeList = map (\(x,y) -> UpgradeStandard y x)
-  [ (,) monGasZombie $ UCHaveItem idGasoline 60000
-  , (,) monZombieKevlar1 $ UCHaveItem idSheetKevlar 500
-  , (,) monSkeletonMedical $ UCHaveItem idMealBone 200
+  [ (,) monSkeletonMedical $ UCHaveItem idMealBone 200
   , (,) monZombieMedicalAcidic $ UCHaveItem idChemSulphuricAcid 1
-  , (,) monZombieRust $ UCHaveItem idScrap 1000
-  , (,) monZombieThorny $ UCHaveItem idVeggy 100
-  , (,) monZombieStatic $ UCHaveItem idBurntOutBionic 1
   ]
 
 zombieMedicUpgradeMap :: M.Map Id [UpgradeStandard]
-zombieMedicUpgradeMap = M.singleton monZombieMedical zombieMedicUpgradeList
+zombieMedicUpgradeMap = M.singleton monZombieMedical zombies
+  where
+    zombies = zombieUpgradeList ++ zombieMedicUpgradeList
 
 standardUpgradeConfig :: M.Map Id UpgradeCondition
 standardUpgradeConfig = M.fromList
@@ -209,5 +212,6 @@ getUpgradeStandard monId =
 allUpgradeStandardList :: [UpgradeStandard]
 allUpgradeStandardList =
   zombieUpgradeList
+  ++ zombieNormalUpgradeList
   ++ zombieMedicUpgradeList
   ++ standardUpgradeList

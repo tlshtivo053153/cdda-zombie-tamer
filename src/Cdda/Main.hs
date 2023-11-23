@@ -6,6 +6,7 @@ import qualified System.FilePath as F
 import qualified System.Directory as D
 
 import Data.Maybe
+import qualified Data.Containers.ListUtils as L
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.ByteString.Lazy as BL
@@ -101,7 +102,8 @@ makeCddaMod = J.CddaMod
      in [(FP.getSpellUpgradeRandom, spell)]
   , J._cddaModSpellUpgradeStandard =
     let spell = map (J.convSpell . S.spellUpgradeStandard) allUpgradeStandardList
-     in [(FP.getSpellUpgradeStandard, spell)]
+        spellNub = L.nubOrdOn J._spellId spell
+     in [(FP.getSpellUpgradeStandard, spellNub)]
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
   }
 
@@ -115,6 +117,8 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. talkFriend)
   ++ map f (m ^. spellToFriend)
   ++ map f (m ^. spellLevelUp)
+  ++ map f (m ^. spellUpgradeRandom)
+  ++ map f (m ^. spellUpgradeStandard)
   ++ map f (m ^. upgradeRandom)
     where
       f (path, objs) = (path, encode objs)

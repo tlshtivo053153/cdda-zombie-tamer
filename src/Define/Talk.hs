@@ -228,6 +228,7 @@ data Talk = Talk
 
 data TalkConfig = TalkConfig
   { _talkConfigMonsterId :: Id
+  , _talkConfigMonsterBase :: Id
   , _talkConfigUpgradeRandom :: UpgradeRandom
   , _talkConfigUpgradeStandard :: [UpgradeStandard]
   , _talkConfigPetfood :: PetFood

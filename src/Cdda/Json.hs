@@ -135,12 +135,12 @@ convSpell s = J.Spell
   , J._spellCddaType     = "SPELL"
   , J._spellName         = Name $ s ^. name
   , J._spellDescription  = Description $ s ^. description
-  , J._spellValidTargets = []
-  , J._spellEffect       = "noise"
+  , J._spellValidTargets = [ "ally" ]
+  , J._spellEffect       = "targeted_polymorph"
   , J._spellMinDamage    = 100000000
   , J._spellMaxDamage    = 100000000
   , J._spellMinRange     = 1
-  , J._spellFlags        = [ "NO_EXPLOSION_SFX" ]
+  , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX" ]
   , J._spellShape        = "blast"
   , J._spellEffectStr    = s ^. effectStr
   }

@@ -11,6 +11,8 @@ import Define.MakeFields
 import Cdda.Talk.Utils
 import Cdda.Talk.Config
 
+import qualified Cdda.Monster as M
+import qualified Cdda.Item as I
 import Cdda.Id.Item
 import Cdda.Id.Spell
 import Cdda.Monster.Exp
@@ -63,7 +65,7 @@ toNpcValVar (Var n t c) = NpcValVar $ t <> "_" <> c <> "_" <> n
 
 showVal :: Val -> String
 showVal (UValVar val) = "<u_val:" <> T.unpack val <> ">"
-showVal _ = ""
+showVal (NpcValVar val) = "<npc_val:" <> T.unpack val <> ">"
 
 nextLevelIndex :: Reader TalkConfig Int
 nextLevelIndex = view level
@@ -277,8 +279,15 @@ upgradeStandardToResponse us = do
 --      trTrue = makeTResponse []
 --      t = makeTrial cond undefined undefined
   t <- fmap simpleTrial $ makeTResponse  [] =<< talkUpgradeStandardMonster us
-  return $ makeResponse "" t ConditionNone
-
+  -- todo: text to "[必要アイテム n個] Xに進化"
+  return $ makeResponse (usToText us) t ConditionNone
+    where
+      usToText (UpgradeStandard uc monId) =
+        case uc of
+          UCTrue -> fromMaybe "" (M.idToName monId)
+          UCFalse -> "no upgrade"
+          UCHaveItem itemId n -> "[" <> fromMaybe "" (I.idToName itemId) <> " " <> T.pack (show n) <> "] "
+                                      <> fromMaybe "" (M.idToName monId)
 talkUpgradeStandard :: Reader TalkConfig Talk
 talkUpgradeStandard = do
   uss <- map upgradeStandardToResponse <$> view upgradeStandard
@@ -300,7 +309,7 @@ talkLevelUp :: Reader TalkConfig Talk
 talkLevelUp = do
   l <- view level
   exps <- view needExp
-  monId <- view monsterId
+  monId <- view monsterBase
   let levelList = mapMaybe (\x -> (x,) <$> exps V.!? (l + x - 1)) [1,2,4,8,16,32,64,99]
   let chooseLevelResponse = flip map levelList $ \(x, y) -> do
         let nextLevel = l + x

@@ -211,7 +211,7 @@ allFriendMonster =
   , monZombieStatic
   , monBoomer
   , monBoomerHuge
-  , monZombieGasbag
+  , monGasZombie
   , monBoomerGlutton
   , monZombieRust
   , monZombieShell
