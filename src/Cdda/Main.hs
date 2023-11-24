@@ -10,8 +10,10 @@ import qualified Data.Containers.ListUtils as L
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.Map as M
 
 import Control.Lens
+import Control.Applicative ( (<|>) )
 import Data.Aeson
 import Define.Core
 import qualified Define.Json as J
@@ -20,6 +22,7 @@ import Define.Spell
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
+import Cdda.Id.Harvest
 
 import qualified Cdda.FilePath as FP
 import Cdda.Item
@@ -32,6 +35,7 @@ import Cdda.Talk.Utils
 import qualified Cdda.Spell as S
 import Cdda.MonsterGroup
 import Cdda.Harvest
+import Cdda.Monster.Strength
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -74,6 +78,10 @@ makeCddaMod = J.CddaMod
             , J._monsterRegenerates    = Nothing
             , J._monsterPetfood        = Nothing
             , J._monsterChatTopics = Just $ return $ mergeId (m ^. base) (Id "MAIN")
+            , J._monsterHarvest        =
+                let z = idHarvestZombie <$> M.lookup (m^.base) allZombieMap
+                    s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
+                 in z <|> s
             }
        in [(FP.getMonsterVanilla, map f allMonsterFriend)]
   , J._cddaModMonsterFriend  =

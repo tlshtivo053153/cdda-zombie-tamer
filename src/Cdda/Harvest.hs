@@ -16,9 +16,9 @@ harvestZombie strength@(Strength s) = Harvest (idHarvestZombie strength)
   , EntryRatio idTaintedMarrow Bone 0.005
   , EntryRatio idTaintedBone Bone 0.1
   , EntryBase idTaintedMeatPremium Flesh (1, 3) (0, 0.12*s')
-  , EntryBase idTaintedMeatHighPremium Flesh (1, 3) (0, 0.0012*s')
-  , EntryBase idTaintedMarrowPremium Bone (1, 3) (0, 003*s')
-  , EntryBase idTaintedMarrowHighPremium Bone (1, 3) (0, 00003*s')
+  , EntryBase idTaintedMeatHighPremium Flesh (1, 3) (0, 0.00012*s')
+  , EntryBase idTaintedMarrowPremium Bone (1, 3) (0, 0.003*s')
+  , EntryBase idTaintedMarrowHighPremium Bone (1, 3) (0, 0.000003*s')
   ]
     where
       s' = 1.12^s + 1*fromIntegral s

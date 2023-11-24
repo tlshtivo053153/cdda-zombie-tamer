@@ -82,6 +82,7 @@ data Monster = Monster
   , _monsterRegenerates    :: Maybe Int
   , _monsterPetfood        :: Maybe Petfood
   , _monsterChatTopics     :: Maybe [C.Id]
+  , _monsterHarvest        :: Maybe C.Id
   }
   deriving Generic
 

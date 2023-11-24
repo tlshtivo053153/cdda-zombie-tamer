@@ -2,13 +2,17 @@
 module Cdda.Json where
 
 import Prelude hiding (id, pure)
+import Control.Applicative ( (<|>) )
 import Control.Lens
 import Define.MakeFields
+import qualified Data.Map as M
 
 import Cdda.Monster.Status
 import Cdda.Id.Friend
+import Cdda.Id.Harvest
 import Cdda.Talk.Friend
 import Cdda.Talk.Utils
+import Cdda.Monster.Strength
 
 import qualified Define.Json as J
 
@@ -19,6 +23,7 @@ import Define.Talk
 import Define.Spell
 import Define.MonsterGroup
 import Define.Harvest
+
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -66,6 +71,10 @@ convMonsters m = map f statuss
           , J._monsterRegenerates    = Just $ monStatus ^. regenerates
           , J._monsterPetfood        = Just $ convPetfood $ m ^. petfood
           , J._monsterChatTopics     = Just $ return $ mergeId monId (Id "MAIN")
+          , J._monsterHarvest        =
+              let z = idHarvestZombie <$> M.lookup (m^.base) allZombieMap
+                  s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
+               in z <|> s
           }
 
 convDamage :: Damage -> J.Damage

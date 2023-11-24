@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cdda.Id.Harvest where
 
+import qualified Data.Map as M
 import qualified Data.Text as T
 import Define.Core
 import Define.Monster

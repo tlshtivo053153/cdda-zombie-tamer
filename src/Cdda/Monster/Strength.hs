@@ -1,6 +1,9 @@
+{-# LANGUAGE TupleSections #-}
 module Cdda.Monster.Strength
   ( allZombieStrength
+  , allZombieMap
   , allSkeletonStrength
+  , allSkeletonMap
   , getStrength
   ) where
 
@@ -10,6 +13,7 @@ import Define.Monster
 import Data.Bifunctor
 import qualified Data.Containers.ListUtils as L
 import Cdda.Id.Monster
+import Cdda.Id.Harvest
 
 import qualified Data.Map as M
 import qualified Data.Maybe as Maybe
@@ -328,6 +332,11 @@ allZombieStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allZombi
   where
     runStrength (Strength s) = s
 
+allZombieMap :: M.Map Id Strength
+allZombieMap = M.fromList $ Maybe.mapMaybe f allZombieList
+  where
+    f i = (i,) <$> M.lookup i strengthMonster
+
 allSkeltonList :: [Id]
 allSkeltonList =
   [ monSkeleton
@@ -343,6 +352,11 @@ allSkeletonStrength :: [Strength]
 allSkeletonStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allSkeltonList
   where
     runStrength (Strength s) = s
+
+allSkeletonMap :: M.Map Id Strength
+allSkeletonMap = M.fromList $ Maybe.mapMaybe f allSkeltonList
+  where
+    f i = (i,) <$> M.lookup i strengthMonster
 
 allStrength :: [Strength]
 allStrength = undefined
