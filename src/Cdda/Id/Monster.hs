@@ -84,7 +84,6 @@ allMonster =
   , monZombieHollow
   , monZombieHulk
   , monZombieHunter
-  , monZombieJackson
   , monZombieMancroc
   , monZombieMaster
   , monZombieNecro
@@ -94,7 +93,6 @@ allMonster =
   , monZombiePredator
   , monZombieScreecher
   , monZombieShady
-  , monShia
   , monZombieShrieker
   , monZombieSkull
   , monZombieSmoker
@@ -159,7 +157,6 @@ allMonster =
   , monZombie
   , monZombieCop
   , monZombieCrawler
-  , monZombieDancer
   , monZombieFat
   , monZombieFireman
   , monZombieHazmat

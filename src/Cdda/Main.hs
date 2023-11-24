@@ -83,7 +83,36 @@ makeCddaMod = J.CddaMod
                     s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
                  in z <|> s
             }
-       in [(FP.getMonsterVanilla, map f allMonsterFriend)]
+          vMon monId = J.Monster
+            { J._monsterCopyFrom = monId
+            , J._monsterId = monId
+            , J._monsterCddaType = "MONSTER"
+            , J._monsterHp             = Nothing
+            , J._monsterSpeed          = Nothing
+            , J._monsterDodge          = Nothing
+            , J._monsterMeleeSkill     = Nothing
+            , J._monsterMeleeDice      = Nothing
+            , J._monsterMeleeDiceSides = Nothing
+            , J._monsterMeleeDamage    = Nothing
+            , J._monsterArmorBash      = Nothing
+            , J._monsterArmorBullet    = Nothing
+            , J._monsterArmorCut       = Nothing
+            , J._monsterArmorStab      = Nothing
+            , J._monsterArmorAcid      = Nothing
+            , J._monsterArmorFire      = Nothing
+            , J._monsterArmorElec      = Nothing
+            , J._monsterArmorCold      = Nothing
+            , J._monsterArmorPure      = Nothing
+            , J._monsterRegenerates    = Nothing
+            , J._monsterPetfood        = Nothing
+            , J._monsterChatTopics = Nothing
+            , J._monsterHarvest        =
+                let z = idHarvestZombie <$> M.lookup monId allZombieMap
+                    s = idHarvestSkeleton <$> M.lookup monId allSkeletonMap
+                 in z <|> s
+            }
+          g monId = maybe (vMon monId) f $ getMonsterFriend monId
+       in [(FP.getMonsterVanilla, map g I.allMonster)]
   , J._cddaModMonsterFriend  =
       let f i = do
             m <- J.convMonsters <$> getMonsterFriend i
