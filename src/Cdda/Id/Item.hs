@@ -5,9 +5,17 @@ import Define.Core
 
 idTaintedMeat :: Id
 idTaintedMarrow :: Id
+idTaintedFat :: Id
+idTaintedBone :: Id
+idTaintedBlood :: Id
+idSinew :: Id
 
 idTaintedMeat = Id "meat_tainted"
 idTaintedMarrow = Id "tainted_marrow"
+idTaintedFat = Id "fat_tainted"
+idTaintedBone = Id "bone_tainted"
+idTaintedBlood = Id "blood_tainted"
+idSinew = Id "sinew"
 
 idTaintedMeatPremium :: Id
 idTaintedMarrowPremium :: Id

@@ -37,3 +37,6 @@ getSpellUpgradeStandard = "spell"</>"upgrade"</>"srandard.json"
 
 getUpgradeRandom :: FilePath
 getUpgradeRandom = "monstergroups"</>"random.json"
+
+getHarvest :: FilePath
+getHarvest = "harvest.json"

@@ -18,6 +18,7 @@ import Define.Monster
 import Define.Talk
 import Define.Spell
 import Define.MonsterGroup
+import Define.Harvest
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -150,4 +151,34 @@ convMonsterGroup (MonsterGroup mgId mons) = J.MonsterGroup
   { J._monstergroupName     = mgId
   , J._monstergroupCddaType = "monstergroup"
   , J._monstergroupMonsters = mons
+  }
+
+convHarvest :: Harvest -> J.Harvest
+convHarvest (Harvest hId entries) = J.Harvest
+  { J._harvestId       = hId
+  , J._harvestCddaType = "harvest"
+  , J._harvestCopyFrom = Nothing
+  , J._harvestEntries  = Just $ map convEntry entries
+  }
+
+convEntry :: Entry -> J.Entry
+convEntry (EntryRatio eId hType massRatio) = J.Entry
+  { J._entryDrop      = eId
+  , J._entryCddaType  = case hType of
+                          Flesh -> "flesh"
+                          Blood -> "blood"
+                          Bone -> "bone"
+  , J._entryMassRatio = Just massRatio
+  , J._entryBaseNum   = Nothing
+  , J._entryScaleNum  = Nothing
+  }
+convEntry (EntryBase eId hType (baseMin, baseMax) (scaleMin, scaleMax)) = J.Entry
+  { J._entryDrop      = eId
+  , J._entryCddaType  = case hType of
+                          Flesh -> "flesh"
+                          Blood -> "blood"
+                          Bone -> "bone"
+  , J._entryMassRatio = Nothing
+  , J._entryBaseNum   = Just [baseMin, baseMax]
+  , J._entryScaleNum  = Just [scaleMin, scaleMax]
   }

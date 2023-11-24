@@ -4,8 +4,7 @@ import Define.Core
 
 data HarvestType = Flesh | Blood | Bone
 
-newtype MassRatio = MassRatio Double
-
-data Entry = Entry Id HarvestType MassRatio
+data Entry = EntryRatio Id HarvestType Double
+           | EntryBase Id HarvestType (Int, Int) (Double, Double)
 
 data Harvest = Harvest Id [Entry]

@@ -1,13 +1,18 @@
 module Cdda.Monster.Strength
-  ( getStrength ) where 
+  ( allZombieStrength
+  , allSkeletonStrength
+  , getStrength
+  ) where
 
 import Define.Core
 import Define.Monster
 
 import Data.Bifunctor
+import qualified Data.Containers.ListUtils as L
 import Cdda.Id.Monster
 
 import qualified Data.Map as M
+import qualified Data.Maybe as Maybe
 
 strengthMonster :: M.Map Id Strength
 strengthMonster = M.fromList $ map (second Strength)
@@ -181,6 +186,166 @@ strengthMonster = M.fromList $ map (second Strength)
   , (,) monZombieHulk 10
   , (,) monShoggoth 30
   ]
+
+allZombieList :: [Id]
+allZombieList =
+  [ monZombie
+  , monZombiePrisoner
+  , monZombieResortDancer
+  , monZombieResortBouncer
+  , monZombieResortStaff
+  , monZombieScientist
+  , monZombieReenactor
+  , monZombieCrawler
+  , monZombieCop
+  , monZombieFat
+  , monZombiePrisonerFat
+  , monZombieRot
+  , monZombieMedical
+  , monZombieWretched
+  , monZombieRust
+  , monZombieLabsecurity
+  , monZombieSwimmerBase
+  , monZombieSwimmer
+  , monZombieTechnician
+  , monZombieMiner
+  , monZombieThorny
+  , monZombieStatic
+  , monZombieAcidic
+  , monZombieSpitter
+  , monZombieDogAcidic
+  , monZombieDogBruteAcidic
+  , monZombieChildScorched
+  , monZombieFiend
+  , monZombieScorched
+  , monZombieAnklebiter
+  , monZombieChild
+  , monZombieCreepy
+  , monZombieShriekling
+  , monZombieSnotgobbler
+  , monZombieSproglodyte
+  , monZombieWaif
+  , monZombieWretch
+  , monZombieBruteShocker
+  , monZombieElectric
+  , monZombieNullfield
+  , monGasZombie
+  , monZombieGasbag
+  , monZombieRelaxGasbag
+  , monZombieTearGasbag
+  , monZombieShell
+  , monZombiePlated
+  , monZombieUrchin
+  , monZombieHammerHands
+  , monDevourerLabSec
+  , monZombieCrushedGiant
+  , monZombieGasbagImmobile
+  , monZombieGasbagCrawler
+  , monZombieGasbagImpaler
+  , monZombieScissorlimbs
+  , monZombieHangingInnards
+  , monZombieGiantHeart
+  , monZombieLivingWall
+  , monZombiePhaseSkulker
+  , monZombiePhaseShrike
+  , monZombullfrog
+  , monZombieBiter
+  , monZombieBrainless
+  , monZombieBrute
+  , monZombieBruteGrappler
+  , monZombieBruteNinja
+  , monZombieEars
+  , monZombieNemesis
+  , monZombieGrabber
+  , monZombieGrappler
+  , monZombieHollow
+  , monZombieHunter
+  , monZombieJackson
+  , monZombieMancroc
+  , monZombieMaster
+  , monZombieNecro
+  , monZombieNecroBoomer
+  , monZombieRunner
+  , monZombieRegenerating
+  , monZombieScreecher
+  , monZombieShady
+  , monZombieShrieker
+  , monZombieSkull
+  , monZombieSmoker
+  , monSmokerBrute
+  , monZombiePrisonerBrute
+  , monZombiePrisonerTough
+  , monZombieSoldier
+  , monZombieSoldierBlackops1
+  , monZombieSoldierBlackops2
+  , monZombieSoldierAcid1
+  , monZombieSoldierAcid2
+  , monZombieKevlar1
+  , monZombieKevlar2
+  , monZombieMilitaryPilot
+  , monZombieMilbasePersonnel
+  , monZombieSailor
+  , monZombieOfficer
+  , monZombieMarine
+  , monZombieMarineUpgrade
+  , monZombieFlamer
+  , monZombieArmored
+  , monZombieBioOp
+  , monZombieBioOp2
+  , monZombieSurvivor
+  , monZombieSurvivorElite
+  , monZombieMedicalBrute
+  , monZombieMedicalRegenerating
+  , monZombieMedicalAcidic
+  , monZombieMedicalPupa
+  , monZombiePupaMedicalDecoy
+  , monZombieCrawlerPupaDecoy
+  , monZombieCrawlerPupa
+  , monZombiePupaDecoy
+  , monZombiePupa
+  , monBrutePupaDecoy
+  , monBrutePupa
+  , monHulkPupaDecoy
+  , monHulkPupa
+  , monZombiePupaDecoyShady
+  , monZombiePupaShady
+  , monBeekeeper
+  , monZombieFireman
+  , monZombieHazmat
+  , monZombieSwat
+  , monZombieTough
+  , monZombieWinged
+  , monZombieBruteWinged
+  , monZombieCorrosive
+  , monZombiePredator
+  , monDevourer
+  , monZombieHulk
+  , monShoggoth
+  ]
+
+allZombieStrength :: [Strength]
+allZombieStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allZombieList
+  where
+    runStrength (Strength s) = s
+
+allSkeltonList :: [Id]
+allSkeltonList =
+  [ monSkeleton
+  , monSkeletonMedical
+  , monSkeletonBrute
+  , monSkeletonElectric
+  , monSkeletonMaster
+  , monSkeletonNecro
+  , monSkeletonHulk
+  ]
+
+allSkeletonStrength :: [Strength]
+allSkeletonStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allSkeltonList
+  where
+    runStrength (Strength s) = s
+
+allStrength :: [Strength]
+allStrength = undefined
 
 getStrength :: Id -> Maybe Strength
 getStrength modId = M.lookup modId strengthMonster
