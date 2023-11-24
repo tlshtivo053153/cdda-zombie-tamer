@@ -28,7 +28,7 @@ import Define.Harvest
 convItem :: Item -> J.Item
 convItem i = J.Item
   { J._itemCopyFrom    = i ^. copyFrom
-  , J._itemCddaType    = "GENERIC"
+  , J._itemCddaType    = "COMESTIBLE"
   , J._itemId          = i ^. id
   , J._itemName        = i ^. name
   , J._itemDescription = i ^. description
