@@ -71,7 +71,7 @@ zombieNormalGrowth = noStatusGrowth
       & armorPenetration .~ Growth 1 0.1
                     ]
   & exp .~ Growth 1.12 0
-  & maxLevel .~ 5
+  & maxLevel .~ 30
 
 zombieBruteGrowth :: StatusGrowth
 zombieBruteGrowth = zombieNormalGrowth
@@ -121,7 +121,7 @@ skeletonGrowth = noStatusGrowth
   & armor.bullet .~ Growth 1 1
   & armor.elec .~ Growth 1 0.5
   & exp .~ Growth 1.18 0
-  & maxLevel .~ 5
+  & maxLevel .~ 30
 
 skeletonBruteGrowth :: StatusGrowth
 skeletonBruteGrowth = skeletonGrowth
@@ -195,7 +195,7 @@ boomerGrowth = noStatusGrowth
       & armorPenetration .~ Growth 1 0.1
                     ]
   & exp .~ Growth 1.12 0
-  & maxLevel .~ 5
+  & maxLevel .~ 30
 
 boomerGluttonGrowth :: StatusGrowth
 boomerGluttonGrowth = boomerGrowth
@@ -252,7 +252,7 @@ shoggothGrowth = noStatusGrowth
   & armor.elec .~ Growth 1.1 0
   & regenerates .~ Growth 1.1 0
   & exp .~ Growth 1.3 0
-  & maxLevel .~ 5
+  & maxLevel .~ 50
 
 zombieNormalMap :: [Id]
 zombieNormalMap =
