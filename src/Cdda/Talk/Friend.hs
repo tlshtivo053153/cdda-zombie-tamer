@@ -158,6 +158,8 @@ talkFeedItem itemId@(Id itemText) = do
         t <- fmap simpleTrial $ makeTResponse [ UConsumeItem itemId x
                                               , NpcAdjustVar varCurrentExp
                                                              $ x * itemExp itemId
+                                              , NpcAdjustVar varTotalExp
+                                                             $ x * itemExp itemId
                                               ] =<< talkItemFed
         return $ makeResponse (T.pack (show x) <> "個") t
                $ UHasItems itemId x
@@ -321,6 +323,7 @@ talkLevelUp = do
         let nextLevel = l + x
         t <- fmap simpleTrial $ makeTResponse
                                   [ NpcCastSpell (idSpellLevelUp monId nextLevel) False
+                                  , NpcAdjustVar varCurrentExp (-y)
                                   ] =<< talkLevelUpDone
         return $ makeResponse ("[レベル+" <> T.pack (show x) <> "] "
                                 <> "レベル" <> T.pack (show nextLevel)
