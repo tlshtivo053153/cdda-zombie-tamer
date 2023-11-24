@@ -262,8 +262,8 @@ getFriendCost monId = do
 
 costToPetfood :: Int -> PetFood
 costToPetfood cost | cost <= 15    = PetFood foodAll
-                   | cost <= 120   = PetFood $ take 1 foodAll
-                   | cost <= 3000  = PetFood $ take 2 foodAll
-                   | cost <= 24000 = PetFood $ take 3 foodAll
+                   | cost <= 120   = PetFood $ drop 1 foodAll
+                   | cost <= 3000  = PetFood $ drop 2 foodAll
+                   | cost <= 24000 = PetFood $ drop 3 foodAll
                    | otherwise     = PetFood []
 
