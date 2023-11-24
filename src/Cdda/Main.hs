@@ -41,9 +41,12 @@ makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
   { J._modinfoCddaType     = "MOD_INFO"
   , J._modinfoId           = Id "zombie_tamer"
-  , J._modinfoName         = "ゾンビテイマー"
+  , J._modinfoName         = "追加 - ゾンビテイマー"
   , J._modinfoAuthors      = [ "tlshtivo053153" ]
-  , J._modinfoDescription  = "ゾンビと友達になることができます。"
+  , J._modinfoDescription  = T.concat
+      [ "ゾンビを解体したときに上級汚染肉、上級汚染骨髄などのアイテムを追加します。"
+      , "そのアイテムを使ってゾンビと友達になることができます。"
+      ]
   , J._modinfoCategory     = "content"
   , J._modinfoDependencies = [ "dda" ]
   , J._modinfoVersion      = "0.0.1"
