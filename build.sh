@@ -5,5 +5,9 @@ if [ -d "mods" ]; then
     rm -r mods
 fi
 
+if [ -e "zombie_tamer.zip" ]; then
+    echo "remove zombie_tamer.zip"
+    rm zombie_tamer.zip
+
 stack run
 zip -r zombie_tamer.zip mods
