@@ -57,8 +57,8 @@ makeCddaMod = J.CddaMod
   { J._cddaModModInfo        = (FP.getModInfo, [makeModInfo])
   , J._cddaModItemFood       = (FP.getItemFood, map J.convItem allPetfood)
   , J._cddaModMonsterVanilla =
-      let f :: Monster -> J.Monster
-          f m = J.Monster
+      let fMon :: Monster -> J.Monster
+          fMon m = J.Monster
             { J._monsterCopyFrom = m ^. base
             , J._monsterId = m ^. base
             , J._monsterCddaType = "MONSTER"
@@ -86,7 +86,8 @@ makeCddaMod = J.CddaMod
                     s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
                  in z <|> s
             }
-          vMon monId = J.Monster
+          nfMon :: Id -> J.Monster
+          nfMon monId = J.Monster
             { J._monsterCopyFrom = monId
             , J._monsterId = monId
             , J._monsterCddaType = "MONSTER"
@@ -114,8 +115,11 @@ makeCddaMod = J.CddaMod
                     s = idHarvestSkeleton <$> M.lookup monId allSkeletonMap
                  in z <|> s
             }
-          g monId = maybe (vMon monId) f $ getMonsterFriend monId
-       in [(FP.getMonsterVanilla, map g I.allMonster)]
+          frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
+          nonFriends = map nfMon I.allNonFriendMonster
+      in [ (FP.getMonsterVanillaFriend, frineds)
+         , (FP.getMonsterVanillaNonFriend, nonFriends)
+         ]
   , J._cddaModMonsterFriend  =
       let f i = do
             m <- J.convMonsters <$> getMonsterFriend i

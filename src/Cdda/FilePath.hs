@@ -11,8 +11,11 @@ getModInfo = "modinfo.json"
 getItemFood :: FilePath
 getItemFood = "items"</>"petfood.json"
 
-getMonsterVanilla :: FilePath
-getMonsterVanilla = "monster"</>"vanilla.json"
+getMonsterVanillaFriend :: FilePath
+getMonsterVanillaFriend = "monster"</>"vanilla"</>"friend.json"
+
+getMonsterVanillaNonFriend :: FilePath
+getMonsterVanillaNonFriend = "monster"</>"vanilla"</>"non_friend.json"
 
 getMonsterFriend :: Id -> FilePath
 getMonsterFriend (Id i) = "monster"</>"friend"</> T.unpack i <> ".json"

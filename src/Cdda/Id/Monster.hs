@@ -2,6 +2,7 @@
 module Cdda.Id.Monster where
 
 import Data.Text (Text)
+import Data.List ( (\\) )
 
 import Define.Core
 
@@ -285,6 +286,9 @@ allFriendMonster =
   , monZombieBruteWinged
   , monShoggoth
   ]
+
+allNonFriendMonster :: [Id]
+allNonFriendMonster = allMonster \\ allFriendMonster
 
 monZombieAcidic :: Id
 monZombieCorrosive :: Id
