@@ -43,3 +43,6 @@ getUpgradeRandom = "monstergroups"</>"random.json"
 
 getHarvest :: FilePath
 getHarvest = "harvest.json"
+
+getItemGroup :: FilePath
+getItemGroup = "item_group.json"

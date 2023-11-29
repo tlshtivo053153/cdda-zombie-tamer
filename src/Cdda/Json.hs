@@ -6,6 +6,7 @@ import Control.Applicative ( (<|>) )
 import Control.Lens
 import Define.MakeFields
 import qualified Data.Map as M
+import Data.Ratio
 
 import Cdda.Monster.Status
 import Cdda.Id.Friend
@@ -23,7 +24,7 @@ import Define.Talk
 import Define.Spell
 import Define.MonsterGroup
 import Define.Harvest
-
+import Define.ItemGroup
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -163,11 +164,11 @@ convMonsterGroup (MonsterGroup mgId mons) = J.MonsterGroup
   }
 
 convHarvest :: Harvest -> J.Harvest
-convHarvest (Harvest hId entries) = J.Harvest
+convHarvest (Harvest hId es) = J.Harvest
   { J._harvestId       = hId
   , J._harvestCddaType = "harvest"
   , J._harvestCopyFrom = Nothing
-  , J._harvestEntries  = Just $ map convEntry entries
+  , J._harvestEntries  = Just $ map convEntry es
   }
 
 convEntry :: Entry -> J.Entry
@@ -190,4 +191,25 @@ convEntry (EntryBase eId hType (baseMin, baseMax) (scaleMin, scaleMax)) = J.Entr
   , J._entryMassRatio = Nothing
   , J._entryBaseNum   = Just [baseMin, baseMax]
   , J._entryScaleNum  = Just [scaleMin, scaleMax]
+  }
+
+convItemGroup :: ItemGroup -> J.ItemGroup
+convItemGroup ig = J.ItemGroup
+  { J._itemgroupCddaType = "item_group"
+  , J._itemgroupId       = ig ^. id
+  , J._itemgroupSubtype  = "distribution"
+  , J._itemgroupEntries  = map convItemEntry es'
+  }
+    where
+      es = ig ^. entries
+      probLcm = map (\e -> e ^. prob & denominator) es
+                & foldl lcm 1
+                & fromIntegral
+      es' :: [(Id, Integer)]
+      es' = map (\e -> (e^.item, numerator $ e^.prob * probLcm)) es
+
+convItemEntry :: (Id, Integer) -> J.ItemEntry
+convItemEntry (eId, eProb) = J.ItemEntry
+  { J._itementryItem = eId
+  , J._itementryProb = fromIntegral eProb
   }

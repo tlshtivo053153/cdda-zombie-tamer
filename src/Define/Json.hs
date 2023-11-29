@@ -28,6 +28,7 @@ data CddaMod = CddaMod
   , _cddaModSpellUpgradeStandard :: [CddaJson Spell]
   , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
   , _cddaModHarvest :: CddaJson Harvest
+  , _cddaModItemGroup :: CddaJson ItemGroup
   }
 
 data ModInfo = ModInfo
@@ -206,4 +207,24 @@ data Entry = Entry
   deriving Generic
 
 instance ToJSON Entry where
+  toJSON = genericToJSON cddaOption
+
+data ItemGroup = ItemGroup
+  { _itemgroupCddaType :: T.Text
+  , _itemgroupId :: C.Id
+  , _itemgroupSubtype :: T.Text
+  , _itemgroupEntries :: [ItemEntry]
+  }
+  deriving Generic
+
+instance ToJSON ItemGroup where
+  toJSON = genericToJSON cddaOption
+
+data ItemEntry = ItemEntry
+  { _itementryItem :: C.Id
+  , _itementryProb :: Int
+  }
+  deriving Generic
+
+instance ToJSON ItemEntry where
   toJSON = genericToJSON cddaOption

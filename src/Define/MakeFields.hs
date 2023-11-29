@@ -12,6 +12,7 @@ import Define.Talk
 import Define.Spell
 --import qualified Define.Json as J
 import Define.Json ( CddaMod )
+import Define.ItemGroup
 
 makeFields ''E.Effect
 
@@ -39,3 +40,5 @@ makeFields ''TalkConfig
 makeFields ''Spell
 
 makeFields ''CddaMod
+makeFields ''ItemGroup
+makeFields ''ItemEntry

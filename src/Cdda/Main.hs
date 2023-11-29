@@ -36,6 +36,7 @@ import qualified Cdda.Spell as S
 import Cdda.MonsterGroup
 import Cdda.Harvest
 import Cdda.Monster.Strength
+import Cdda.ItemGroup
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -152,6 +153,7 @@ makeCddaMod = J.CddaMod
      in [(FP.getSpellUpgradeStandard, spellNub)]
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
   , J._cddaModHarvest = (FP.getHarvest, map J.convHarvest allHarvest)
+  , J._cddaModItemGroup = (FP.getItemGroup, map J.convItemGroup allItemGroup)
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -168,6 +170,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. spellUpgradeStandard)
   ++ map f (m ^. upgradeRandom)
   ++ [ f (m ^. harvest) ]
+  ++ [ f (m ^. itemGroup) ]
     where
       f (path, objs) = (path, encode objs)
 
