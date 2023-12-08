@@ -22,6 +22,7 @@ import Define.Spell
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
+import Cdda.Id.ItemGroup
 import Cdda.Id.Harvest
 
 import qualified Cdda.FilePath as FP
@@ -37,6 +38,7 @@ import Cdda.MonsterGroup
 import Cdda.Harvest
 import Cdda.Monster.Strength
 import Cdda.ItemGroup
+import Cdda.HarvestDropType
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -82,10 +84,11 @@ makeCddaMod = J.CddaMod
             , J._monsterRegenerates    = Nothing
             , J._monsterPetfood        = Just $ J.convPetfood $ m ^. petfood
             , J._monsterChatTopics = Just $ return $ mergeId (m ^. base) (Id "MAIN")
-            , J._monsterHarvest        =
-                let z = idHarvestZombie <$> M.lookup (m^.base) allZombieMap
-                    s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
-                 in z <|> s
+            , J._monsterHarvest        = Nothing
+            , J._monsterDissect        =
+              let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap
+                  skeleton = idHarvestSkeleton <$> M.lookup (m ^. base) allSkeletonMap
+               in zombie <|> skeleton
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -111,10 +114,11 @@ makeCddaMod = J.CddaMod
             , J._monsterRegenerates    = Nothing
             , J._monsterPetfood        = Nothing
             , J._monsterChatTopics = Nothing
-            , J._monsterHarvest        =
-                let z = idHarvestZombie <$> M.lookup monId allZombieMap
-                    s = idHarvestSkeleton <$> M.lookup monId allSkeletonMap
-                 in z <|> s
+            , J._monsterHarvest        = Nothing
+            , J._monsterDissect        =
+              let zombie = idHarvestZombie <$> M.lookup monId allZombieMap
+                  skeleton = idHarvestSkeleton <$> M.lookup monId allSkeletonMap
+               in zombie <|> skeleton
             }
           frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
           nonFriends = map nfMon I.allNonFriendMonster
@@ -154,6 +158,7 @@ makeCddaMod = J.CddaMod
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
   , J._cddaModHarvest = (FP.getHarvest, map J.convHarvest allHarvest)
   , J._cddaModItemGroup = (FP.getItemGroup, map J.convItemGroup allItemGroup)
+  , J._cddaModHarvestDropType = (FP.getHarvestDropType, [J.convHarvestDropType harvestDropTypeTaintedFood])
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -171,6 +176,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. upgradeRandom)
   ++ [ f (m ^. harvest) ]
   ++ [ f (m ^. itemGroup) ]
+  ++ [ f (m ^. harvestDropType) ]
     where
       f (path, objs) = (path, encode objs)
 

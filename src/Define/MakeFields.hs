@@ -13,6 +13,7 @@ import Define.Spell
 --import qualified Define.Json as J
 import Define.Json ( CddaMod )
 import Define.ItemGroup
+import Define.HarvestDropType
 
 makeFields ''E.Effect
 
@@ -42,3 +43,5 @@ makeFields ''Spell
 makeFields ''CddaMod
 makeFields ''ItemGroup
 makeFields ''ItemEntry
+
+makeFields ''HarvestDropType

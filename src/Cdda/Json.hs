@@ -11,9 +11,12 @@ import Data.Ratio
 import Cdda.Monster.Status
 import Cdda.Id.Friend
 import Cdda.Id.Harvest
+import Cdda.Id.HarvestDropType
+import Cdda.Id.ItemGroup
 import Cdda.Talk.Friend
 import Cdda.Talk.Utils
 import Cdda.Monster.Strength
+import Cdda.HarvestDropType
 
 import qualified Define.Json as J
 
@@ -25,6 +28,7 @@ import Define.Spell
 import Define.MonsterGroup
 import Define.Harvest
 import Define.ItemGroup
+import Define.HarvestDropType
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -72,10 +76,11 @@ convMonsters m = map f statuss
           , J._monsterRegenerates    = Just $ monStatus ^. regenerates
           , J._monsterPetfood        = Just $ convPetfood $ m ^. petfood
           , J._monsterChatTopics     = Just $ return $ mergeId monId (Id "MAIN")
-          , J._monsterHarvest        =
-              let z = idHarvestZombie <$> M.lookup (m^.base) allZombieMap
-                  s = idHarvestSkeleton <$> M.lookup (m^.base) allSkeletonMap
-               in z <|> s
+          , J._monsterHarvest        = Nothing
+          , J._monsterDissect        =
+              let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap
+                  skeleton = idHarvestSkeleton <$> M.lookup (m ^. base) allSkeletonMap
+               in zombie <|> skeleton
           }
 
 convDamage :: Damage -> J.Damage
@@ -178,6 +183,8 @@ convEntry (EntryRatio eId hType massRatio) = J.Entry
                           Flesh -> "flesh"
                           Blood -> "blood"
                           Bone -> "bone"
+                          TaintedFood -> case idHarvestDropTypeTaintedFood of
+                                           Id i -> i
   , J._entryMassRatio = Just massRatio
   , J._entryBaseNum   = Nothing
   , J._entryScaleNum  = Nothing
@@ -188,9 +195,23 @@ convEntry (EntryBase eId hType (baseMin, baseMax) (scaleMin, scaleMax)) = J.Entr
                           Flesh -> "flesh"
                           Blood -> "blood"
                           Bone -> "bone"
+                          TaintedFood -> case idHarvestDropTypeTaintedFood of
+                                           Id i -> i
   , J._entryMassRatio = Nothing
   , J._entryBaseNum   = Just [baseMin, baseMax]
   , J._entryScaleNum  = Just [scaleMin, scaleMax]
+  }
+convEntry (EntryDrop eId hType) = J.Entry
+  { J._entryDrop      = eId
+  , J._entryCddaType  = case hType of
+                          Flesh -> "flesh"
+                          Blood -> "blood"
+                          Bone -> "bone"
+                          TaintedFood -> case idHarvestDropTypeTaintedFood of
+                                           Id i -> i
+  , J._entryMassRatio = Nothing
+  , J._entryBaseNum   = Nothing
+  , J._entryScaleNum  = Nothing
   }
 
 convItemGroup :: ItemGroup -> J.ItemGroup
@@ -212,4 +233,11 @@ convItemEntry :: (Id, Integer) -> J.ItemEntry
 convItemEntry (eId, eProb) = J.ItemEntry
   { J._itementryItem = eId
   , J._itementryProb = fromIntegral eProb
+  }
+
+convHarvestDropType :: HarvestDropType -> J.HarvestDropType
+convHarvestDropType hdt = J.HarvestDropType
+  { J._harvestdroptypeCddaType = "harvest_drop_type"
+  , J._harvestdroptypeId       = hdt ^. id
+  , J._harvestdroptypeGroup    = hdt ^. group
   }

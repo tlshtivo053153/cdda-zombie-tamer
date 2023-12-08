@@ -46,3 +46,6 @@ getHarvest = "harvest.json"
 
 getItemGroup :: FilePath
 getItemGroup = "item_group.json"
+
+getHarvestDropType :: FilePath
+getHarvestDropType = "harvest_drop_type.json"
