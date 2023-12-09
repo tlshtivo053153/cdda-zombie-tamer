@@ -13,10 +13,13 @@ import Cdda.Id.Friend
 import Cdda.Id.Harvest
 import Cdda.Id.HarvestDropType
 import Cdda.Id.ItemGroup
+import Cdda.Id.Spell
 import Cdda.Talk.Friend
 import Cdda.Talk.Utils
 import Cdda.Monster.Strength
 import Cdda.HarvestDropType
+import Cdda.Furniture
+import Cdda.TerFurnTransform
 
 import qualified Define.Json as J
 
@@ -29,6 +32,8 @@ import Define.MonsterGroup
 import Define.Harvest
 import Define.ItemGroup
 import Define.HarvestDropType
+import Define.Furniture
+import Define.TerFurnTransform
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -81,6 +86,10 @@ convMonsters m = map f statuss
               let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap
                   skeleton = idHarvestSkeleton <$> M.lookup (m ^. base) allSkeletonMap
                in zombie <|> skeleton
+          , J._monsterDeathFunction =
+              let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
+                  skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
+               in fmap J.DeathFunction $ zombie <|> skeleton
           }
 
 convDamage :: Damage -> J.Damage
@@ -155,12 +164,31 @@ convSpell s = J.Spell
   , J._spellEffect       = "targeted_polymorph"
   , J._spellMinDamage    = 100000000
   , J._spellMaxDamage    = 100000000
-  , J._spellMinRange     = 1
+  , J._spellMinRange     = Just 1
   , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX" ]
   , J._spellShape        = "blast"
   , J._spellEffectStr    = s ^. effectStr
+  , J._spellMinAoe = Nothing
+  , J._spellMaxAoe = Nothing
   }
 
+convSpellDeathFunc :: Spell -> J.Spell
+convSpellDeathFunc s = J.Spell
+  { J._spellId           = s ^. id
+  , J._spellCddaType     = "SPELL"
+  , J._spellName         = Name $ s ^. name
+  , J._spellDescription  = Description $ s ^. description
+  , J._spellValidTargets = [ "ground" ]
+  , J._spellEffect       = "ter_transform"
+  , J._spellMinDamage    = 0
+  , J._spellMaxDamage    = 0
+  , J._spellMinRange     = Nothing
+  , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX", "IGNORE_WALLS" ]
+  , J._spellShape        = "blast"
+  , J._spellEffectStr    = s ^. effectStr
+  , J._spellMinAoe = Just 1
+  , J._spellMaxAoe = Just 1
+  }
 convMonsterGroup :: MonsterGroup -> J.MonsterGroup
 convMonsterGroup (MonsterGroup mgId mons) = J.MonsterGroup
   { J._monstergroupName     = mgId
@@ -240,4 +268,43 @@ convHarvestDropType hdt = J.HarvestDropType
   { J._harvestdroptypeCddaType = "harvest_drop_type"
   , J._harvestdroptypeId       = hdt ^. id
   , J._harvestdroptypeGroup    = hdt ^. group
+  }
+
+convFurniture :: Furniture -> J.Furniture
+convFurniture f = J.Furniture
+  { J._furnitrueCddaType    = "furniture"
+  , J._furnitrueId          = f ^. id
+  , J._furnitrueName        = f ^. name
+  , J._furnitrueDescription = f ^. description
+  , J._furnitrueSymbol      = "s"
+  , J._furnitrueColor       = "dark_gray"
+  , J._furnitrueMoveCostMod = 1
+  , J._furnitrueRequiredStr = 0
+  , J._furnitrueFlags       = [ "TRANSPARENT"
+                              , "PLACE_ITEM"
+                              , "NOCOLLIDE"
+                              ]
+  , J._furnitrueBash        = J.FurnitureBash
+    { J._furniturebashStrMin    = 0
+    , J._furniturebashStrMax    = 0
+    , J._furniturebashSoundVol  = 1
+    , J._furniturebashSound     = "ビチャ"
+    , J._furniturebashSoundFail = "ボヨン"
+    , J._furniturebashItems     =
+      let i = J.FurnitureItem $ f ^. itemGroup
+       in [i]
+    }
+  }
+
+convTerFurnTransform :: TerFurnTransform -> J.TerFurnTransform
+convTerFurnTransform t = J.TerFurnTransform
+  { J._terfurntransformCddaType  = "ter_furn_transform"
+  , J._terfurntransformId        = t ^. id
+  , J._terfurntransformFurniture = map convTransFurniture $ t ^. furniture
+  }
+
+convTransFurniture :: TransFurniture -> J.TransFurniture
+convTransFurniture t = J.TransFurniture
+  { J._transfurnitureResult         = t ^. result
+  , J._transfurnitureValidFurniture = [t ^. validFurniture]
   }

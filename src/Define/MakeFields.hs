@@ -14,6 +14,8 @@ import Define.Spell
 import Define.Json ( CddaMod )
 import Define.ItemGroup
 import Define.HarvestDropType
+import Define.TerFurnTransform
+import Define.Furniture
 
 makeFields ''E.Effect
 
@@ -45,3 +47,8 @@ makeFields ''ItemGroup
 makeFields ''ItemEntry
 
 makeFields ''HarvestDropType
+
+makeFields ''TerFurnTransform
+makeFields ''TransFurniture
+
+makeFields ''Furniture

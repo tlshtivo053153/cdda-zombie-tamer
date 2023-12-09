@@ -38,6 +38,9 @@ getSpellUpgradeRandom = "spell"</>"upgrade"</>"random.json"
 getSpellUpgradeStandard :: FilePath
 getSpellUpgradeStandard = "spell"</>"upgrade"</>"srandard.json"
 
+getSpellDeathFunc :: FilePath
+getSpellDeathFunc = "spell"</>"death_function.json"
+
 getUpgradeRandom :: FilePath
 getUpgradeRandom = "monstergroups"</>"random.json"
 
@@ -49,3 +52,9 @@ getItemGroup = "item_group.json"
 
 getHarvestDropType :: FilePath
 getHarvestDropType = "harvest_drop_type.json"
+
+getFurniture :: FilePath
+getFurniture = "furniture.json"
+
+getTerFurnTransform :: FilePath
+getTerFurnTransform = "ter_furn_transform.json"

@@ -24,6 +24,7 @@ import Define.MakeFields
 import qualified Cdda.Id.Monster as I
 import Cdda.Id.ItemGroup
 import Cdda.Id.Harvest
+import Cdda.Id.Spell
 
 import qualified Cdda.FilePath as FP
 import Cdda.Item
@@ -39,6 +40,8 @@ import Cdda.Harvest
 import Cdda.Monster.Strength
 import Cdda.ItemGroup
 import Cdda.HarvestDropType
+import Cdda.Furniture
+import Cdda.TerFurnTransform
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -89,6 +92,10 @@ makeCddaMod = J.CddaMod
               let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap
                   skeleton = idHarvestSkeleton <$> M.lookup (m ^. base) allSkeletonMap
                in zombie <|> skeleton
+            , J._monsterDeathFunction =
+              let zombie = idSpellPlaceMeatSlime <$> M.lookup (m ^. base) allZombieMap
+                  skeleton = idSpellPlaceMarrowSlime <$> M.lookup (m ^. base) allSkeletonMap
+               in fmap J.DeathFunction $ zombie <|> skeleton
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -119,6 +126,10 @@ makeCddaMod = J.CddaMod
               let zombie = idHarvestZombie <$> M.lookup monId allZombieMap
                   skeleton = idHarvestSkeleton <$> M.lookup monId allSkeletonMap
                in zombie <|> skeleton
+            , J._monsterDeathFunction =
+              let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
+                  skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
+               in fmap J.DeathFunction $ zombie <|> skeleton
             }
           frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
           nonFriends = map nfMon I.allNonFriendMonster
@@ -155,10 +166,16 @@ makeCddaMod = J.CddaMod
     let spell = map (J.convSpell . S.spellUpgradeStandard) allUpgradeStandardList
         spellNub = L.nubOrdOn J._spellId spell
      in [(FP.getSpellUpgradeStandard, spellNub)]
+  , J._cddaModSpellDeathFunc =
+    let z = map S.spellPlaceMeatSlime allZombieStrength
+        s = map S.spellPlaceMarrowSlime allSkeletonStrength
+     in (FP.getSpellDeathFunc, map J.convSpellDeathFunc $ z ++ s)
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
   , J._cddaModHarvest = (FP.getHarvest, map J.convHarvest allHarvest)
   , J._cddaModItemGroup = (FP.getItemGroup, map J.convItemGroup allItemGroup)
   , J._cddaModHarvestDropType = (FP.getHarvestDropType, [J.convHarvestDropType harvestDropTypeTaintedFood])
+  , J._cddaModFurniture = (FP.getFurniture, map J.convFurniture allFurniture)
+  , J._cddaModTerFurnTransform = (FP.getTerFurnTransform, map J.convTerFurnTransform allTerFurnTransform)
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -173,10 +190,13 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. spellLevelUp)
   ++ map f (m ^. spellUpgradeRandom)
   ++ map f (m ^. spellUpgradeStandard)
+  ++ [ f (m ^. spellDeathFunc) ]
   ++ map f (m ^. upgradeRandom)
   ++ [ f (m ^. harvest) ]
   ++ [ f (m ^. itemGroup) ]
   ++ [ f (m ^. harvestDropType) ]
+  ++ [ f (m ^. furniture) ]
+  ++ [ f (m ^. terFurnTransform) ]
     where
       f (path, objs) = (path, encode objs)
 

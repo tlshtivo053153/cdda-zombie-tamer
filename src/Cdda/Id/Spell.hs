@@ -4,6 +4,8 @@ module Cdda.Id.Spell
   , idSpellLevelUp
   , idSpellUpgradeRandom
   , idSpellUpgradeStandard
+  , idSpellPlaceMeatSlime
+  , idSpellPlaceMarrowSlime
   ) where
 
 import Define.Core
@@ -32,3 +34,8 @@ idSpellUpgradeStandard :: UpgradeStandard -> Id
 idSpellUpgradeStandard (UpgradeStandard _ (Id usidText)) =
   Id $ "spell_standard_upgrade_" <> usidText
 
+idSpellPlaceMeatSlime :: Strength -> Id
+idSpellPlaceMeatSlime (Strength n) = Id $ "spell_place_meat_slime_" <> T.pack (show n)
+
+idSpellPlaceMarrowSlime :: Strength -> Id
+idSpellPlaceMarrowSlime (Strength n) = Id $ "spell_place_marrow_slime_" <> T.pack (show n)

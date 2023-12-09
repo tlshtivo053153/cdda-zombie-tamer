@@ -26,10 +26,13 @@ data CddaMod = CddaMod
   , _cddaModSpellLevelUp :: [CddaJson Spell]
   , _cddaModSpellUpgradeRandom :: [CddaJson Spell]
   , _cddaModSpellUpgradeStandard :: [CddaJson Spell]
+  , _cddaModSpellDeathFunc :: CddaJson Spell
   , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
   , _cddaModHarvest :: CddaJson Harvest
   , _cddaModItemGroup :: CddaJson ItemGroup
   , _cddaModHarvestDropType :: CddaJson HarvestDropType
+  , _cddaModFurniture :: CddaJson Furniture
+  , _cddaModTerFurnTransform :: CddaJson TerFurnTransform
   }
 
 data ModInfo = ModInfo
@@ -86,6 +89,7 @@ data Monster = Monster
   , _monsterChatTopics     :: Maybe [C.Id]
   , _monsterHarvest        :: Maybe C.Id
   , _monsterDissect        :: Maybe C.Id
+  , _monsterDeathFunction  :: Maybe DeathFunction
   }
   deriving Generic
 
@@ -111,6 +115,15 @@ data Damage = Damage
 
 instance ToJSON Damage where
   toJSON = genericToJSON cddaOption
+
+newtype DeathFunction = DeathFunction
+  { _deathfunctionEffect :: C.Id }
+
+instance ToJSON DeathFunction where
+  toJSON (DeathFunction e) = object [ "effect" .= object [ "id" .= e
+                                                         , "hit_self" .= True
+                                                         ]
+                                    ]
 
 data Talk = Talk
   { _talkId :: C.Id
@@ -168,10 +181,12 @@ data Spell = Spell
   , _spellEffect :: T.Text
   , _spellMinDamage :: Int
   , _spellMaxDamage :: Int
-  , _spellMinRange :: Int
+  , _spellMinRange :: Maybe Int
   , _spellFlags :: [T.Text]
   , _spellShape :: T.Text
   , _spellEffectStr :: C.Id
+  , _spellMinAoe :: Maybe Int
+  , _spellMaxAoe :: Maybe Int
   }
   deriving Generic
 
@@ -239,4 +254,60 @@ data HarvestDropType = HarvestDropType
   deriving Generic
 
 instance ToJSON HarvestDropType where
+  toJSON = genericToJSON cddaOption
+
+data Furniture = Furniture
+  { _furnitrueCddaType :: T.Text
+  , _furnitrueId :: C.Id
+  , _furnitrueName :: T.Text
+  , _furnitrueDescription :: T.Text
+  , _furnitrueSymbol :: T.Text
+  , _furnitrueColor :: T.Text
+  , _furnitrueMoveCostMod :: Int
+  , _furnitrueRequiredStr :: Int
+  , _furnitrueFlags :: [T.Text]
+  , _furnitrueBash :: FurnitureBash
+  }
+  deriving Generic
+
+instance ToJSON Furniture where
+  toJSON = genericToJSON cddaOption
+
+data FurnitureBash = FurnitureBash
+  { _furniturebashStrMin :: Int
+  , _furniturebashStrMax :: Int
+  , _furniturebashSoundVol :: Int
+  , _furniturebashSound :: T.Text
+  , _furniturebashSoundFail :: T.Text
+  , _furniturebashItems :: [FurnitureItem]
+  }
+  deriving Generic
+
+instance ToJSON FurnitureBash where
+  toJSON = genericToJSON cddaOption
+
+newtype FurnitureItem = FurnitureItem
+  { _furnitrueitemGroup :: C.Id }
+  deriving Generic
+
+instance ToJSON FurnitureItem where
+  toJSON = genericToJSON cddaOption
+
+data TerFurnTransform = TerFurnTransform
+  { _terfurntransformCddaType :: T.Text
+  , _terfurntransformId :: C.Id
+  , _terfurntransformFurniture :: [TransFurniture]
+  }
+  deriving Generic
+
+instance ToJSON TerFurnTransform where
+  toJSON = genericToJSON cddaOption
+
+data TransFurniture = TransFurniture
+  { _transfurnitureResult :: [(C.Id, Int)]
+  , _transfurnitureValidFurniture :: [C.Id]
+  }
+  deriving Generic
+
+instance ToJSON TransFurniture where
   toJSON = genericToJSON cddaOption
