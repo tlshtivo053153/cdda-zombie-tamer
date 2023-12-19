@@ -10,3 +10,10 @@ data Spell = Spell
   , _spellDescription :: Text
   , _spellEffectStr :: Id
   }
+
+data SpellDeathFunctionOverride = SpellDeathFunctionOverride
+  { _spellDeathFunctionOverrideId :: Id
+  , _spellDeathFunctionOverrideName :: Text
+  , _spellDeathFunctionOverrideDescription :: Text
+  , _spellDeathFunctionOverrideEffects :: [Id]
+  }

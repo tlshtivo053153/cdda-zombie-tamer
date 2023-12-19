@@ -41,6 +41,9 @@ getSpellUpgradeStandard = "spell"</>"upgrade"</>"srandard.json"
 getSpellDeathFunc :: FilePath
 getSpellDeathFunc = "spell"</>"death_function.json"
 
+getSpellDeathFuncOverride :: FilePath
+getSpellDeathFuncOverride = "spell"</>"death_function_override.json"
+
 getUpgradeRandom :: FilePath
 getUpgradeRandom = "monstergroups"</>"random.json"
 

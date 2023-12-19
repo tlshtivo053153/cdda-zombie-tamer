@@ -1,6 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TupleSections #-}
 module Cdda.Main where
 
+import Prelude hiding (id)
 import System.FilePath ((</>))
 import qualified System.FilePath as F
 import qualified System.Directory as D
@@ -19,6 +20,7 @@ import Define.Core
 import qualified Define.Json as J
 import Define.Monster
 import Define.Spell
+import Define.DeathFunction
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
@@ -34,7 +36,8 @@ import Cdda.Monster.Upgrade
 import Cdda.Talk.Vanilla
 import Cdda.Talk.Friend
 import Cdda.Talk.Utils
-import qualified Cdda.Spell as S
+import qualified Cdda.Spell.Polymorph as S
+import qualified Cdda.Spell.DeathFunction as S
 import Cdda.MonsterGroup
 import Cdda.Harvest
 import Cdda.Monster.Strength
@@ -42,6 +45,7 @@ import Cdda.ItemGroup
 import Cdda.HarvestDropType
 import Cdda.Furniture
 import Cdda.TerFurnTransform
+import Cdda.DeathFunction
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -95,7 +99,17 @@ makeCddaMod = J.CddaMod
             , J._monsterDeathFunction =
               let zombie = idSpellPlaceMeatSlime <$> M.lookup (m ^. base) allZombieMap
                   skeleton = idSpellPlaceMarrowSlime <$> M.lookup (m ^. base) allSkeletonMap
-               in fmap J.DeathFunction $ zombie <|> skeleton
+                  df = M.lookup (m ^. base) allDeathFunctionMap
+                  df' = case df of
+                          Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction (m ^. base)
+                          Nothing -> DeathFunction
+                            { _deathFunctionId         = zombie <|> skeleton
+                            , _deathFunctionHitSelf    = Just True
+                            , _deathFunctionMinLevel   = Nothing
+                            , _deathFunctionCorpseType = Nothing
+                            , _deathFunctionMessage    = Nothing
+                            }
+               in Just $ J.convDeathFunction df'
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -129,7 +143,17 @@ makeCddaMod = J.CddaMod
             , J._monsterDeathFunction =
               let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
                   skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
-               in fmap J.DeathFunction $ zombie <|> skeleton
+                  df = M.lookup monId allDeathFunctionMap
+                  df' = case df of
+                          Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction monId
+                          Nothing -> DeathFunction
+                            { _deathFunctionId         = zombie <|> skeleton
+                            , _deathFunctionHitSelf    = Just True
+                            , _deathFunctionMinLevel   = Nothing
+                            , _deathFunctionCorpseType = Nothing
+                            , _deathFunctionMessage    = Nothing
+                            }
+               in Just $ J.convDeathFunction df'
             }
           frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
           nonFriends = map nfMon I.allNonFriendMonster
@@ -170,6 +194,16 @@ makeCddaMod = J.CddaMod
     let z = map S.spellPlaceMeatSlime allZombieStrength
         s = map S.spellPlaceMarrowSlime allSkeletonStrength
      in (FP.getSpellDeathFunc, map J.convSpellDeathFunc $ z ++ s)
+  , J._cddaModSpellDeathFuncOverride =
+    let dfs = mapMaybe f I.allMonster
+        f monId = do
+          df <- M.lookup monId allDeathFunctionMap
+          dfId <- df ^. id
+          let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
+              skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
+          exId <- zombie <|> skeleton
+          return $ S.spellDeathOverride monId dfId exId
+     in (FP.getSpellDeathFuncOverride, map J.convSpellDeathFunctionOverride dfs)
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
   , J._cddaModHarvest = (FP.getHarvest, map J.convHarvest allHarvest)
   , J._cddaModItemGroup = (FP.getItemGroup, map J.convItemGroup allItemGroup)
@@ -191,6 +225,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. spellUpgradeRandom)
   ++ map f (m ^. spellUpgradeStandard)
   ++ [ f (m ^. spellDeathFunc) ]
+  ++ [ f (m ^. spellDeathFuncOverride) ]
   ++ map f (m ^. upgradeRandom)
   ++ [ f (m ^. harvest) ]
   ++ [ f (m ^. itemGroup) ]

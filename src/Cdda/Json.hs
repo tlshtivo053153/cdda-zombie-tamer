@@ -20,6 +20,7 @@ import Cdda.Monster.Strength
 import Cdda.HarvestDropType
 import Cdda.Furniture
 import Cdda.TerFurnTransform
+import Cdda.DeathFunction
 
 import qualified Define.Json as J
 
@@ -34,6 +35,7 @@ import Define.ItemGroup
 import Define.HarvestDropType
 import Define.Furniture
 import Define.TerFurnTransform
+import Define.DeathFunction
 
 convItem :: Item -> J.Item
 convItem i = J.Item
@@ -89,8 +91,32 @@ convMonsters m = map f statuss
           , J._monsterDeathFunction =
               let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
                   skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
-               in fmap J.DeathFunction $ zombie <|> skeleton
+                  df = M.lookup (m ^. base) allDeathFunctionMap
+                  df' = case df of
+                          Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction (m ^. base)
+                          Nothing -> DeathFunction
+                            { _deathFunctionId         = zombie <|> skeleton
+                            , _deathFunctionHitSelf    = Just True
+                            , _deathFunctionMinLevel   = Nothing
+                            , _deathFunctionCorpseType = Nothing
+                            , _deathFunctionMessage    = Nothing
+                            }
+               in Just $ convDeathFunction df'
           }
+
+convDeathFunction :: DeathFunction -> J.DeathFunction
+convDeathFunction df = J.DeathFunction
+  { J._deathfunctionEffect     =
+      case df ^. id of
+       Just _ -> Just J.DeathFunctionEffect
+                    { J._deathfunctioneffectId       = df ^. id
+                    , J._deathfunctioneffectHitSelf  = df ^. hitSelf
+                    , J._deathfunctioneffectMinLevel = df ^. minLevel
+                    }
+       Nothing -> Nothing
+  , J._deathfunctionMessage    = df ^. message
+  , J._deathfunctionCorpseType = df ^. corpseType
+  }
 
 convDamage :: Damage -> J.Damage
 convDamage d = J.Damage
@@ -161,15 +187,16 @@ convSpell s = J.Spell
   , J._spellName         = Name $ s ^. name
   , J._spellDescription  = Description $ s ^. description
   , J._spellValidTargets = [ "ally" ]
-  , J._spellEffect       = "targeted_polymorph"
+  , J._spellEffect       = Just "targeted_polymorph"
   , J._spellMinDamage    = 100000000
   , J._spellMaxDamage    = 100000000
   , J._spellMinRange     = Just 1
   , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX" ]
   , J._spellShape        = "blast"
-  , J._spellEffectStr    = s ^. effectStr
+  , J._spellEffectStr    = Just $ s ^. effectStr
   , J._spellMinAoe = Nothing
   , J._spellMaxAoe = Nothing
+  , J._spellExtraEffects = Nothing
   }
 
 convSpellDeathFunc :: Spell -> J.Spell
@@ -179,16 +206,37 @@ convSpellDeathFunc s = J.Spell
   , J._spellName         = Name $ s ^. name
   , J._spellDescription  = Description $ s ^. description
   , J._spellValidTargets = [ "ground" ]
-  , J._spellEffect       = "ter_transform"
+  , J._spellEffect       = Just "ter_transform"
   , J._spellMinDamage    = 0
   , J._spellMaxDamage    = 0
   , J._spellMinRange     = Nothing
   , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX", "IGNORE_WALLS" ]
   , J._spellShape        = "blast"
-  , J._spellEffectStr    = s ^. effectStr
+  , J._spellEffectStr    = Just $ s ^. effectStr
   , J._spellMinAoe = Just 1
   , J._spellMaxAoe = Just 1
+  , J._spellExtraEffects = Nothing
   }
+
+convSpellDeathFunctionOverride :: SpellDeathFunctionOverride -> J.Spell
+convSpellDeathFunctionOverride s = J.Spell
+  { J._spellId           = s ^. id
+  , J._spellCddaType     = "SPELL"
+  , J._spellName         = Name $ s ^. name
+  , J._spellDescription  = Description $ s ^. description
+  , J._spellValidTargets = [ "ground", "ally" ]
+  , J._spellEffect       = Just "noise"
+  , J._spellMinDamage    = 0
+  , J._spellMaxDamage    = 0
+  , J._spellMinRange     = Nothing
+  , J._spellFlags        = [ "NO_FAIL", "SILENT", "NO_EXPLOSION_SFX" ]
+  , J._spellShape        = "blast"
+  , J._spellEffectStr    = Nothing
+  , J._spellMinAoe = Nothing
+  , J._spellMaxAoe = Nothing
+  , J._spellExtraEffects = Just $ map (\(Id i) -> J.SpellExtraEffect i) $ s ^. effects
+  }
+
 convMonsterGroup :: MonsterGroup -> J.MonsterGroup
 convMonsterGroup (MonsterGroup mgId mons) = J.MonsterGroup
   { J._monstergroupName     = mgId
@@ -272,19 +320,19 @@ convHarvestDropType hdt = J.HarvestDropType
 
 convFurniture :: Furniture -> J.Furniture
 convFurniture f = J.Furniture
-  { J._furnitrueCddaType    = "furniture"
-  , J._furnitrueId          = f ^. id
-  , J._furnitrueName        = f ^. name
-  , J._furnitrueDescription = f ^. description
-  , J._furnitrueSymbol      = "s"
-  , J._furnitrueColor       = "dark_gray"
-  , J._furnitrueMoveCostMod = 1
-  , J._furnitrueRequiredStr = 0
-  , J._furnitrueFlags       = [ "TRANSPARENT"
+  { J._furnitureCddaType    = "furniture"
+  , J._furnitureId          = f ^. id
+  , J._furnitureName        = f ^. name
+  , J._furnitureDescription = f ^. description
+  , J._furnitureSymbol      = "s"
+  , J._furnitureColor       = "dark_gray"
+  , J._furnitureMoveCostMod = 1
+  , J._furnitureRequiredStr = 0
+  , J._furnitureFlags       = [ "TRANSPARENT"
                               , "PLACE_ITEM"
                               , "NOCOLLIDE"
                               ]
-  , J._furnitrueBash        = J.FurnitureBash
+  , J._furnitureBash        = J.FurnitureBash
     { J._furniturebashStrMin    = 0
     , J._furniturebashStrMax    = 0
     , J._furniturebashSoundVol  = 1
@@ -294,6 +342,7 @@ convFurniture f = J.Furniture
       let i = J.FurnitureItem $ f ^. itemGroup
        in [i]
     }
+  , J._furnitureLooksLike = Just "f_alien_pod_organ"
   }
 
 convTerFurnTransform :: TerFurnTransform -> J.TerFurnTransform

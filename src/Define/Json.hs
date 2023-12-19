@@ -27,6 +27,7 @@ data CddaMod = CddaMod
   , _cddaModSpellUpgradeRandom :: [CddaJson Spell]
   , _cddaModSpellUpgradeStandard :: [CddaJson Spell]
   , _cddaModSpellDeathFunc :: CddaJson Spell
+  , _cddaModSpellDeathFuncOverride :: CddaJson Spell
   , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
   , _cddaModHarvest :: CddaJson Harvest
   , _cddaModItemGroup :: CddaJson ItemGroup
@@ -116,14 +117,25 @@ data Damage = Damage
 instance ToJSON Damage where
   toJSON = genericToJSON cddaOption
 
-newtype DeathFunction = DeathFunction
-  { _deathfunctionEffect :: C.Id }
+data DeathFunction = DeathFunction
+  { _deathfunctionEffect :: Maybe DeathFunctionEffect
+  , _deathfunctionMessage :: Maybe T.Text
+  , _deathfunctionCorpseType :: Maybe T.Text
+  }
+  deriving Generic
 
 instance ToJSON DeathFunction where
-  toJSON (DeathFunction e) = object [ "effect" .= object [ "id" .= e
-                                                         , "hit_self" .= True
-                                                         ]
-                                    ]
+  toJSON = genericToJSON cddaOption
+
+data DeathFunctionEffect = DeathFunctionEffect
+  { _deathfunctioneffectId :: Maybe C.Id
+  , _deathfunctioneffectHitSelf :: Maybe Bool
+  , _deathfunctioneffectMinLevel :: Maybe Int
+  }
+  deriving Generic
+
+instance ToJSON DeathFunctionEffect where
+  toJSON = genericToJSON cddaOption
 
 data Talk = Talk
   { _talkId :: C.Id
@@ -178,20 +190,26 @@ data Spell = Spell
   , _spellName :: C.Name
   , _spellDescription :: C.Description
   , _spellValidTargets :: [T.Text]
-  , _spellEffect :: T.Text
+  , _spellEffect :: Maybe T.Text
   , _spellMinDamage :: Int
   , _spellMaxDamage :: Int
   , _spellMinRange :: Maybe Int
   , _spellFlags :: [T.Text]
   , _spellShape :: T.Text
-  , _spellEffectStr :: C.Id
+  , _spellEffectStr :: Maybe C.Id
   , _spellMinAoe :: Maybe Int
   , _spellMaxAoe :: Maybe Int
+  , _spellExtraEffects :: Maybe [SpellExtraEffect]
   }
   deriving Generic
 
 instance ToJSON Spell where
   toJSON = genericToJSON cddaOption
+
+newtype SpellExtraEffect = SpellExtraEffect T.Text
+
+instance ToJSON SpellExtraEffect where
+  toJSON (SpellExtraEffect e) = object [ "id" .= e, "hit_self" .= True ]
 
 data MonsterGroup = MonsterGroup
   { _monstergroupName :: C.Id
@@ -257,16 +275,17 @@ instance ToJSON HarvestDropType where
   toJSON = genericToJSON cddaOption
 
 data Furniture = Furniture
-  { _furnitrueCddaType :: T.Text
-  , _furnitrueId :: C.Id
-  , _furnitrueName :: T.Text
-  , _furnitrueDescription :: T.Text
-  , _furnitrueSymbol :: T.Text
-  , _furnitrueColor :: T.Text
-  , _furnitrueMoveCostMod :: Int
-  , _furnitrueRequiredStr :: Int
-  , _furnitrueFlags :: [T.Text]
-  , _furnitrueBash :: FurnitureBash
+  { _furnitureCddaType :: T.Text
+  , _furnitureId :: C.Id
+  , _furnitureName :: T.Text
+  , _furnitureDescription :: T.Text
+  , _furnitureSymbol :: T.Text
+  , _furnitureColor :: T.Text
+  , _furnitureMoveCostMod :: Int
+  , _furnitureRequiredStr :: Int
+  , _furnitureFlags :: [T.Text]
+  , _furnitureBash :: FurnitureBash
+  , _furnitureLooksLike :: Maybe T.Text
   }
   deriving Generic
 

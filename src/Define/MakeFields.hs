@@ -16,6 +16,7 @@ import Define.ItemGroup
 import Define.HarvestDropType
 import Define.TerFurnTransform
 import Define.Furniture
+import Define.DeathFunction
 
 makeFields ''E.Effect
 
@@ -41,6 +42,7 @@ makeFields ''Talk
 makeFields ''TalkConfig
 
 makeFields ''Spell
+makeFields ''SpellDeathFunctionOverride
 
 makeFields ''CddaMod
 makeFields ''ItemGroup
@@ -52,3 +54,5 @@ makeFields ''TerFurnTransform
 makeFields ''TransFurniture
 
 makeFields ''Furniture
+
+makeFields ''DeathFunction

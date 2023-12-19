@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Spell
+module Cdda.Spell.Polymorph
   ( spellToFriend
   , spellLevelUp
   , spellUpgradeRandom
