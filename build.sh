@@ -11,4 +11,5 @@ if [ -e "zombie_tamer.zip" ]; then
 fi
 
 stack run
+find ./mods/zombie_tamer -name '*.json' | xargs -I {} ./format_json.sh {}
 zip -r zombie_tamer.zip mods
