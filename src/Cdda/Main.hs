@@ -54,12 +54,13 @@ makeModInfo = J.ModInfo
   , J._modinfoName         = "追加 - ゾンビテイマー"
   , J._modinfoAuthors      = [ "tlshtivo053153" ]
   , J._modinfoDescription  = T.concat
-      [ "ゾンビを解体したときに上級汚染肉、上級汚染骨髄などのアイテムを追加します。"
+      [ "上級汚染肉、上級汚染骨髄などのアイテムを追加します。"
       , "そのアイテムを使ってゾンビと友達になることができます。"
+      , "これらのアイテムは、精密解体などで入手できます。"
       ]
   , J._modinfoCategory     = "content"
   , J._modinfoDependencies = [ "dda" ]
-  , J._modinfoVersion      = "0.0.1"
+  , J._modinfoVersion      = "0.0.2"
   }
 
 makeCddaMod :: J.CddaMod
