@@ -362,7 +362,7 @@ talkShowStatus = do
                   t
                   []
 
-friendTalk :: Monster -> [Talk]
+friendTalk :: Monster -> [(Int, [Talk])]
 friendTalk mon =
   let talkFeedItems = map talkFeedItem
         [ idTaintedMeatPremium
@@ -389,4 +389,5 @@ friendTalk mon =
           , talkShowStatus
           ]
         ]
-   in concatMap (runReader talkList) $ getFriendTalkConfig mon
+  in getFriendTalkConfig mon
+      & map (\tc -> (tc ^. level, runReader talkList tc))

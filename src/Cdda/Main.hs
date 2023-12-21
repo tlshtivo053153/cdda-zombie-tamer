@@ -12,6 +12,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Map as M
+import Data.Bifunctor
 
 import Control.Lens
 import Control.Applicative ( (<|>) )
@@ -21,6 +22,7 @@ import qualified Define.Json as J
 import Define.Monster
 import Define.Spell
 import Define.DeathFunction
+import Define.Talk
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
@@ -170,10 +172,11 @@ makeCddaMod = J.CddaMod
       let vanilla = concatMap (map J.convTalk . vanillaTalk) allMonsterFriend
        in [(FP.getTalkVanilla, vanilla)]
   , J._cddaModTalkFriend     =
-      let f :: Monster -> FilePath
-          f m = FP.getTalkFriend $ m ^. base
-          g m = map J.convTalk $ friendTalk m
-       in map (\m -> (f m, g m)) allMonsterFriend
+      let f m = map (g m) $ friendTalk m
+          g :: Monster -> (Int, [Talk]) -> (FilePath, [J.Talk])
+          g m = bimap (FP.getTalkFriend (m ^. base))
+                      (map J.convTalk)
+       in concatMap f allMonsterFriend
   , J._cddaModSpellToFriend  =
       let spell = map (\m -> J.convSpell $ S.spellToFriend $ m ^. base) allMonsterFriend
        in [(FP.getSpellToFriend, spell)]

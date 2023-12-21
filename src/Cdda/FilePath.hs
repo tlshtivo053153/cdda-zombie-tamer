@@ -23,8 +23,8 @@ getMonsterFriend (Id i) = "monster"</>"friend"</> T.unpack i <> ".json"
 getTalkVanilla :: FilePath
 getTalkVanilla = "talk"</>"vanilla"</>"talk.json"
 
-getTalkFriend :: Id -> FilePath
-getTalkFriend (Id i) = "talk"</>"friend"</> T.unpack i <> ".json"
+getTalkFriend :: Id -> Int -> FilePath
+getTalkFriend (Id i) l = "talk"</>"friend"</> T.unpack i </> show l <> ".json"
 
 getSpellToFriend :: FilePath
 getSpellToFriend = "spell"</>"to_friend"</>"vanilla.json"
