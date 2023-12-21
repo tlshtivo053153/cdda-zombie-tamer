@@ -118,7 +118,6 @@ gradeMeat2Monster = map (second $ Grade GradeMeat2)
   , (,) monZombieSkull 1
   , (,) monZombieSmoker 1
   , (,) monSmokerBrute 1
-  , (,) monZeriatric 1
   , (,) monZombiePrisonerBrute 1
   , (,) monZombiePrisonerTough 1
   , (,) monCharredNightmare 1
@@ -139,7 +138,6 @@ gradeMeat2Monster = map (second $ Grade GradeMeat2)
   , (,) monZombieOfficer 1
   , (,) monZombieMarine 1
   , (,) monZombieMarineUpgrade 1
-  , (,) monZombieFlamer 1
   , (,) monZombieArmored 1
   , (,) monZombieBioOp 1
   , (,) monZombieBioOp2 1

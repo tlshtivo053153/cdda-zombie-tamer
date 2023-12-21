@@ -104,7 +104,6 @@ allMonster =
   , monZombieMiner
   , monZombieThorny
   , monZombieReenactor
-  , monZeriatric
   , monZombiePrisoner
   , monZombiePrisonerBrute
   , monZombiePrisonerFat
@@ -131,7 +130,6 @@ allMonster =
   , monZombieOfficer
   , monZombieMarine
   , monZombieMarineUpgrade
-  , monZombieFlamer
   , monZombieArmored
   , monZombieBioOp
   , monZombieBioOp2
@@ -388,7 +386,6 @@ monZombieTechnician :: Id
 monZombieMiner :: Id
 monZombieThorny :: Id
 monZombieReenactor :: Id
-monZeriatric :: Id
 monZombiePrisoner :: Id
 monZombiePrisonerBrute :: Id
 monZombiePrisonerFat :: Id
@@ -415,7 +412,6 @@ monZombieSailor :: Id
 monZombieOfficer :: Id
 monZombieMarine :: Id
 monZombieMarineUpgrade :: Id
-monZombieFlamer :: Id
 monZombieArmored :: Id
 monZombieBioOp :: Id
 monZombieBioOp2 :: Id
@@ -520,7 +516,6 @@ monZombieTechnician       = Id "mon_zombie_technician"
 monZombieMiner            = Id "mon_zombie_miner"
 monZombieThorny           = Id "mon_zombie_thorny"
 monZombieReenactor        = Id "mon_zombie_reenactor"
-monZeriatric              = Id "mon_zeriatric"
 monZombiePrisoner         = Id "mon_zombie_prisoner"
 monZombiePrisonerBrute    = Id "mon_zombie_prisoner_brute"
 monZombiePrisonerFat      = Id "mon_zombie_prisoner_fat"
@@ -547,7 +542,6 @@ monZombieSailor           = Id "mon_zombie_sailor"
 monZombieOfficer          = Id "mon_zombie_officer"
 monZombieMarine           = Id "mon_zombie_marine"
 monZombieMarineUpgrade    = Id "mon_zombie_marine_upgrade"
-monZombieFlamer           = Id "mon_zombie_flamer"
 monZombieArmored          = Id "mon_zombie_armored"
 monZombieBioOp            = Id "mon_zombie_bio_op"
 monZombieBioOp2           = Id "mon_zombie_bio_op2"

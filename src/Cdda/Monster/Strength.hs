@@ -123,7 +123,6 @@ strengthMonster = M.fromList $ map (second Strength)
   , (,) monZombieSkull 2
   , (,) monZombieSmoker 3
   , (,) monSmokerBrute 7
-  , (,) monZeriatric 1
   , (,) monZombiePrisonerBrute 5
   , (,) monZombiePrisonerTough 2
   , (,) monCharredNightmare 3
@@ -144,7 +143,6 @@ strengthMonster = M.fromList $ map (second Strength)
   , (,) monZombieOfficer 2
   , (,) monZombieMarine 2
   , (,) monZombieMarineUpgrade 5
-  , (,) monZombieFlamer 2
   , (,) monZombieArmored 1
   , (,) monZombieBioOp 2
   , (,) monZombieBioOp2 3
@@ -292,7 +290,6 @@ allZombieList =
   , monZombieOfficer
   , monZombieMarine
   , monZombieMarineUpgrade
-  , monZombieFlamer
   , monZombieArmored
   , monZombieBioOp
   , monZombieBioOp2

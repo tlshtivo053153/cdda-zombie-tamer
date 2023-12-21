@@ -325,7 +325,6 @@ zombieNormalMap =
   , monZombieMiner
   , monZombieThorny
   , monZombieReenactor
-  , monZeriatric
   , monZombiePrisoner
   , monZombiePrisonerFat
   , monZombiePrisonerTough
@@ -347,7 +346,6 @@ zombieNormalMap =
   , monZombieOfficer
   , monZombieMarine
   , monZombieMarineUpgrade
-  , monZombieFlamer
   , monZombieArmored
   , monZombieBioOp
   , monZombieBioOp2

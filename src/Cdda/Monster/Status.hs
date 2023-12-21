@@ -2625,7 +2625,6 @@ monsterStatus = M.fromList
   , (,) monZombieMiner               statusMonZombieMiner
   , (,) monZombieThorny              statusMonZombieThorny
   , (,) monZombieReenactor           statusMonZombieReenactor
-  , (,) monZeriatric                 statusMonZeriatric
   , (,) monZombiePrisoner            statusMonZombiePrisoner
   , (,) monZombiePrisonerBrute       statusMonZombiePrisonerBrute
   , (,) monZombiePrisonerFat         statusMonZombiePrisonerFat
@@ -2652,7 +2651,6 @@ monsterStatus = M.fromList
   , (,) monZombieOfficer             statusMonZombieOfficer
   , (,) monZombieMarine              statusMonZombieMarine
   , (,) monZombieMarineUpgrade       statusMonZombieMarineUpgrade
-  , (,) monZombieFlamer              statusMonZombieFlamer
   , (,) monZombieArmored             statusMonZombieArmored
   , (,) monZombieBioOp               statusMonZombieBioOp
   , (,) monZombieBioOp2              statusMonZombieBioOp2
