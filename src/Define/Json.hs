@@ -76,15 +76,7 @@ data Monster = Monster
   , _monsterMeleeDice      :: Maybe Int
   , _monsterMeleeDiceSides :: Maybe Int
   , _monsterMeleeDamage    :: Maybe [Damage]
-  , _monsterArmorBash      :: Maybe Int
-  , _monsterArmorBullet    :: Maybe Int
-  , _monsterArmorCut       :: Maybe Int
-  , _monsterArmorStab      :: Maybe Int
-  , _monsterArmorAcid      :: Maybe Int
-  , _monsterArmorFire      :: Maybe Int
-  , _monsterArmorElec      :: Maybe Int
-  , _monsterArmorCold      :: Maybe Int
-  , _monsterArmorPure      :: Maybe Int
+  , _monsterArmor      :: Maybe Armor
   , _monsterRegenerates    :: Maybe Int
   , _monsterPetfood        :: Maybe Petfood
   , _monsterChatTopics     :: Maybe [C.Id]
@@ -95,6 +87,22 @@ data Monster = Monster
   deriving Generic
 
 instance ToJSON Monster where
+  toJSON = genericToJSON cddaOption
+
+data Armor = Armor
+  { _armorBash     :: Maybe Int
+  , _armorBullet   :: Maybe Int
+  , _armorCut      :: Maybe Int
+  , _armorStab     :: Maybe Int
+  , _armorAcid     :: Maybe Int
+  , _armorFire     :: Maybe Int
+  , _armorElectric :: Maybe Int
+  , _armorCold     :: Maybe Int
+  , _armorPure     :: Maybe Int
+  }
+  deriving Generic
+
+instance ToJSON Armor where
   toJSON = genericToJSON cddaOption
 
 data Petfood = Petfood
