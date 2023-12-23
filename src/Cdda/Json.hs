@@ -91,19 +91,20 @@ convMonsters m = map f statuss
                   skeleton = idHarvestSkeleton <$> M.lookup (m ^. base) allSkeletonMap
                in zombie <|> skeleton
           , J._monsterDeathFunction =
-              let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
-                  skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
+              let zombie = idSpellPlaceMeatSlime <$> M.lookup (m ^. base) allZombieMap
+                  skeleton = idSpellPlaceMarrowSlime <$> M.lookup (m ^. base) allSkeletonMap
+                  addSpell = zombie <|> skeleton
                   df = M.lookup (m ^. base) allDeathFunctionMap
                   df' = case df of
                           Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction (m ^. base)
                           Nothing -> DeathFunction
-                            { _deathFunctionId         = zombie <|> skeleton
+                            { _deathFunctionId         = addSpell
                             , _deathFunctionHitSelf    = Just True
                             , _deathFunctionMinLevel   = Nothing
                             , _deathFunctionCorpseType = Nothing
                             , _deathFunctionMessage    = Nothing
                             }
-               in Just $ convDeathFunction df'
+               in addSpell *> Just (convDeathFunction df')
           }
 
 convDeathFunction :: DeathFunction -> J.DeathFunction

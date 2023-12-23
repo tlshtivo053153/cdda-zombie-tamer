@@ -205,6 +205,7 @@ allZombieList =
   , monZombieRot
   , monZombieMedical
   , monZombieWretched
+  , monBoomer
   , monZombieRust
   , monZombieLabsecurity
   , monZombieSwimmerBase
@@ -235,6 +236,7 @@ allZombieList =
   , monZombieGasbag
   , monZombieRelaxGasbag
   , monZombieTearGasbag
+  , monBoomerGlutton
   , monZombieShell
   , monZombiePlated
   , monZombieUrchin

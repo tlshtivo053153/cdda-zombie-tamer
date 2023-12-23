@@ -94,6 +94,7 @@ makeCddaMod = J.CddaMod
             , J._monsterDeathFunction =
               let zombie = idSpellPlaceMeatSlime <$> M.lookup (m ^. base) allZombieMap
                   skeleton = idSpellPlaceMarrowSlime <$> M.lookup (m ^. base) allSkeletonMap
+                  addSpell = zombie <|> skeleton
                   df = M.lookup (m ^. base) allDeathFunctionMap
                   df' = case df of
                           Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction (m ^. base)
@@ -104,7 +105,7 @@ makeCddaMod = J.CddaMod
                             , _deathFunctionCorpseType = Nothing
                             , _deathFunctionMessage    = Nothing
                             }
-               in Just $ J.convDeathFunction df'
+               in addSpell *> Just (J.convDeathFunction df')
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -130,6 +131,7 @@ makeCddaMod = J.CddaMod
             , J._monsterDeathFunction =
               let zombie = idSpellPlaceMeatSlime <$> M.lookup monId allZombieMap
                   skeleton = idSpellPlaceMarrowSlime <$> M.lookup monId allSkeletonMap
+                  addSpell = zombie <|> skeleton
                   df = M.lookup monId allDeathFunctionMap
                   df' = case df of
                           Just df_ -> df_ & id ?~ idSpellOverrideDeathFunction monId
@@ -140,7 +142,7 @@ makeCddaMod = J.CddaMod
                             , _deathFunctionCorpseType = Nothing
                             , _deathFunctionMessage    = Nothing
                             }
-               in Just $ J.convDeathFunction df'
+               in addSpell *> Just (J.convDeathFunction df')
             }
           frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
           nonFriends = map nfMon I.allNonFriendMonster
