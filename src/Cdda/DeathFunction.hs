@@ -99,6 +99,19 @@ zombieGasbagList =
   , monZombieCrushedGiant
   ]
 
+deathBoomer :: DeathFunction
+deathBoomer = defDeathFunction
+  & id ?~ idSpellDeathBoomer
+  & hitSelf ?~ True
+  & corpseType ?~ noCorpse
+  & message ?~ "A %s explodes!"
+
+boomerList :: [Id]
+boomerList =
+  [ monBoomer
+  , monBoomerGlutton
+  ]
+
 deathBoomerHuge :: DeathFunction
 deathBoomerHuge = defDeathFunction
   & id ?~ idSpellDeathBoomerHuge
@@ -194,6 +207,7 @@ allDeathFunctionMap = M.fromList $ concatMap toPair
   , (,) zombieHollowList deathZombieHollow
   , (,) necroBoomerList deathNecroBoomer
   , (,) zombieGasbagList deathGasZombie
+  , (,) boomerList deathBoomer
   , (,) boomerHugeList deathBoomerHuge
   , (,) zombieRelaxGasbagList deathZombieRelaxGasbag
   , (,) zombieTearGasbagList deathZombieTearGasbag

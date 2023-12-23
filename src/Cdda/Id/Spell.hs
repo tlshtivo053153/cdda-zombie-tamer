@@ -12,6 +12,7 @@ module Cdda.Id.Spell
   , idSpellDeathZombieHollow
   , idSpellDeathNecroBoomer
   , idSpellDeathZombieGasbag
+  , idSpellDeathBoomer
   , idSpellDeathBoomerHuge
   , idSpellDeathZombieRelaxGasbag
   , idSpellDeathZombieTearGasbag
@@ -71,6 +72,9 @@ idSpellDeathNecroBoomer = Id "necro_boomer_death"
 
 idSpellDeathZombieGasbag :: Id
 idSpellDeathZombieGasbag = Id "death_gas"
+
+idSpellDeathBoomer :: Id
+idSpellDeathBoomer = Id "death_boomer"
 
 idSpellDeathBoomerHuge :: Id
 idSpellDeathBoomerHuge = Id "death_boomer_glow"
