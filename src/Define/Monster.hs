@@ -10,7 +10,7 @@ data Armor = Armor
   , _armorCut    :: Int
   , _armorStab   :: Int
   , _armorAcid   :: Int
-  , _armorFire   :: Int
+  , _armorHeat   :: Int
   , _armorElec   :: Int
   , _armorCold   :: Int
   , _armorPure   :: Int
@@ -47,7 +47,7 @@ data ArmorGrowth = ArmorGrowth
   , _armorGrowthCut :: Growth
   , _armorGrowthStab :: Growth
   , _armorGrowthAcid :: Growth
-  , _armorGrowthFire :: Growth
+  , _armorGrowthHeat :: Growth
   , _armorGrowthElec :: Growth
   , _armorGrowthCold :: Growth
   , _armorGrowthPure :: Growth

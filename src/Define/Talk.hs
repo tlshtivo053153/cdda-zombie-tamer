@@ -173,8 +173,9 @@ data Effect = EffectArithmetic Arithmetic
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
   toJSON (NpcCastSpell spellId b  ) = object [ "npc_cast_spell" .=
-                                                  object [ "id" .= spellId ]
-                                             , "hit_self" .= b
+                                                  object [ "id" .= spellId
+                                                         , "hit_self" .= b
+                                                         ]
                                              ]
   toJSON (UConsumeItem itemId n   ) = object [ "u_consume_item" .= itemId
                                              , "count" .= n

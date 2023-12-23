@@ -33,7 +33,7 @@ emptyStatus = Status
       , _armorCut = 0
       , _armorStab = 0
       , _armorAcid = 0
-      , _armorFire = 0
+      , _armorHeat = 0
       , _armorElec = 0
       , _armorCold = 0
       , _armorPure = 0
@@ -634,7 +634,7 @@ statusMonZombieSmoker = emptyStatus
   & hp .~ 75
   & speed .~ 110
   & dodge .~ 4
-  & armor.fire .~ 5
+  & armor.heat .~ 5
   & armor.elec .~ 1
   & melee.skill .~ 4
   & melee.dice .~ 1
@@ -652,7 +652,7 @@ statusMonSmokerBrute = emptyStatus
   & armor.bullet .~ 10
   & armor.cut .~ 8
   & armor.stab .~ 8
-  & armor.fire .~ 5
+  & armor.heat .~ 5
   & armor.elec .~ 2
   & melee.skill .~ 5
   & melee.dice .~ 3
@@ -981,7 +981,7 @@ statusMonZombieFireman = emptyStatus
   & armor.bullet .~ 5
   & armor.cut .~ 6
   & armor.acid .~ 3
-  & armor.fire .~ 10
+  & armor.heat .~ 10
   & armor.elec .~ 4
   & melee.skill .~ 5
   & melee.dice .~ 3
@@ -1145,7 +1145,7 @@ statusMonDevourerLabSec = statusMonDevourer
   & armor.bullet .~ 40
   & armor.cut .~ 35
   & armor.stab .~ 30
-  & armor.fire .~ 80
+  & armor.heat .~ 80
   & armor.elec .~ 6
   & melee.skill .~ 9
   & melee.dice .~ 9
@@ -1390,7 +1390,7 @@ statusMonZombieArmored = emptyStatus
   & armor.bullet .~ 51
   & armor.cut .~ 64
   & armor.acid .~ 20
-  & armor.fire .~ 20
+  & armor.heat .~ 20
   & armor.elec .~ 10
   & melee.skill .~ 5
   & melee.dice .~ 3
@@ -1529,7 +1529,7 @@ statusMonZombieChildScorched = emptyStatus
   & armor.bullet .~ 4
   & armor.cut .~ 5
   & armor.acid .~ 3
-  & armor.fire .~ 15
+  & armor.heat .~ 15
   & armor.elec .~ 3
   & melee.skill .~ 2
   & melee.dice .~ 1
@@ -1546,7 +1546,7 @@ statusMonZombieFiend = emptyStatus
   & armor.bullet .~ 10
   & armor.cut .~ 12
   & armor.acid .~ 5
-  & armor.fire .~ 15
+  & armor.heat .~ 15
   & armor.elec .~ 3
   & melee.skill .~ 4
   & melee.dice .~ 1
@@ -1563,7 +1563,7 @@ statusMonZombieScorched = emptyStatus
   & armor.bullet .~ 7
   & armor.cut .~ 9
   & armor.acid .~ 3
-  & armor.fire .~ 15
+  & armor.heat .~ 15
   & armor.elec .~ 3
   & melee.skill .~ 2
   & melee.dice .~ 2
@@ -2680,7 +2680,7 @@ statusWithLevel l@_level sg s =
     & gal (armor.cut) (armor.cut)
     & gal (armor.stab) (armor.stab)
     & gal (armor.acid) (armor.acid)
-    & gal (armor.fire) (armor.fire)
+    & gal (armor.heat) (armor.heat)
     & gal (armor.elec) (armor.elec)
     & gal (armor.cold) (armor.cold)
     & gal (armor.pure) (armor.pure)

@@ -95,7 +95,7 @@ data Armor = Armor
   , _armorCut      :: Maybe Int
   , _armorStab     :: Maybe Int
   , _armorAcid     :: Maybe Int
-  , _armorFire     :: Maybe Int
+  , _armorHeat     :: Maybe Int
   , _armorElectric :: Maybe Int
   , _armorCold     :: Maybe Int
   , _armorPure     :: Maybe Int
