@@ -176,6 +176,16 @@ deathSpawnRaptorUnstable = defDeathFunction
 spawnRaptorUnstableList :: [Id]
 spawnRaptorUnstableList = [ monSpawnRaptorUnstable ]
 
+
+deathShoggoth :: DeathFunction
+deathShoggoth = defDeathFunction
+  & hitSelf ?~ True
+  & corpseType ?~ noCorpse
+  & message ?~ "The %s melts away."
+
+shoggothList :: [Id]
+shoggothList = [ monShoggoth ]
+
 allDeathFunctionMap :: M.Map Id DeathFunction
 allDeathFunctionMap = M.fromList $ concatMap toPair
   [ (,) gasZombieList deathGasZombie
@@ -191,6 +201,7 @@ allDeathFunctionMap = M.fromList $ concatMap toPair
   , (,) zombieChildScorchedList deathZombieChildScorched
   , (,) zombieAcidicList deathZombieAcidic
   , (,) spawnRaptorUnstableList deathSpawnRaptorUnstable
+  , (,) shoggothList deathShoggoth
   ]
   where
     toPair (mons, df) = map (,df) mons
