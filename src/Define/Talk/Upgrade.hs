@@ -1,4 +1,7 @@
-module Define.Talk.Upgrade where
+module Define.Talk.Upgrade
+  ( Upgrade(..)
+  , SpecialUpgrade(..)
+  ) where
 
 data Upgrade = Upgrade
 

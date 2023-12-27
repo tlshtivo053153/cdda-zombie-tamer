@@ -1,4 +1,21 @@
-module Define.Monster where
+module Define.Monster
+  ( Armor(..)
+  , Damage(..)
+  , Melee(..)
+  , Status(..)
+  , Growth(..)
+  , ArmorGrowth(..)
+  , DamageGrowth(..)
+  , MeleeGrowth(..)
+  , StatusGrowth(..)
+  , Strength(..)
+  , PetFood(..)
+  , UpgradeRandomType(..)
+  , UpgradeCondition(..)
+  , UpgradeRandom(..)
+  , UpgradeStandard(..)
+  , Monster(..)
+  ) where
 
 import Data.Text
 

@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.Harvest where
+module Cdda.Id.Harvest
+  ( idHarvestZombie
+  , idHarvestSkeleton
+  ) where
 
 import qualified Data.Text as T
 import Define.Core

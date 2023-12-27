@@ -1,4 +1,15 @@
-module Cdda.MonsterGroup where
+module Cdda.MonsterGroup
+  ( mgNormal
+  , mgFat
+  , mgMedical
+  , mgBoomer
+  , mgRust
+  , mgLabsecurity
+  , mgElectric
+  , mgSkeleton
+  , allMonsterGroup
+  , upgradeRandomTypeToId
+  ) where
 
 import Define.Core
 import Define.Monster

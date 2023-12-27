@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.ItemGroup where
+module Cdda.Id.ItemGroup
+  ( idItemGroupZombie
+  , idItemGroupSkeleton
+  ) where
 
 import Define.Core
 

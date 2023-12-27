@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.TerFurnTransform where
+module Cdda.Id.TerFurnTransform
+  ( idTransPlaceMeatSlime
+  , idTransPlaceMarrowSlime
+  ) where
 
 import qualified Data.Text as T
 import Define.Core

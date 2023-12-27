@@ -1,5 +1,19 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
-module Define.Talk where
+module Define.Talk
+  ( Op(..)
+  , Val(..)
+  , Arithmetic(..)
+  , Var(..)
+  , DynamicLine(..)
+  , CompareVar(..)
+  , Condition(..)
+  , Effect(..)
+  , TResponse(..)
+  , Trial(..)
+  , Response(..)
+  , Talk(..)
+  , TalkConfig(..)
+  ) where
 
 import GHC.Generics (Generic)
 

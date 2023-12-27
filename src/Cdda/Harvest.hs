@@ -1,4 +1,8 @@
-module Cdda.Harvest where
+module Cdda.Harvest
+  ( harvestZombie
+  , harvestSkeleton
+  , allHarvest
+  ) where
 
 import Define.Harvest
 import Define.Monster

@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.Monster where
+module Cdda.Id.Monster
+  ( module Cdda.Id.Monster
+  ) where
 
 import Data.List ( (\\) )
 

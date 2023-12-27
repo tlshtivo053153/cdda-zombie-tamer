@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Spell.DeathFunction where
+module Cdda.Spell.DeathFunction
+  ( spellDeathOverride
+  ) where
 
 import Define.Core
 import Define.Spell

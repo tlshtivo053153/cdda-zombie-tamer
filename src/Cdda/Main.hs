@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Main where
+module Cdda.Main
+  ( makeCddaMod
+  , outputCddaMod
+  ) where
 
 import Prelude hiding (id)
 import System.FilePath ((</>))

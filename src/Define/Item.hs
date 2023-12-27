@@ -1,5 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Define.Item where
+module Define.Item
+  ( UseAction(..)
+  , Item(..)
+  ) where
 
 import GHC.Generics (Generic)
 import Data.Text

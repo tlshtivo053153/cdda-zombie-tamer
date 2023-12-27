@@ -1,4 +1,8 @@
-module Define.Harvest where
+module Define.Harvest
+  ( HarvestType(..)
+  , Entry(..)
+  , Harvest(..)
+  ) where
 
 import Define.Core
 

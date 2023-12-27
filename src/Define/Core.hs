@@ -1,5 +1,14 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Define.Core where
+module Define.Core
+  ( Id(..)
+  , Name(..)
+  , Description(..)
+  , FoodCategory(..)
+  , GradeType(..)
+  , Grade(..)
+  , ExpType(..)
+  , Exp(..)
+  ) where
 
 import GHC.Generics (Generic)
 import Data.Text (Text)
@@ -31,4 +40,3 @@ data Grade = Grade GradeType Int
 
 data ExpType = ExpEarly | ExpNormal | ExpLate
 newtype Exp = Exp ExpType
-

@@ -1,4 +1,6 @@
-module Define.EOC where
+module Define.EOC
+  ( EOC(..)
+  ) where
 
 import Define.Core
 import Define.Talk

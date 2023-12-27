@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TupleSections #-}
-module Cdda.DeathFunction where
+module Cdda.DeathFunction
+  ( allDeathFunctionMap
+  ) where
 
 import Define.Core
 import Define.DeathFunction

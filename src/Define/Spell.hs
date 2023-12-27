@@ -1,4 +1,7 @@
-module Define.Spell where
+module Define.Spell
+  ( Spell(..)
+  , SpellDeathFunctionOverride(..)
+  ) where
 
 import Define.Core
 

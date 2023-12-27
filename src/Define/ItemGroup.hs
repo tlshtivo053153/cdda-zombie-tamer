@@ -1,4 +1,7 @@
-module Define.ItemGroup where
+module Define.ItemGroup
+  ( ItemGroup(..)
+  , ItemEntry(..)
+  ) where
 
 import Define.Core
 

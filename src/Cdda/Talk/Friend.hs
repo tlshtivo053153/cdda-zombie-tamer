@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TupleSections #-}
-module Cdda.Talk.Friend where
+module Cdda.Talk.Friend
+  ( friendTalk
+  ) where
 
 import Prelude hiding (id)
 

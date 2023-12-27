@@ -1,4 +1,6 @@
-module Define.DeathFunction where
+module Define.DeathFunction
+  ( DeathFunction(..)
+  ) where
 
 import Define.Core
 

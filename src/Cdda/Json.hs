@@ -1,5 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Json where
+module Cdda.Json
+  ( convItem
+  , convMonsters
+  , convDeathFunction
+  , convPetfood
+  , convTalk
+  , convSpell
+  , convSpellDeathFunc
+  , convSpellDeathFunctionOverride
+  , convMonsterGroup
+  , convHarvest
+  , convEntry
+  , convItemGroup
+  , convHarvestDropType
+  , convFurniture
+  , convTerFurnTransform
+  , convTransFurniture
+  ) where
 
 import Prelude hiding (id, pure)
 import Control.Applicative ( (<|>) )

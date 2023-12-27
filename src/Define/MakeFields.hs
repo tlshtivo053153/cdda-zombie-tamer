@@ -1,5 +1,7 @@
 {-# LANGUAGE TemplateHaskell, FunctionalDependencies, FlexibleInstances #-}
-module Define.MakeFields where
+module Define.MakeFields
+  ( module Define.MakeFields
+  ) where
 
 import Control.Lens
 

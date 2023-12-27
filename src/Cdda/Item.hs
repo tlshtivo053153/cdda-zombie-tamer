@@ -1,5 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Item where
+module Cdda.Item
+  ( foodCategoryTMeat1
+  , foodCategoryTMeat2
+  , foodCategoryTMarrow1
+  , foodCategoryTMarrow2
+  , taintedMeatPremium
+  , taintedMarrowPremium
+  , taintedMeatHighPremium
+  , taintedMarrowHighPremium
+  , allPetfood
+  , idToName
+  ) where
 
 import Define.Core
 import Define.Item

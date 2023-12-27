@@ -1,5 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.Furniture where
+module Cdda.Id.Furniture
+  ( idFurnitureNull
+  , idMeatSlime
+  , idMarrowSlime
+  ) where
 
 import qualified Data.Text as T
 

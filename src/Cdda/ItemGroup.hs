@@ -1,4 +1,8 @@
-module Cdda.ItemGroup where
+module Cdda.ItemGroup
+  ( zombieGroup
+  , skeletonGroup
+  , allItemGroup
+  ) where
 
 import Control.Lens
 

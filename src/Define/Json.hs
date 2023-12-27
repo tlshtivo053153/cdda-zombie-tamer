@@ -1,5 +1,34 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
-module Define.Json where
+module Define.Json
+  ( CddaJson
+  , CddaMod(..)
+  , ModInfo(..)
+  , Item(..)
+  , Monster(..)
+  , Armor(..)
+  , Petfood(..)
+  , Damage(..)
+  , DeathFunction(..)
+  , DeathFunctionEffect(..)
+  , Talk(..)
+  , Response(..)
+  , Trial(..)
+  , TrialResponse(..)
+  , TalkEffects(..)
+  , Spell(..)
+  , SpellExtraEffect(..)
+  , MonsterGroup(..)
+  , Harvest(..)
+  , Entry(..)
+  , ItemGroup(..)
+  , ItemEntry(..)
+  , HarvestDropType(..)
+  , Furniture(..)
+  , FurnitureBash(..)
+  , FurnitureItem(..)
+  , TerFurnTransform(..)
+  , TransFurniture(..)
+  ) where
 
 import GHC.Generics
 
