@@ -1,7 +1,6 @@
 module Cdda.ItemGroup where
 
 import Control.Lens
-import Data.Ratio
 
 import Define.Core
 import Define.ItemGroup

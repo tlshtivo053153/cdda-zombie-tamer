@@ -222,7 +222,6 @@ talkUpgradeRandomMonster = do
 
 talkNotUpgrade :: Reader TalkConfig Talk
 talkNotUpgrade = do
---  t <- fmap simpleTrial $ makeTResponse [] =<< talkUpgradeRandom
   let t = simpleTrial $ TResponse (Id "TALK_NONE") []
   makeTalk (Id "NOT_UPGRADE")
             Nothing
@@ -257,7 +256,6 @@ talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
   let consume = case uc of
               UCHaveItem i n -> Just $ UConsumeItem i n
               _ -> Nothing
---  tr1 <- makeTResponse (catMaybes
   t <- fmap simpleTrial <$> makeTResponse (catMaybes
                           [ Just $ NpcCastSpell (idSpellUpgradeStandard us) False
                           , consume
@@ -266,8 +264,6 @@ talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
                               $ ArithmeticVal (toNpcValVar varTotalExp)
                           ]
                        ) =<< talkUpgradeDone
--- tr2 <- makeTResponse [] =<< talkNotUpgrade
---  let t = makeTrial ConditionNone tr1 tr2
   let cond = case uc of
                UCHaveItem itemId n -> UHasItems itemId n
                _ -> ConditionNone
@@ -280,14 +276,7 @@ talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
               ]
 upgradeStandardToResponse :: UpgradeStandard -> Reader TalkConfig Response
 upgradeStandardToResponse us = do
---  let cond = case uc of
---              UCTrue -> ConditionNone
---              UCFalse -> ConditionNone
---              UCHaveItem itemId n -> UHasItems itemId n
---      trTrue = makeTResponse []
---      t = makeTrial cond undefined undefined
   t <- fmap simpleTrial $ makeTResponse  [] =<< talkUpgradeStandardMonster us
-  -- todo: text to "[必要アイテム n個] Xに進化"
   return $ makeResponse (usToText us) t ConditionNone
     where
       usToText (UpgradeStandard uc monId) =

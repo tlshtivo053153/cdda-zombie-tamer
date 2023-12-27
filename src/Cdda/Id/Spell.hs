@@ -24,7 +24,6 @@ module Cdda.Id.Spell
   ) where
 
 import Define.Core
-import Define.Talk
 import Define.Monster
 
 import Cdda.Id.MonsterGroup

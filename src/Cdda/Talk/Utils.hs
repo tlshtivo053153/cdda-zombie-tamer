@@ -55,14 +55,10 @@ makeTResponse es t = do
 makeTrial :: Condition -> TResponse -> TResponse -> Trial
 makeTrial = Trial
 
---noTrial :: TResponse -> Trial
---noTrial tr = Trial ConditionNone tr emptyTResponse
-
 simpleTrial :: TResponse -> Trial
 simpleTrial tr = Trial ConditionNone tr emptyTResponse
 
 trialTalkDone :: Trial
---trialTalkDone = noTrial $ TResponse (Id "TALK_DONE") []
 trialTalkDone = simpleTrial $ TResponse (Id "TALK_DONE") []
 
 responseDone :: Response

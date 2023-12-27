@@ -7,9 +7,7 @@ import Data.Text (Text)
 import qualified Data.Vector as V
 
 import Data.Aeson
-import Data.Aeson.Casing
 
-import Define.Aeson
 import Define.Core
 import Define.Monster
 

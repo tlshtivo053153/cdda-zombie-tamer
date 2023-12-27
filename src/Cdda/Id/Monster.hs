@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cdda.Id.Monster where
 
-import Data.Text (Text)
 import Data.List ( (\\) )
 
 import Define.Core

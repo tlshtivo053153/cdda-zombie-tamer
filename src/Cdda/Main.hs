@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, TupleSections #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Cdda.Main where
 
 import Prelude hiding (id)
@@ -9,7 +9,6 @@ import qualified System.Directory as D
 import Data.Maybe
 import qualified Data.Containers.ListUtils as L
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Map as M
 import Data.Bifunctor
@@ -20,13 +19,11 @@ import Data.Aeson
 import Define.Core
 import qualified Define.Json as J
 import Define.Monster
-import Define.Spell
 import Define.DeathFunction
 import Define.Talk
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
-import Cdda.Id.ItemGroup
 import Cdda.Id.Harvest
 import Cdda.Id.Spell
 

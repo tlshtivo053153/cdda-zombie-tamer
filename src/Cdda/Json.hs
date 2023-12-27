@@ -12,14 +12,9 @@ import Cdda.Monster.Status
 import Cdda.Id.Friend
 import Cdda.Id.Harvest
 import Cdda.Id.HarvestDropType
-import Cdda.Id.ItemGroup
 import Cdda.Id.Spell
-import Cdda.Talk.Friend
 import Cdda.Talk.Utils
 import Cdda.Monster.Strength
-import Cdda.HarvestDropType
-import Cdda.Furniture
-import Cdda.TerFurnTransform
 import Cdda.DeathFunction
 
 import qualified Define.Json as J

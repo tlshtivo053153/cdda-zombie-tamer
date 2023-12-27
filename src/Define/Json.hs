@@ -6,7 +6,6 @@ import GHC.Generics
 import Define.Aeson
 import qualified Define.Core as C
 import qualified Define.Item as C
-import qualified Define.Monster as C
 import qualified Define.MonsterGroup as C
 import qualified Define.Talk as CT
 

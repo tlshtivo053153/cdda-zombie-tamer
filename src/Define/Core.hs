@@ -4,8 +4,6 @@ module Define.Core where
 import GHC.Generics (Generic)
 import Data.Text (Text)
 
-import Define.Aeson
-
 import Data.Aeson
 
 newtype Id = Id Text

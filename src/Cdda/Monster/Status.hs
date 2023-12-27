@@ -195,7 +195,6 @@ statusMonZombieTechnician :: Status
 statusMonZombieMiner :: Status
 statusMonZombieThorny :: Status
 statusMonZombieReenactor :: Status
-statusMonZeriatric :: Status
 statusMonZombiePrisoner :: Status
 statusMonZombiePrisonerBrute :: Status
 statusMonZombiePrisonerFat :: Status
@@ -222,7 +221,6 @@ statusMonZombieSailor :: Status
 statusMonZombieOfficer :: Status
 statusMonZombieMarine :: Status
 statusMonZombieMarineUpgrade :: Status
-statusMonZombieFlamer :: Status
 statusMonZombieArmored :: Status
 statusMonZombieBioOp :: Status
 statusMonZombieBioOp2 :: Status
@@ -736,19 +734,6 @@ statusMonZombieThorny = emptyStatus
   ]
 
 statusMonZombieReenactor = statusMonZombie
-
-statusMonZeriatric = emptyStatus
-  & hp .~ 50
-  & speed .~ 60
-  & armor.elec .~ 1
-  & melee.skill .~ 2
-  & melee.dice .~ 2
-  & melee.diceSides .~ 3
-  & melee.damage .~ [ emptyDamage
-  & damageType .~ "cut"
-  & amount .~ 0
-  ]
-
 
 statusMonZombieAcidic = emptyStatus
   & hp .~ 65
@@ -1366,22 +1351,6 @@ statusMonZombieMarine = emptyStatus
 statusMonZombieMarineUpgrade = statusMonZombieMarine
   & hp .~ 150
   & melee.diceSides .~ 6
-
-statusMonZombieFlamer = emptyStatus
-  & hp .~ 100
-  & speed .~ 70
-  & dodge .~ 1
-  & armor.bash .~ 12
-  & armor.bullet .~ 20
-  & armor.cut .~ 25
-  & armor.elec .~ 4
-  & melee.skill .~ 5
-  & melee.dice .~ 2
-  & melee.diceSides .~ 6
-  & melee.damage .~ [ emptyDamage
-  & damageType .~ "cut"
-  & amount .~ 0
-  ]
 
 statusMonZombieArmored = emptyStatus
   & hp .~ 120

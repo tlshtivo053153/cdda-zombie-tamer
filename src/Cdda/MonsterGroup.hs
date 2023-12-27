@@ -3,7 +3,6 @@ module Cdda.MonsterGroup where
 import Define.Core
 import Define.Monster
 import Define.MonsterGroup
-import Define.Talk
 
 import Cdda.Id.Monster
 import Cdda.Id.MonsterGroup

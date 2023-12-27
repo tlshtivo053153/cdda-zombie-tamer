@@ -13,7 +13,6 @@ import Define.Monster
 import Data.Bifunctor
 import qualified Data.Containers.ListUtils as L
 import Cdda.Id.Monster
-import Cdda.Id.Harvest
 
 import qualified Data.Map as M
 import qualified Data.Maybe as Maybe
@@ -356,9 +355,6 @@ allSkeletonMap :: M.Map Id Strength
 allSkeletonMap = M.fromList $ Maybe.mapMaybe f allSkeltonList
   where
     f i = (i,) <$> M.lookup i strengthMonster
-
-allStrength :: [Strength]
-allStrength = undefined
 
 getStrength :: Id -> Maybe Strength
 getStrength modId = M.lookup modId strengthMonster
