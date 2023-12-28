@@ -1,9 +1,12 @@
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass  #-}
 module Define.DeathFunction
   ( DeathFunction(..)
   ) where
 
 import Define.Core
 
+import GHC.Generics (Generic)
+import Data.Default
 import qualified Data.Text as T
 
 data DeathFunction = DeathFunction
@@ -13,3 +16,4 @@ data DeathFunction = DeathFunction
   , _deathFunctionCorpseType :: Maybe T.Text
   , _deathFunctionMessage :: Maybe T.Text
   }
+  deriving (Generic, Default)
