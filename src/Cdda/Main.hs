@@ -38,8 +38,7 @@ import Cdda.Monster.Upgrade
 import Cdda.Talk.Vanilla
 import Cdda.Talk.Friend
 import Cdda.Talk.Utils
-import qualified Cdda.Spell.Polymorph as S
-import qualified Cdda.Spell.DeathFunction as S
+import qualified Cdda.Spell as S
 import Cdda.MonsterGroup
 import Cdda.Harvest
 import Cdda.Monster.Strength
@@ -68,7 +67,7 @@ makeModInfo = J.ModInfo
 makeCddaMod :: J.CddaMod
 makeCddaMod = J.CddaMod
   { J._cddaModModInfo        = (FP.getModInfo, [makeModInfo])
-  , J._cddaModItemFood       = (FP.getItemFood, map J.convItem allPetfood)
+  , J._cddaModItemFood       = (FP.getItemFood, map J.convItemPetfood allPetfood)
   , J._cddaModMonsterVanilla =
       let fMon :: Monster -> J.Monster
           fMon m = J.Monster
@@ -164,26 +163,26 @@ makeCddaMod = J.CddaMod
                       (map J.convTalk)
        in concatMap f allMonsterFriend
   , J._cddaModSpellToFriend  =
-      let spell = map (\m -> J.convSpell $ S.spellToFriend $ m ^. base) allMonsterFriend
+      let spell = map (\m -> J.convSpellPolymorph $ S.spellToFriend $ m ^. base) allMonsterFriend
        in [(FP.getSpellToFriend, spell)]
   , J._cddaModSpellLevelUp   =
     let f :: Monster -> FilePath
         f m = FP.getSpellLevelUp $ m ^. base
         g :: Monster -> [J.Spell]
-        g m = map (J.convSpell . S.spellLevelUp (m ^. base)) [2.. m ^. growth.maxLevel]
+        g m = map (J.convSpellPolymorph . S.spellLevelUp (m ^. base)) [2.. m ^. growth.maxLevel]
      in map (\m -> (f m, g m)) allMonsterFriend
   , J._cddaModSpellUpgradeRandom =
     let spell = mapMaybe (fmap convSpell' . S.spellUpgradeRandom) allUpgradeRandomType
-        convSpell' s = let s' = J.convSpell s in s' { J._spellFlags = "POLYMORPH_GROUP" : J._spellFlags s' }
+        convSpell' s = let s' = J.convSpellPolymorph s in s' { J._spellFlags = "POLYMORPH_GROUP" : J._spellFlags s' }
      in [(FP.getSpellUpgradeRandom, spell)]
   , J._cddaModSpellUpgradeStandard =
-    let spell = map (J.convSpell . S.spellUpgradeStandard) allUpgradeStandardList
+    let spell = map (J.convSpellPolymorph . S.spellUpgradeStandard) allUpgradeStandardList
         spellNub = L.nubOrdOn J._spellId spell
      in [(FP.getSpellUpgradeStandard, spellNub)]
   , J._cddaModSpellDeathFunc =
     let z = map S.spellPlaceMeatSlime allZombieStrength
         s = map S.spellPlaceMarrowSlime allSkeletonStrength
-     in (FP.getSpellDeathFunc, map J.convSpellDeathFunc $ z ++ s)
+     in (FP.getSpellDeathFunc, map J.convSpellTerTransform $ z ++ s)
   , J._cddaModSpellDeathFuncOverride =
     let dfs = mapMaybe f I.allMonster
         f monId = do

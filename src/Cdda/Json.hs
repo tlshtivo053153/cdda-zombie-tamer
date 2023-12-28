@@ -5,8 +5,8 @@ module Cdda.Json
   , convDeathFunction
   , convPetfood
   , convTalk
-  , convSpell
-  , convSpellDeathFunc
+  , convSpellPolymorph
+  , convSpellTerTransform
   , convSpellDeathFunctionOverride
   , convMonsterGroup
   , convHarvest
@@ -193,8 +193,8 @@ convTrialResponse tr = J.TrialResponse
 convTalkEffects :: [Effect] -> J.TalkEffects
 convTalkEffects = J.TalkEffects
 
-convSpell :: Spell -> J.Spell
-convSpell s = J.Spell
+convSpellPolymorph :: SpellPolymorph -> J.Spell
+convSpellPolymorph s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
   , J._spellName         = s ^. name
@@ -212,8 +212,8 @@ convSpell s = J.Spell
   , J._spellExtraEffects = Nothing
   }
 
-convSpellDeathFunc :: Spell -> J.Spell
-convSpellDeathFunc s = J.Spell
+convSpellTerTransform :: SpellTerTransform -> J.Spell
+convSpellTerTransform s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
   , J._spellName         = s ^. name

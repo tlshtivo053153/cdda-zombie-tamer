@@ -42,7 +42,8 @@ makeFields ''Response
 makeFields ''Talk
 makeFields ''TalkConfig
 
-makeFields ''Spell
+makeFields ''SpellPolymorph
+makeFields ''SpellTerTransform
 makeFields ''SpellDeathFunctionOverride
 
 makeFields ''CddaMod

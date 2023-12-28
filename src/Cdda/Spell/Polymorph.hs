@@ -4,59 +4,52 @@ module Cdda.Spell.Polymorph
   , spellLevelUp
   , spellUpgradeRandom
   , spellUpgradeStandard
-  , spellPlaceMeatSlime
-  , spellPlaceMarrowSlime
   ) where
 
+import Prelude hiding (id)
 import Define.Core
 import Define.Spell
 import Define.Monster
-
+import Define.MakeFields hiding ( spellToFriend
+                                , spellLevelUp
+                                , spellUpgradeRandom
+                                , spellUpgradeStandard
+                                )
 import Cdda.Id.Spell
 import Cdda.Id.Friend
 import Cdda.Id.MonsterGroup
-import Cdda.Id.TerFurnTransform
 
 import qualified Data.Text as T
+import Data.Default
+import Control.Lens
 
-spellToFriend :: Id -> Spell
-spellToFriend monId@(Id monText) =
-  Spell (idSpellToFriend monId)
-        ("ゾンビ友達化(" <> monText <> ")")
-        (monText <> "を友達ゾンビレベル1に変化")
-        $ monFriend monId 1
+spellToFriend :: Id -> SpellPolymorph
+spellToFriend monId@(Id monText) = def
+  & id          .~ idSpellToFriend monId
+  & name        .~ ("ゾンビ友達化(" <> monText <> ")")
+  & description .~ (monText <> "を友達ゾンビレベル1に変化")
+  & effectStr   .~ monFriend monId 1
 
-spellLevelUp :: Id -> Int -> Spell
-spellLevelUp monId@(Id monText) lv =
-  Spell (idSpellLevelUp monId lv)
-        "レベルアップ"
-        (monText <> "をレベル" <> T.pack (show lv) <> "にする")
-        $ monFriend monId lv
+spellLevelUp :: Id -> Int -> SpellPolymorph
+spellLevelUp monId@(Id monText) lv = def
+  & id          .~ idSpellLevelUp monId lv
+  & name        .~ "レベルアップ"
+  & description .~ (monText <> "をレベル" <> T.pack (show lv) <> "にする")
+  & effectStr   .~ monFriend monId lv
 
-spellUpgradeRandom :: UpgradeRandomType -> Maybe Spell
-spellUpgradeRandom urt =
-  Spell <$> idSpellUpgradeRandom urt
-        <*> Just "ランダム進化"
-        <*> Just "ゾンビをランダムに進化"
-        <*> randomUpgradeToId urt
+spellUpgradeRandom :: UpgradeRandomType -> Maybe SpellPolymorph
+spellUpgradeRandom urt = do
+  idSpell <- idSpellUpgradeRandom urt
+  idEffect <- randomUpgradeToId urt
+  return $ def
+    & id          .~ idSpell
+    & name        .~ "ランダム進化"
+    & description .~ "ゾンビをランダムに進化"
+    & effectStr   .~ idEffect
 
-spellUpgradeStandard :: UpgradeStandard -> Spell
-spellUpgradeStandard us@(UpgradeStandard _ usid@(Id usidText)) =
-  Spell (idSpellUpgradeStandard us)
-        "通常進化"
-        (usidText <> "に変化する")
-        $ monFriend usid 1
-
-spellPlaceMeatSlime :: Strength -> Spell
-spellPlaceMeatSlime s@(Strength n) =
-  Spell (idSpellPlaceMeatSlime s)
-        "肉スライムを配置"
-        ("肉スライム" <> T.pack (show n) <> "を配置")
-        (idTransPlaceMeatSlime s)
-
-spellPlaceMarrowSlime :: Strength -> Spell
-spellPlaceMarrowSlime s@(Strength n) =
-  Spell (idSpellPlaceMarrowSlime s)
-        "骨髄スライムを配置"
-        ("骨髄スライム" <> T.pack (show n) <> "を配置")
-        (idTransPlaceMarrowSlime s)
+spellUpgradeStandard :: UpgradeStandard -> SpellPolymorph
+spellUpgradeStandard us@(UpgradeStandard _ usid@(Id usidText)) = def
+  & id          .~ idSpellUpgradeStandard us
+  & name        .~ "通常進化"
+  & description .~ (usidText <> "に変化する")
+  & effectStr   .~ monFriend usid 1
