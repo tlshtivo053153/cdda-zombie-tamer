@@ -10,7 +10,6 @@ module Cdda.Monster.Strength
 import Define.Core
 import Define.Monster
 
-import Data.Bifunctor
 import qualified Data.Containers.ListUtils as L
 import Cdda.Id.Monster
 
@@ -18,7 +17,7 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Maybe
 
 strengthMonster :: M.Map Id Strength
-strengthMonster = M.fromList $ map (second Strength)
+strengthMonster = M.fromList
   [ (,) monZombie 1
   , (,) monZombiePrisoner 1
   , (,) monZombieResortDancer 1
@@ -326,9 +325,7 @@ allZombieList =
   ]
 
 allZombieStrength :: [Strength]
-allZombieStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allZombieList
-  where
-    runStrength (Strength s) = s
+allZombieStrength = L.nubOrd $ Maybe.mapMaybe getStrength allZombieList
 
 allZombieMap :: M.Map Id Strength
 allZombieMap = M.fromList $ Maybe.mapMaybe f allZombieList
@@ -347,9 +344,7 @@ allSkeltonList =
   ]
 
 allSkeletonStrength :: [Strength]
-allSkeletonStrength = L.nubOrdOn runStrength $ Maybe.mapMaybe getStrength allSkeltonList
-  where
-    runStrength (Strength s) = s
+allSkeletonStrength = L.nubOrd $ Maybe.mapMaybe getStrength allSkeltonList
 
 allSkeletonMap :: M.Map Id Strength
 allSkeletonMap = M.fromList $ Maybe.mapMaybe f allSkeltonList

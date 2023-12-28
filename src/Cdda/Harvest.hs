@@ -13,14 +13,14 @@ import Cdda.Id.ItemGroup
 import Cdda.Monster.Strength
 
 harvestZombie :: Strength -> Harvest
-harvestZombie strength@(Strength s) = Harvest (idHarvestZombie strength)
+harvestZombie s = Harvest (idHarvestZombie s)
   [ EntryDrop (idItemGroupZombie s) TaintedFood
   , EntryDrop (idItemGroupZombie s) TaintedFood
   , EntryDrop (idItemGroupZombie s) TaintedFood
   ]
 
 harvestSkeleton :: Strength -> Harvest
-harvestSkeleton strength@(Strength s) = Harvest (idHarvestSkeleton strength)
+harvestSkeleton s = Harvest (idHarvestSkeleton s)
   [ EntryDrop (idItemGroupSkeleton s) TaintedFood
   , EntryDrop (idItemGroupSkeleton s) TaintedFood
   ]

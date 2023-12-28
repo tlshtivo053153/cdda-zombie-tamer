@@ -32,7 +32,7 @@ getPetFood monId = case getFriendCost monId of
 getFriendCost :: Id -> Maybe Int
 getFriendCost monId = do
   s <- do
-    (Strength _s) <- getStrength monId
+    _s <- getStrength monId
     return $ _s - 1
   (Growth x y) <- view exp <$> getGrowth monId
   return $ floor $ 10 * x^s + y*fromIntegral s

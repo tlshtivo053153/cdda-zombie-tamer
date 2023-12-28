@@ -14,7 +14,7 @@ import Control.Lens
 
 initialExp :: Monster -> Int
 initialExp mon =
-  let (Strength str) = mon^.strength
+  let str = mon^.strength
    in (floor :: Rational -> Int) $ 10 * 1.12^(str-1)
 
 calcExp :: Monster -> Int -> Int

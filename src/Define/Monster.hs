@@ -8,7 +8,7 @@ module Define.Monster
   , DamageGrowth(..)
   , MeleeGrowth(..)
   , StatusGrowth(..)
-  , Strength(..)
+  , Strength
   , PetFood(..)
   , UpgradeRandomType(..)
   , UpgradeCondition(..)
@@ -94,7 +94,7 @@ data StatusGrowth = StatusGrowth
   , _statusGrowthMaxLevel :: Int
   }
 
-newtype Strength = Strength Int
+type Strength = Int
 
 newtype PetFood = PetFood [FoodCategory]
 

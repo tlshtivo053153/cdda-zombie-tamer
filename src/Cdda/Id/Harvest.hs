@@ -9,7 +9,7 @@ import Define.Core
 import Define.Monster
 
 idHarvestZombie :: Strength -> Id
-idHarvestZombie (Strength s) = Id $ T.pack $ "harvest_zombie_strength_" <> show s
+idHarvestZombie s = Id $ T.pack $ "harvest_zombie_strength_" <> show s
 
 idHarvestSkeleton :: Strength -> Id
-idHarvestSkeleton (Strength s) = Id $ T.pack $ "harvest_skeleton_strength_" <> show s
+idHarvestSkeleton s = Id $ T.pack $ "harvest_skeleton_strength_" <> show s

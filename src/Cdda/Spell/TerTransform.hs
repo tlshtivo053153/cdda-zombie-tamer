@@ -17,15 +17,15 @@ import Data.Default
 import Control.Lens
 
 spellPlaceMeatSlime :: Strength -> SpellTerTransform
-spellPlaceMeatSlime s@(Strength n) = def
+spellPlaceMeatSlime s = def
   & id          .~ idSpellPlaceMeatSlime s
   & name        .~ "肉スライムを配置"
-  & description .~ ("肉スライム" <> T.pack (show n) <> "を配置")
+  & description .~ ("肉スライム" <> T.pack (show s) <> "を配置")
   & effectStr   .~ idTransPlaceMeatSlime s
 
 spellPlaceMarrowSlime :: Strength -> SpellTerTransform
-spellPlaceMarrowSlime s@(Strength n) = def
+spellPlaceMarrowSlime s = def
   & id          .~ idSpellPlaceMarrowSlime s
   & name        .~ "骨髄スライムを配置"
-  & description .~ ("骨髄スライム" <> T.pack (show n) <> "を配置")
+  & description .~ ("骨髄スライム" <> T.pack (show s) <> "を配置")
   & effectStr   .~ idTransPlaceMarrowSlime s
