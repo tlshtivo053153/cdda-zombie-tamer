@@ -200,7 +200,7 @@ allDeathFunctionMap = M.fromList $ concatMap toPair
   , (,) smokerZombieList deathSmokerZombie
   , (,) zombieHollowList deathZombieHollow
   , (,) necroBoomerList deathNecroBoomer
-  , (,) zombieGasbagList deathGasZombie
+  , (,) zombieGasbagList deathZombieGasbag
   , (,) boomerList deathBoomer
   , (,) boomerHugeList deathBoomerHuge
   , (,) zombieRelaxGasbagList deathZombieRelaxGasbag
