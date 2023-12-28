@@ -9,7 +9,7 @@ import Define.Core
 import Define.Monster
 import Define.MakeFields
 
-import Cdda.Item
+import Cdda.Item.Petfood
 
 import Cdda.Monster.Strength
 import Cdda.Monster.Growth

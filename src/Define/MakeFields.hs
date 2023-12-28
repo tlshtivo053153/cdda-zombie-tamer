@@ -7,7 +7,7 @@ import Control.Lens
 
 import qualified Define.Effect as E
 import Define.EOC
-import Define.Item
+import Define.Item.Petfood
 import Define.Monster
 import Define.Recipe
 import Define.Talk
@@ -23,7 +23,7 @@ makeFields ''E.Effect
 
 makeFields ''EOC
 
-makeFields ''Item
+makeFields ''ItemPetfood
 
 makeFields ''Armor
 makeFields ''Damage

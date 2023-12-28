@@ -31,7 +31,7 @@ import Cdda.Id.Harvest
 import Cdda.Id.Spell
 
 import qualified Cdda.FilePath as FP
-import Cdda.Item
+import Cdda.Item.Petfood
 import qualified Cdda.Json as J
 import Cdda.Monster
 import Cdda.Monster.Upgrade

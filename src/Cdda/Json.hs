@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cdda.Json
-  ( convItem
+  ( convItemPetfood
   , convMonsters
   , convDeathFunction
   , convPetfood
@@ -37,7 +37,7 @@ import Cdda.DeathFunction
 import qualified Define.Json as J
 
 import Define.Core
-import Define.Item
+import Define.Item.Petfood
 import Define.Monster
 import Define.Talk
 import Define.Spell
@@ -49,8 +49,8 @@ import Define.Furniture
 import Define.TerFurnTransform
 import Define.DeathFunction
 
-convItem :: Item -> J.Item
-convItem i = J.Item
+convItemPetfood :: ItemPetfood -> J.Item
+convItemPetfood i = J.Item
   { J._itemCopyFrom    = i ^. copyFrom
   , J._itemCddaType    = "COMESTIBLE"
   , J._itemId          = i ^. id
@@ -142,12 +142,10 @@ convDamage d = J.Damage
 
 convPetfood :: PetFood -> J.Petfood
 convPetfood (PetFood pcs) = J.Petfood
-  { J._petfoodFood = pcs'
+  { J._petfoodFood = pcs
   , J._petfoodFeed = Nothing
   , J._petfoodPet  = Nothing
   }
-    where
-      pcs' = map (\(FoodCategory t) -> t) pcs
 
 convTalk :: Talk -> J.Talk
 convTalk t = J.Talk
@@ -199,8 +197,8 @@ convSpell :: Spell -> J.Spell
 convSpell s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ally" ]
   , J._spellEffect       = Just "targeted_polymorph"
   , J._spellMinDamage    = 100000000
@@ -218,8 +216,8 @@ convSpellDeathFunc :: Spell -> J.Spell
 convSpellDeathFunc s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ground" ]
   , J._spellEffect       = Just "ter_transform"
   , J._spellMinDamage    = 0
@@ -237,8 +235,8 @@ convSpellDeathFunctionOverride :: SpellDeathFunctionOverride -> J.Spell
 convSpellDeathFunctionOverride s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ground", "ally" ]
   , J._spellEffect       = Just "noise"
   , J._spellMinDamage    = 0
