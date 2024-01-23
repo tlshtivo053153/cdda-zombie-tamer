@@ -62,7 +62,7 @@ makeModInfo = J.ModInfo
       ]
   , J._modinfoCategory     = "content"
   , J._modinfoDependencies = [ "dda" ]
-  , J._modinfoVersion      = "0.0.4"
+  , J._modinfoVersion      = "0.0.5"
   }
 
 makeCddaMod :: J.CddaMod
