@@ -23,7 +23,7 @@ foodCategoryTMarrow2 :: FoodCategory
 foodCategoryTMeat1 = FoodCategory "TAINTED_MEAT_FOOD1"
 foodCategoryTMeat2 = FoodCategory "TAINTED_MEAT_FOOD2"
 foodCategoryTMarrow1 = FoodCategory "TAINTED_MARROW_FOOD1"
-foodCategoryTMarrow2 = FoodCategory "TAINTED_MARROW_FOOD1"
+foodCategoryTMarrow2 = FoodCategory "TAINTED_MARROW_FOOD2"
 
 taintedMeatPremium :: Item
 taintedMarrowPremium :: Item
