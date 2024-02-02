@@ -3,7 +3,7 @@ module Cdda.Talk.Friend
   ( friendTalk
   ) where
 
-import Prelude hiding (id, (+), (-), (*), (>=), (++))
+import Prelude hiding (id, (+), (-), (*), (>), (>=), (++))
 import qualified Prelude as P
 
 import Define.Core
@@ -35,8 +35,14 @@ idMain = Id "MAIN"
 idItemFed :: Id
 idItemFed = Id "ITEM_FED"
 
-idFeedItem :: Id -> Id
-idFeedItem (Id itemId) = Id $ "FEED_" <> T.toUpper itemId
+idPreItemFed :: Id
+idPreItemFed = Id "PRE_ITEM_FED"
+
+idFeedItem :: Id
+idFeedItem = Id "FEED_ITEM"
+
+idNotFeedItem :: Id
+idNotFeedItem = Id "NOT_FEED_ITEM"
 
 idFeed :: Id
 idFeed = Id "FEED"
@@ -80,6 +86,11 @@ valTmpBash :: Val
 valTmpBullet :: Val
 valTmpCut :: Val
 valTmpStab :: Val
+valTmpFoodId :: Val
+valTmpFoodName :: Val
+valTmpFoodHaveNum :: Val
+valTmpFoodConsumeNum :: Val
+valTmpFoodExp :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
@@ -92,6 +103,11 @@ valTmpBash = ContextVal "tmp_zombie_bash"
 valTmpBullet = ContextVal "tmp_zombie_bullet"
 valTmpCut = ContextVal "tmp_zombie_cut"
 valTmpStab = ContextVal "tmp_zombie_stab"
+valTmpFoodId = ContextVal "tmp_food_id"
+valTmpFoodName = ContextVal "tmp_food_name"
+valTmpFoodHaveNum = ContextVal "tmp_food_have_num"
+valTmpFoodConsumeNum = ContextVal "tmp_food_consume_num"
+valTmpFoodExp = ContextVal "tmp_food_exp"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -179,35 +195,90 @@ talkItemFed = do
     & dynamicLine .~ DynamicLineText "よろこんでいるように見えます。"
     & responses .~ [ responseTop ]
 
-talkFeedItem :: Id -> TalkAction Talk
-talkFeedItem itemId = do
-  talkItemFed' <- talkItemFed
-  let chooseNumResponse = flip map [1,2,4,8,16,32,64,128] $ \x -> do
-        simpleResponse (T.pack (show x) <> "個") talkItemFed'
-          & condition .~ UHasItems itemId x
-          & successEffect .~
-            [ UConsumeItem itemId x
-            , EffectMath $ valCurrentExp += x * itemExp itemId
-            , EffectMath $ valTotalExp += x * itemExp itemId
-            ]
-  returnTalk (idFeedItem itemId) $ def
-    & dynamicLine .~ DynamicLineText "個数を選択"
-    & responses .~ chooseNumResponse <> [ responseBack ]
+talkFeedItem :: TalkAction Talk
+talkFeedItem = do
+  responseFeedItem' <- responseFeedItem
+  let dlText = T.pack $ unlines [ "選択アイテム: " <> showVal valTmpFoodName
+                                , "所持数: " <> showVal valTmpFoodHaveNum
+                                , "増加経験値: " <> showVal valTmpFoodExp
+                                ]
+  returnTalk idFeedItem $ def
+    & dynamicLine .~ DynamicLineText dlText
+    & responses .~ responseFeedItem' <> [ responseBack ]
 
 responseFeedItem :: TalkAction [Response]
-responseFeedItem = mapM ((\(i, t) -> simpleResponse t <$> talkFeedItem i) . (\i -> (i, T.pack $ showItemName i)))
-    [ idTaintedMeatPremium
-    , idTaintedMeatHighPremium
-    , idTaintedMarrowPremium
-    , idTaintedMarrowHighPremium
+responseFeedItem = do
+  talkPreItemFed' <- talkPreItemFed
+  return
+    [ simpleResponse "1個使用" talkPreItemFed'
+      & successEffect .~
+        [ EffectMath $ valTmpFoodConsumeNum =: (1 :: Int) ]
+    , simpleResponse "すべて使用" talkPreItemFed'
+      & successEffect .~
+        [ EffectMath $ valTmpFoodConsumeNum =: valTmpFoodHaveNum ]
+    , simpleResponse "個数を選択" talkPreItemFed'
+      & successEffect .~
+        [ EffectMath $ valTmpFoodConsumeNum =: MathExpr "num_input('個数を入力', 0)"
+        , EffectMath $ valTmpFoodConsumeNum =:
+            mathFunc3 "clamp" valTmpFoodConsumeNum (0 :: Int) valTmpFoodHaveNum
+        ]
     ]
+
+talkNotFeedItem :: TalkAction Talk
+talkNotFeedItem = do
+  returnTalk idNotFeedItem $ def
+    & dynamicLine .~ DynamicLineText "アイテムを持っていない"
+    & responses .~ [ responseBack ]
+
+responseFeed :: TalkAction [Response]
+responseFeed = mapM responseFeed'
+  [ idTaintedMeatPremium
+  , idTaintedMeatHighPremium
+  , idTaintedMarrowPremium
+  , idTaintedMarrowHighPremium
+  ]
+
+responseFeed' :: Id -> TalkAction Response
+responseFeed' itemId = do
+  talkFeedItem' <- talkFeedItem
+  talkNotFeedItem' <- talkNotFeedItem
+  let itemText = T.pack $ showItemName itemId
+  return $ simpleResponse itemText talkFeedItem'
+    & trial .~ UHasItems itemId 1
+    & successEffect .~
+      [ SetStringVar valTmpFoodId (runId itemId) False
+      , SetStringVar valTmpFoodName (T.pack $ showItemName itemId) True
+      , EffectMath $ valTmpFoodExp =: itemExp itemId
+      , EffectMath $ valTmpFoodHaveNum =: mathFunc1 "u_item_count"
+                                                    (MathExpr $ "'" <> runId itemId <> "'")
+      ]
+    & failure ?~ talkNotFeedItem'
 
 talkFeed :: TalkAction Talk
 talkFeed = do
-  rs <- responseFeedItem
+  rs <- responseFeed
   returnTalk idFeed $ def
     & dynamicLine .~ DynamicLineText "餌の種類を選択"
-    & responses .~ rs <> [ responseTop ]
+    & responses .~ rs <> [ responseBack ]
+
+talkPreItemFed :: TalkAction Talk
+talkPreItemFed = do
+  rs <- responsePreItemFed
+  let dlText = T.pack $ "使用個数: " <> showVal valTmpFoodConsumeNum
+  returnTalk idPreItemFed $ def
+    & dynamicLine .~ DynamicLineText dlText
+    & responses .~ rs : [ responseBack ]
+
+responsePreItemFed :: TalkAction Response
+responsePreItemFed = do
+  talkItemFed' <- talkItemFed
+  return $ simpleResponse "餌を与える" talkItemFed'
+    & condition .~ ConditionMath (Math1 $ valTmpFoodConsumeNum > (0 :: Int))
+    & successEffect .~
+      [ UConsumeItemVal valTmpFoodId valTmpFoodConsumeNum
+      , EffectMath $ valCurrentExp += valTmpFoodConsumeNum * valTmpFoodExp
+      , EffectMath $ valTotalExp += valTmpFoodConsumeNum * valTmpFoodExp
+      ]
 
 talkUpgradeDone :: TalkAction Talk
 talkUpgradeDone = do

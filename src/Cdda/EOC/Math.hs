@@ -31,10 +31,14 @@ module Cdda.EOC.Math
   , (>)
   , mathGreaterEq
   , (>=)
+  , mathFunc1
+  , mathFunc2
+  , mathFunc3
   ) where
 
 import Prelude hiding ( (+), (-), (*), (/), (<), (>), (<=), (>=), (/=), (++) )
 import Data.Text
+import qualified Data.Text as T
 import Define.EOC
 
 parenExpr :: MathExpr -> MathExpr
@@ -157,3 +161,16 @@ infixr 9 <
 infixr 9 <=
 infixr 9 >
 infixr 9 >=
+
+mathFunc1 :: Expr e => Text -> e -> MathExpr
+mathFunc1 f e = case toExpr e of
+                  MathExpr e' -> MathExpr $ T.concat [f, "(", e', ")" ]
+
+mathFunc2 :: (Expr e1, Expr e2) => Text -> e1 -> e2 -> MathExpr
+mathFunc2 f e1 e2 = case (toExpr e1, toExpr e2) of
+                      (MathExpr e1', MathExpr e2') -> MathExpr $ T.concat [f, "(", e1', ", ", e2', ")"]
+
+mathFunc3 :: (Expr e1, Expr e2, Expr e3) => Text -> e1 -> e2 -> e3 -> MathExpr
+mathFunc3 f e1 e2 e3 = case (toExpr e1, toExpr e2, toExpr e3) of
+                      (MathExpr e1', MathExpr e2', MathExpr e3') ->
+                        MathExpr $ T.concat [f, "(", e1', ", ", e2', ", " <> e3' <> ")"]

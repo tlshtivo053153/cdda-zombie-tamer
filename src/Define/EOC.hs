@@ -22,7 +22,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import Define.Core
---import Define.Talk
 
 data EOC = EOC
   { _eocId :: Id
@@ -38,6 +37,14 @@ data Val = UVal Text
          | ContextVal Text
          | GlobalVal Text
          | VarVal Text
+
+instance ToJSON Val where
+  toJSON v = case v of
+               UVal t -> object [ "u_val" .= t ]
+               NpcVal t -> object [ "npc_val" .= t ]
+               ContextVal t -> object [ "context_val" .= t ]
+               GlobalVal t -> object [ "global_val" .= t ]
+               VarVal t -> object [ "var_val" .= t ]
 
 data Math = Math1 MathExpr
              | Math2 MathExpr MathOp
@@ -177,12 +184,14 @@ data Effect = EffectArithmetic Arithmetic
             | EffectMath Math
             | NpcCastSpell Id Bool
             | UConsumeItem Id Int
+            | UConsumeItemVal Val Val
             | UMessage Text Text Bool
             | UAdjustVar Var Int
             | NpcAdjustVar Var Int
             | UAddMorale Id Int Int Text Text
             | UAddEffect Id Int
             | NpcAddEffect Id Int
+            | SetStringVar Val Text Bool
 
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
@@ -194,6 +203,9 @@ instance ToJSON Effect where
                                              ]
   toJSON (UConsumeItem itemId n   ) = object [ "u_consume_item" .= itemId
                                              , "count" .= n
+                                             ]
+  toJSON (UConsumeItemVal v n ) = object [ "u_consume_item" .= toJSON v
+                                             , "count" .= toJSON n
                                              ]
   toJSON (UMessage t1 t2 b        ) = object [ "u_message" .= t1
                                              , "type" .= t2
@@ -221,6 +233,10 @@ instance ToJSON Effect where
   toJSON (NpcAddEffect effectId n ) = object [ "npc_add_effect" .= effectId
                                              , "duration" .= n
                                              ]
+  toJSON (SetStringVar v t b) = object [ "set_string_var" .= t
+                                       , "target_var" .= toJSON v
+                                       , "parse_tags" .= b
+                                       ]
 
 class Expr e where
   toExpr :: e -> MathExpr
