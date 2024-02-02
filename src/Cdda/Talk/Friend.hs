@@ -76,12 +76,16 @@ valTotalExp :: Val
 valTmpCurrentExp :: Val
 valTmpTotalExp :: Val
 valTmpNeedExp :: Val
+valTmpHp :: Val
+valTmpMaxHp :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
 valTmpCurrentExp = ContextVal "tmp_zombie_current_exp"
 valTmpTotalExp = ContextVal "tmp_zombie_total_exp"
 valTmpNeedExp = ContextVal "tmp_zombie_need_exp"
+valTmpHp = ContextVal "tmp_zombie_hp"
+valTmpMaxHp = ContextVal "tmp_zombie_max_hp"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -138,6 +142,8 @@ responseMainShowStatus = do
     & successEffect .~
       [ EffectMath $ valTmpCurrentExp =: valCurrentExp
       , EffectMath $ valTmpTotalExp =: valTotalExp
+      , EffectMath $ valTmpHp =: MathExpr "n_hp('torso')"
+      , EffectMath $ valTmpMaxHp =: MathExpr "n_hp_max('torso')"
       ]
 
 talkMain :: TalkAction Talk
@@ -349,8 +355,11 @@ talkShowStatus = do
   let showLens t l = t <> show (s^.l)
       statusText = T.pack $ unlines
                     [ "レベル: " <> show level'
-                    , showLens "HP: "hp
-                       <> showLens " 速度: " speed
+                    , "HP: "
+                      <> showVal valTmpHp
+                      <> "/"
+                      <> showVal valTmpMaxHp
+                    , showLens "速度: " speed
                        <> showLens " 回避: " dodge
                     , showLens "耐打: " (armor.bash)
                        <> showLens " 耐弾: " (armor.bullet)
