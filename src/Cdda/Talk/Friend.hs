@@ -94,6 +94,9 @@ showVal (ContextVal val) = "<context_val:" <> T.unpack val <> ">"
 showVal (GlobalVal val) = "<global_val:" <> T.unpack val <> ">"
 showVal (VarVal _) = ""
 
+showItemName :: Id -> String
+showItemName (Id itemName) = "<item_name:" <> T.unpack itemName <> ">"
+
 nextLevelIndex :: TalkAction Int
 nextLevelIndex = view level
 
@@ -182,8 +185,7 @@ talkFeedItem itemId = do
     & responses .~ chooseNumResponse <> [ responseBack ]
 
 responseFeedItem :: TalkAction [Response]
-responseFeedItem = mapM (\(i, t) -> simpleResponse t <$> talkFeedItem i)
-  $ mapMaybe (\i -> (i,) <$> idToName i)
+responseFeedItem = mapM ((\(i, t) -> simpleResponse t <$> talkFeedItem i) . (\i -> (i, T.pack $ showItemName i)))
     [ idTaintedMeatPremium
     , idTaintedMeatHighPremium
     , idTaintedMarrowPremium
@@ -223,7 +225,7 @@ responseUpgradeRandomMonster = do
                UCHaveItem itemId n -> UHasItems itemId n
                _ -> ConditionNone
   talkUpgradeDone' <- talkUpgradeDone
-  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone' 
+  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone'
     & condition .~ cond
     & successEffect .~ catMaybes
       [ flip NpcCastSpell False <$> idSpellUpgradeRandom urt
@@ -250,9 +252,8 @@ responseUpgradeRandomMain = do
   let ucText = case uc of
                  UCTrue -> Just "要求アイテムなし"
                  UCFalse -> Nothing
-                 UCHaveItem itemId n -> do
-                   itemName <- idToName itemId
-                   return $ "[" <> itemName <> T.pack (show n) <> "]" <> " 餌を与える"
+                 UCHaveItem itemId n ->
+                   Just $ "[" <> T.pack (showItemName itemId) <> T.pack (show n) <> "]" <> " 餌を与える"
       c = case uc of
             UCTrue -> Just ConditionNone
             UCFalse -> Nothing
@@ -314,7 +315,7 @@ responseUpgradeStandard' us = do
         case uc of
           UCTrue -> fromMaybe "DID NOT FIND NAME" (M.idToName monId)
           UCFalse -> "no upgrade"
-          UCHaveItem itemId n -> "[" <> fromMaybe "" (I.idToName itemId) <> " " <> T.pack (show n) <> "] "
+          UCHaveItem itemId n -> "[" <> T.pack (showItemName itemId) <> " " <> T.pack (show n) <> "] "
 
 talkLevelUpDone :: TalkAction Talk
 talkLevelUpDone = do
