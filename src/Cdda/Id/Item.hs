@@ -1,5 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.Item where
+module Cdda.Id.Item
+  ( idTaintedMeat
+  , idTaintedMarrow
+  , idTaintedFat
+  , idTaintedBone
+  , idTaintedBlood
+  , idSinew
+  , idTaintedMeatPremium
+  , idTaintedMarrowPremium
+  , idTaintedMeatHighPremium
+  , idTaintedMarrowHighPremium
+  , idGasoline
+  , idSheetKevlar
+  , idMealBone
+  , idChemSulphuricAcid
+  , idScrap
+  , idBurntOutBionic
+  , idVeggy
+  , idSlimeScrap
+  ) where
 
 import Define.Core
 

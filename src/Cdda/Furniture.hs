@@ -1,5 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Furniture where
+module Cdda.Furniture
+  ( meatSlime
+  , marrowSlime
+  , allFurniture
+  ) where
 
 import Define.Monster
 import Define.Furniture
@@ -9,16 +13,16 @@ import Cdda.Id.ItemGroup
 import Cdda.Monster.Strength
 
 meatSlime :: Strength -> Furniture
-meatSlime s@(Strength n) = Furnitrue
-  { _furnitureId          = idMeatSlime s
+meatSlime n = Furniture
+  { _furnitureId          = idMeatSlime n
   , _furnitureName        = "肉スライム"
   , _furnitureDescription = "ゾンビの体から分離したスライムです。"
   , _furnitureItemGroup   = idItemGroupZombie n
   }
 
 marrowSlime :: Strength -> Furniture
-marrowSlime s@(Strength n) = Furnitrue
-  { _furnitureId          = idMarrowSlime s
+marrowSlime n = Furniture
+  { _furnitureId          = idMarrowSlime n
   , _furnitureName        = "骨髄スライム"
   , _furnitureDescription = "ゾンビの体から分離したスライムです。"
   , _furnitureItemGroup   = idItemGroupSkeleton n

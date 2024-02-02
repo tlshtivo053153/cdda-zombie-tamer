@@ -1,4 +1,7 @@
-module Define.TerFurnTransform where
+module Define.TerFurnTransform
+  ( TerFurnTransform(..)
+  , TransFurniture(..)
+  ) where
 
 import Define.Core
 

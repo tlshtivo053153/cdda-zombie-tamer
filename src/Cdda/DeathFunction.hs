@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TupleSections #-}
-module Cdda.DeathFunction where
+module Cdda.DeathFunction
+  ( allDeathFunctionMap
+  ) where
 
 import Define.Core
 import Define.DeathFunction
@@ -8,6 +10,7 @@ import Define.MakeFields
 import Cdda.Id.Spell
 import Cdda.Id.Monster
 
+import Data.Default
 import qualified Data.Text as T
 import qualified Data.Map as M
 import Control.Lens
@@ -16,17 +19,8 @@ import Prelude hiding (id)
 noCorpse :: T.Text
 noCorpse = "NO_CORPSE"
 
-defDeathFunction :: DeathFunction
-defDeathFunction = DeathFunction
-  { _deathFunctionId         = Nothing
-  , _deathFunctionHitSelf    = Nothing
-  , _deathFunctionMinLevel   = Nothing
-  , _deathFunctionCorpseType = Nothing
-  , _deathFunctionMessage    = Nothing
-  }
-
 deathGasZombie :: DeathFunction
-deathGasZombie = defDeathFunction
+deathGasZombie = def
   & id ?~ idSpellDeathGasZombie
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -36,7 +30,7 @@ gasZombieList :: [Id]
 gasZombieList = [ monGasZombie ]
 
 deathChildZombie :: DeathFunction
-deathChildZombie = defDeathFunction
+deathChildZombie = def
   & id ?~ idSpellDeathChildZombie
   & minLevel ?~ 6
 
@@ -47,7 +41,7 @@ childZombieList =
   ]
 
 deathSmokerZombie :: DeathFunction
-deathSmokerZombie = defDeathFunction
+deathSmokerZombie = def
   & id ?~ idSpellDeathSmokerZombie
   & hitSelf ?~ True
   & message ?~ "A %s explode!"
@@ -61,7 +55,7 @@ smokerZombieList =
   ]
 
 deathZombieHollow :: DeathFunction
-deathZombieHollow = defDeathFunction
+deathZombieHollow = def
   & id ?~ idSpellDeathZombieHollow
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -71,7 +65,7 @@ zombieHollowList :: [Id]
 zombieHollowList = [ monZombieHollow ]
 
 deathNecroBoomer :: DeathFunction
-deathNecroBoomer = defDeathFunction
+deathNecroBoomer = def
   & id ?~ idSpellDeathNecroBoomer
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -82,7 +76,7 @@ necroBoomerList =
   [ monZombieNecroBoomer ]
 
 deathZombieGasbag :: DeathFunction
-deathZombieGasbag = defDeathFunction
+deathZombieGasbag = def
   & id ?~ idSpellDeathZombieGasbag
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -100,7 +94,7 @@ zombieGasbagList =
   ]
 
 deathBoomer :: DeathFunction
-deathBoomer = defDeathFunction
+deathBoomer = def
   & id ?~ idSpellDeathBoomer
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -113,7 +107,7 @@ boomerList =
   ]
 
 deathBoomerHuge :: DeathFunction
-deathBoomerHuge = defDeathFunction
+deathBoomerHuge = def
   & id ?~ idSpellDeathBoomerHuge
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -123,7 +117,7 @@ boomerHugeList :: [Id]
 boomerHugeList = [ monBoomerHuge ]
 
 deathZombieRelaxGasbag :: DeathFunction
-deathZombieRelaxGasbag = defDeathFunction
+deathZombieRelaxGasbag = def
   & id ?~ idSpellDeathZombieRelaxGasbag
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -133,7 +127,7 @@ zombieRelaxGasbagList :: [Id]
 zombieRelaxGasbagList = [ monZombieRelaxGasbag ]
 
 deathZombieTearGasbag :: DeathFunction
-deathZombieTearGasbag = defDeathFunction
+deathZombieTearGasbag = def
   & id ?~ idSpellDeathZombieTearGasbag
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -143,7 +137,7 @@ zombieTearGasbagList :: [Id]
 zombieTearGasbagList = [ monZombieTearGasbag ]
 
 deathDevourerLabSec :: DeathFunction
-deathDevourerLabSec = defDeathFunction
+deathDevourerLabSec = def
   & id ?~ idSpellDeathDevourerLabSec
   & hitSelf ?~ True
   & minLevel ?~ 1
@@ -154,7 +148,7 @@ devourerLabSecList :: [Id]
 devourerLabSecList = [ monDevourerLabSec ]
 
 deathZombieChildScorched :: DeathFunction
-deathZombieChildScorched = defDeathFunction
+deathZombieChildScorched = def
   & id ?~ idSpellDeathZombieChildScorched
   & minLevel ?~ 4
   & message ?~ "A %s explodes!"
@@ -163,7 +157,7 @@ zombieChildScorchedList :: [Id]
 zombieChildScorchedList = [ monZombieChildScorched ]
 
 deathZombieAcidic :: DeathFunction
-deathZombieAcidic = defDeathFunction
+deathZombieAcidic = def
   & id ?~ idSpellDeathZombieAcidic
   & hitSelf ?~ True
   & message ?~ "The %s's body leaks acid."
@@ -180,7 +174,7 @@ zombieAcidicList =
   ]
 
 deathSpawnRaptorUnstable :: DeathFunction
-deathSpawnRaptorUnstable = defDeathFunction
+deathSpawnRaptorUnstable = def
   & id ?~ idSpellDeathSpawnRaptorUnstable
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
@@ -191,7 +185,7 @@ spawnRaptorUnstableList = [ monSpawnRaptorUnstable ]
 
 
 deathShoggoth :: DeathFunction
-deathShoggoth = defDeathFunction
+deathShoggoth = def
   & hitSelf ?~ True
   & corpseType ?~ noCorpse
   & message ?~ "The %s melts away."

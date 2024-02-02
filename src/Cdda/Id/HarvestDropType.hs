@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.HarvestDropType where
+module Cdda.Id.HarvestDropType
+  ( idHarvestDropTypeTaintedFood
+  ) where
 
 import Define.Core
 

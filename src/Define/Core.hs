@@ -1,32 +1,40 @@
-{-# LANGUAGE DeriveGeneric #-}
-module Define.Core where
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
+module Define.Core
+  ( Id(..)
+  , Name
+  , Description
+  , FoodCategory
+  , GradeType(..)
+  , Grade(..)
+  , ExpType(..)
+  , Exp(..)
+  , UseAction
+  ) where
 
-import GHC.Generics (Generic)
+import Data.Default
 import Data.Text (Text)
-
-import Define.Aeson
 
 import Data.Aeson
 
-newtype Id = Id Text
-  deriving (Eq, Ord, Generic)
+instance Default Bool where
+  def = False
 
-instance ToJSON Id
+instance Default Text where
+  def = ""
 
-newtype Name = Name Text
-  deriving Generic
+newtype Id = Id
+  { runId :: Text }
+  deriving (Eq, Ord, Default)
 
-instance ToJSON Name
+instance ToJSON Id where
+  toJSON = toJSON . runId
 
-newtype Description = Description Text
-  deriving Generic
+type Name = Text
 
-instance ToJSON Description
+type Description = Text
 
-newtype FoodCategory = FoodCategory Text
-  deriving Generic
-
-instance ToJSON FoodCategory
+type FoodCategory = Text
 
 data GradeType = GradeMeat1 | GradeMeat2 | GradeMarrow1 | GradeMarrow2
 data Grade = Grade GradeType Int
@@ -34,3 +42,4 @@ data Grade = Grade GradeType Int
 data ExpType = ExpEarly | ExpNormal | ExpLate
 newtype Exp = Exp ExpType
 
+type UseAction = Text

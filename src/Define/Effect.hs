@@ -1,4 +1,6 @@
-module Define.Effect where
+module Define.Effect
+  ( Effect(..)
+  ) where
 
 import Data.Text
 

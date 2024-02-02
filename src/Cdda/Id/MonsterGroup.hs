@@ -1,5 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Id.MonsterGroup where
+module Cdda.Id.MonsterGroup
+  ( idNormal
+  , idFat
+  , idMedical
+  , idBoomer
+  , idRust
+  , idLabsecurity
+  , idElectric
+  , idSkeleton
+  , randomUpgradeToId
+  ) where
 
 import Define.Core
 import Define.Monster

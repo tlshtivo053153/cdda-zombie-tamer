@@ -1,4 +1,9 @@
-module Define.Recipe where
+module Define.Recipe
+  ( Quality(..)
+  , Component(..)
+  , Components
+  , Recipe(..)
+  ) where
 
 import Define.Core
 

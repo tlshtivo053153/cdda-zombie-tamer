@@ -1,4 +1,6 @@
-module Define.HarvestDropType where
+module Define.HarvestDropType
+  ( HarvestDropType(..)
+  ) where
 
 import Define.Core
 

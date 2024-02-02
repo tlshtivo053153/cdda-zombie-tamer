@@ -1,4 +1,6 @@
-module Cdda.HarvestDropType where
+module Cdda.HarvestDropType
+  ( harvestDropTypeTaintedFood
+  ) where
 
 import Define.HarvestDropType
 

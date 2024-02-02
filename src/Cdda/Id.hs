@@ -1,1 +1,3 @@
-module Cdda.Id where
+module Cdda.Id
+  (
+  ) where

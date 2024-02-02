@@ -10,7 +10,6 @@ import Define.Monster
 import Define.Core
 
 import Cdda.Id.Monster
-import Cdda.Id.MonsterGroup
 import Cdda.Id.Item
 
 import Data.Maybe

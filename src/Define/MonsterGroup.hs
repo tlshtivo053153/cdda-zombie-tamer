@@ -1,5 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Define.MonsterGroup where
+module Define.MonsterGroup
+  ( MGMonster(..)
+  , MonsterGroup(..)
+  ) where
 
 import Define.Core
 

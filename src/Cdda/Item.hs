@@ -1,74 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Item where
+module Cdda.Item
+  ( idToName
+  ) where
 
 import Define.Core
-import Define.Item
 
 import Cdda.Id.Item
 
 import Data.Text (Text)
 import qualified Data.Map as M
-
-makeItem :: Id -> Id -> Name -> Description -> [UseAction] -> [FoodCategory] -> Item
-makeItem = Item
-
-useActionPetfood :: UseAction
-useActionPetfood = UseAction "PETFOOD"
-
-foodCategoryTMeat1 :: FoodCategory
-foodCategoryTMeat2 :: FoodCategory
-foodCategoryTMarrow1 :: FoodCategory
-foodCategoryTMarrow2 :: FoodCategory
-
-foodCategoryTMeat1 = FoodCategory "TAINTED_MEAT_FOOD1"
-foodCategoryTMeat2 = FoodCategory "TAINTED_MEAT_FOOD2"
-foodCategoryTMarrow1 = FoodCategory "TAINTED_MARROW_FOOD1"
-foodCategoryTMarrow2 = FoodCategory "TAINTED_MARROW_FOOD2"
-
-taintedMeatPremium :: Item
-taintedMarrowPremium :: Item
-taintedMeatHighPremium :: Item
-taintedMarrowHighPremium :: Item
-allPetfood :: [Item]
-
-taintedMeatPremium = makeItem
-  idTaintedMeat
-  idTaintedMeatPremium
-  (Name "上級汚染肉")
-  (Description "上級汚染肉の説明")
-  [ useActionPetfood ]
-  [ foodCategoryTMeat1 ]
-  
-taintedMarrowPremium = makeItem
-  idTaintedMarrow
-  idTaintedMarrowPremium
-  (Name "上級汚染骨髄")
-  (Description "上級汚染骨髄の説明")
-  [ useActionPetfood ]
-  [ foodCategoryTMarrow1 ]
-
-taintedMeatHighPremium = makeItem
-  idTaintedMeat
-  idTaintedMeatHighPremium
-  (Name "最上級汚染肉")
-  (Description "最上級汚染肉の説明")
-  [ useActionPetfood ]
-  [ foodCategoryTMeat2 ]
-
-taintedMarrowHighPremium = makeItem
-  idTaintedMarrow
-  idTaintedMarrowHighPremium
-  (Name "最上級汚染骨髄")
-  (Description "最上級汚染骨髄の説明")
-  [ useActionPetfood ]
-  [ foodCategoryTMarrow2 ]
-
-allPetfood =
-  [ taintedMeatPremium
-  , taintedMarrowPremium
-  , taintedMeatHighPremium
-  , taintedMarrowHighPremium
-  ]
 
 idToName :: Id -> Maybe Text
 idToName itemId = M.lookup itemId $ M.fromList

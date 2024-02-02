@@ -31,6 +31,7 @@ dependencies:
 - filepath
 - directory
 - bytestring
+- data-default
 
 ghc-options:
 - -Wall

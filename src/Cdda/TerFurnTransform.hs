@@ -1,4 +1,6 @@
-module Cdda.TerFurnTransform where
+module Cdda.TerFurnTransform
+  ( allTerFurnTransform
+  ) where
 
 import Define.Monster
 import Define.TerFurnTransform
@@ -8,7 +10,7 @@ import Cdda.Id.Furniture
 import Cdda.Monster.Strength
 
 transPlaceMeatSlime :: Strength -> TerFurnTransform
-transPlaceMeatSlime s@(Strength n) = TerFurnTransform
+transPlaceMeatSlime s = TerFurnTransform
   { _terFurnTransformId = idTransPlaceMeatSlime s
   , _terFurnTransformFurniture = [furnitureZombie]
   }
@@ -21,7 +23,7 @@ transPlaceMeatSlime s@(Strength n) = TerFurnTransform
         }
 
 transPlaceMarrowSlime :: Strength -> TerFurnTransform
-transPlaceMarrowSlime s@(Strength n) = TerFurnTransform
+transPlaceMarrowSlime s = TerFurnTransform
   { _terFurnTransformId = idTransPlaceMarrowSlime s
   , _terFurnTransformFurniture = [furnitureSkeleton]
   }

@@ -24,7 +24,6 @@ module Cdda.Id.Spell
   ) where
 
 import Define.Core
-import Define.Talk
 import Define.Monster
 
 import Cdda.Id.MonsterGroup
@@ -50,10 +49,10 @@ idSpellUpgradeStandard (UpgradeStandard _ (Id usidText)) =
   Id $ "spell_standard_upgrade_" <> usidText
 
 idSpellPlaceMeatSlime :: Strength -> Id
-idSpellPlaceMeatSlime (Strength n) = Id $ "spell_place_meat_slime_" <> T.pack (show n)
+idSpellPlaceMeatSlime n = Id $ "spell_place_meat_slime_" <> T.pack (show n)
 
 idSpellPlaceMarrowSlime :: Strength -> Id
-idSpellPlaceMarrowSlime (Strength n) = Id $ "spell_place_marrow_slime_" <> T.pack (show n)
+idSpellPlaceMarrowSlime n = Id $ "spell_place_marrow_slime_" <> T.pack (show n)
 
 idSpellDeathGasZombie :: Id
 idSpellDeathGasZombie = Id "death_conflagration"

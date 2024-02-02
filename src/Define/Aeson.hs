@@ -1,4 +1,6 @@
-module Define.Aeson where
+module Define.Aeson
+  ( cddaOption
+  ) where
 
 import Data.Aeson
 import Data.Aeson.Casing

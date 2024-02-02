@@ -1,7 +1,10 @@
-module Cdda.ItemGroup where
+module Cdda.ItemGroup
+  ( zombieGroup
+  , skeletonGroup
+  , allItemGroup
+  ) where
 
 import Control.Lens
-import Data.Ratio
 
 import Define.Core
 import Define.ItemGroup
@@ -21,10 +24,10 @@ entriesLose itemId es =
          then es
          else lose : es
 
-zombieGroup :: Int -> [ItemEntry]
+zombieGroup :: Strength -> [ItemEntry]
 zombieGroup = entriesLose idTaintedMeatPremium . zombieGroup'
 
-zombieGroup' :: Int -> [ItemEntry]
+zombieGroup' :: Strength -> [ItemEntry]
 zombieGroup' s = map (\(itemId, p) -> ItemEntry itemId $ p*s')
   [ (,) idTaintedMeatHighPremium 0.0122
   , (,) idTaintedMarrowPremium 0.03
@@ -33,10 +36,10 @@ zombieGroup' s = map (\(itemId, p) -> ItemEntry itemId $ p*s')
     where
       s' = fromIntegral s
 
-skeletonGroup :: Int -> [ItemEntry]
+skeletonGroup :: Strength -> [ItemEntry]
 skeletonGroup = entriesLose idTaintedMarrowPremium . skeletonGroup'
 
-skeletonGroup' :: Int -> [ItemEntry]
+skeletonGroup' :: Strength -> [ItemEntry]
 skeletonGroup' s = map (\(itemId, p) -> ItemEntry itemId $ p*s')
   [ (,) idTaintedMarrowHighPremium 0.001
   ]
@@ -46,5 +49,5 @@ skeletonGroup' s = map (\(itemId, p) -> ItemEntry itemId $ p*s')
 allItemGroup :: [ItemGroup]
 allItemGroup = zombie ++ skeleton
   where
-    zombie = map (\(Strength s) -> ItemGroup (idItemGroupZombie s) $ zombieGroup s) allZombieStrength
-    skeleton = map (\(Strength s) -> ItemGroup (idItemGroupSkeleton s)  $ skeletonGroup s) allSkeletonStrength
+    zombie = map (\s -> ItemGroup (idItemGroupZombie s) $ zombieGroup s) allZombieStrength
+    skeleton = map (\s -> ItemGroup (idItemGroupSkeleton s)  $ skeletonGroup s) allSkeletonStrength

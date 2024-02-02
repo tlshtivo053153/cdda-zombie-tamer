@@ -1,5 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Cdda.Json where
+module Cdda.Json
+  ( convItemPetfood
+  , convMonsters
+  , convDeathFunction
+  , convPetfood
+  , concatTalk
+  , convSpellPolymorph
+  , convSpellTerTransform
+  , convSpellDeathFunctionOverride
+  , convMonsterGroup
+  , convHarvest
+  , convEntry
+  , convItemGroup
+  , convHarvestDropType
+  , convFurniture
+  , convTerFurnTransform
+  , convTransFurniture
+  ) where
 
 import Prelude hiding (id, pure)
 import Control.Applicative ( (<|>) )
@@ -7,25 +24,21 @@ import Control.Lens
 import Define.MakeFields
 import qualified Data.Map as M
 import Data.Ratio
+import Data.Maybe
 
 import Cdda.Monster.Status
 import Cdda.Id.Friend
 import Cdda.Id.Harvest
 import Cdda.Id.HarvestDropType
-import Cdda.Id.ItemGroup
 import Cdda.Id.Spell
-import Cdda.Talk.Friend
 import Cdda.Talk.Utils
 import Cdda.Monster.Strength
-import Cdda.HarvestDropType
-import Cdda.Furniture
-import Cdda.TerFurnTransform
 import Cdda.DeathFunction
 
 import qualified Define.Json as J
 
 import Define.Core
-import Define.Item
+import Define.Item.Petfood
 import Define.Monster
 import Define.Talk
 import Define.Spell
@@ -36,9 +49,10 @@ import Define.HarvestDropType
 import Define.Furniture
 import Define.TerFurnTransform
 import Define.DeathFunction
+import Define.EOC
 
-convItem :: Item -> J.Item
-convItem i = J.Item
+convItemPetfood :: ItemPetfood -> J.Item
+convItemPetfood i = J.Item
   { J._itemCopyFrom    = i ^. copyFrom
   , J._itemCddaType    = "COMESTIBLE"
   , J._itemId          = i ^. id
@@ -130,65 +144,103 @@ convDamage d = J.Damage
 
 convPetfood :: PetFood -> J.Petfood
 convPetfood (PetFood pcs) = J.Petfood
-  { J._petfoodFood = pcs'
+  { J._petfoodFood = pcs
   , J._petfoodFeed = Nothing
   , J._petfoodPet  = Nothing
   }
-    where
-      pcs' = map (\(FoodCategory t) -> t) pcs
 
-convTalk :: Talk -> J.Talk
-convTalk t = J.Talk
-  { J._talkId            = t ^. id
-  , J._talkCddaType      = "talk_topic"
-  , J._talkSpeakerEffect = t ^. speakerEffect
-  , J._talkDynamicLine   = t ^. dynamicLine
-  , J._talkResponses     = map convResponse $ t ^. responses
-  }
+convTalk :: Id -> Id -> Talk -> Maybe J.Talk
+convTalk topId preId t = do
+  talkId' <- t ^? talkId
+  dynamicLine' <- t ^? dynamicLine
+  return $ J.Talk
+    { J._talkId            = talkId'
+    , J._talkCddaType      = "talk_topic"
+    , J._talkSpeakerEffect = case t ^. speakerEffect of
+                               [] -> Nothing
+                               es -> Just $ J.SpeakerEffect
+                                 { J._speakereffectSentinel  = Just $ runId talkId' <> "_sentinel"
+                                 , J._speakereffectCondition = Nothing
+                                 , J._speakereffectEffect    = es
+                                 }
+    , J._talkDynamicLine   = dynamicLine'
+    , J._talkResponses     = map (convResponse topId preId) $ t ^. responses
+    }
 
-convResponse :: Response -> J.Response
-convResponse r = J.Response
+concatTalk :: Talk -> [J.Talk]
+concatTalk t = case t ^? talkId of
+                 Nothing -> []
+                 Just topId ->
+                       let t' = maybeToList (convTalk topId topId t)
+                           ts = t^.responses & getResponsesHasTalk & concatMap (loop topId topId)
+                        in t' ++ ts
+  where
+    loop :: Id -> Id -> Talk -> [J.Talk]
+    loop top prev u@(Talk { _talkTalkId = tId}) =
+      let ress = u ^. responses
+          nextTalks = getResponsesHasTalk ress
+          ts = concatMap (loop top tId) nextTalks
+       in maybeToList (convTalk top prev u) ++ ts
+    loop _ _ _ = []
+
+getResponsesHasTalk :: [Response] -> [Talk]
+getResponsesHasTalk = concatMap getResponseHasTalk
+
+getResponseHasTalk :: Response -> [Talk]
+getResponseHasTalk r = catMaybes [ Just $ r ^. success
+                                 , r ^. failure
+                                 ]
+
+convResponse :: Id -> Id -> Response -> J.Response
+convResponse topId preId r = J.Response
   { J._responseText      = r ^. text
   , J._responseCondition = case r ^. condition of
                              ConditionNone -> Nothing
                              _ -> Just $ r ^. condition
   , J._responseTrial     =
-      case cond of
+      case r ^. trial of
         ConditionNone -> J.Trial
           { J._trialCddaType  = "NONE"
           , J._trialCondition = Nothing
           }
-        _ -> J.Trial
+        c -> J.Trial
           { J._trialCddaType  = "CONDITION"
-          , J._trialCondition = Just cond
+          , J._trialCondition = Just c
           }
-  , J._responseSuccess   = convTrialResponse rs
-  , J._responseFailure   = case cond of
+  , J._responseSuccess   = J.TrialResponse
+      { J._trialresponseTopic = case r ^. success of
+                                  TalkBack -> preId
+                                  TalkTop -> topId
+                                  TalkDone -> Id "TALK_DONE"
+                                  Talk { _talkTalkId = t } -> t
+      , J._trialresponseEffect = case r ^. successEffect of
+                                   [] -> Nothing
+                                   es -> Just $ convTalkEffects es
+      }
+  , J._responseFailure   = case r ^. trial of
                              ConditionNone -> Nothing
-                             _ -> Just $ convTrialResponse rf
-  }
-    where
-      (cond, rs, rf) = case r ^. trial of
-                         (Trial c r1 r2) -> (c, r1, r2)
-
-convTrialResponse :: TResponse -> J.TrialResponse
-convTrialResponse tr = J.TrialResponse
-  { J._trialresponseTopic  = case tr ^. topic of
-                               Id i -> i
-  , J._trialresponseEffect = case tr ^. effect of
-                               [] -> Nothing
-                               es -> Just $ convTalkEffects es
+                             _ -> Just $ J.TrialResponse
+                               { J._trialresponseTopic = case r ^. failure of
+                                  Just TalkBack -> preId
+                                  Just TalkTop -> topId
+                                  Just TalkDone -> Id "TALK_DONE"
+                                  Just (Talk {_talkTalkId = t }) -> t
+                                  _ -> Id "TALK_DONE"
+                               , J._trialresponseEffect = case r ^. failureEffect of
+                                                            [] -> Nothing
+                                                            es -> Just $ convTalkEffects es
+                               }
   }
 
 convTalkEffects :: [Effect] -> J.TalkEffects
 convTalkEffects = J.TalkEffects
 
-convSpell :: Spell -> J.Spell
-convSpell s = J.Spell
+convSpellPolymorph :: SpellPolymorph -> J.Spell
+convSpellPolymorph s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ally" ]
   , J._spellEffect       = Just "targeted_polymorph"
   , J._spellMinDamage    = 100000000
@@ -202,12 +254,12 @@ convSpell s = J.Spell
   , J._spellExtraEffects = Nothing
   }
 
-convSpellDeathFunc :: Spell -> J.Spell
-convSpellDeathFunc s = J.Spell
+convSpellTerTransform :: SpellTerTransform -> J.Spell
+convSpellTerTransform s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ground" ]
   , J._spellEffect       = Just "ter_transform"
   , J._spellMinDamage    = 0
@@ -225,8 +277,8 @@ convSpellDeathFunctionOverride :: SpellDeathFunctionOverride -> J.Spell
 convSpellDeathFunctionOverride s = J.Spell
   { J._spellId           = s ^. id
   , J._spellCddaType     = "SPELL"
-  , J._spellName         = Name $ s ^. name
-  , J._spellDescription  = Description $ s ^. description
+  , J._spellName         = s ^. name
+  , J._spellDescription  = s ^. description
   , J._spellValidTargets = [ "ground", "ally" ]
   , J._spellEffect       = Just "noise"
   , J._spellMinDamage    = 0
