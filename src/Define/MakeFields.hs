@@ -37,7 +37,7 @@ makeFields ''Monster
 
 makeFields ''Recipe
 
-makeFields ''TResponse
+--makeFields ''TResponse
 makeFields ''Response
 makeFields ''Talk
 makeFields ''TalkConfig

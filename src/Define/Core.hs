@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE DeriveGeneric, OverloadedStrings, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
 module Define.Core
   ( Id(..)
   , Name
@@ -12,7 +12,6 @@ module Define.Core
   , UseAction
   ) where
 
-import GHC.Generics (Generic)
 import Data.Default
 import Data.Text (Text)
 
@@ -24,10 +23,12 @@ instance Default Bool where
 instance Default Text where
   def = ""
 
-newtype Id = Id Text
-  deriving (Eq, Ord, Generic, Default)
+newtype Id = Id
+  { runId :: Text }
+  deriving (Eq, Ord, Default)
 
-instance ToJSON Id
+instance ToJSON Id where
+  toJSON = toJSON . runId
 
 type Name = Text
 

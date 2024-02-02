@@ -3,12 +3,14 @@ module Cdda.Talk.Friend
   ( friendTalk
   ) where
 
-import Prelude hiding (id)
+import Prelude hiding (id, (+), (-), (*), (>=), (++))
+import qualified Prelude as P
 
 import Define.Core
 import Define.Monster
 import Define.Talk
 import Define.MakeFields
+import Define.EOC
 
 import Cdda.Talk.Utils
 import Cdda.Talk.Config
@@ -19,13 +21,55 @@ import Cdda.Id.Item
 import Cdda.Id.Spell
 import Cdda.Monster.Exp
 import Cdda.Item
+import Cdda.EOC.Math
 
 import qualified Data.Text as T
 import qualified Data.Vector as V
 import Data.Maybe
+import Data.Default
 import Control.Monad.Reader
 
-import Control.Lens
+import Control.Lens hiding ( (+=), (-=) )
+
+idMain :: Id
+idMain = Id "MAIN"
+
+idItemFed :: Id
+idItemFed = Id "ITEM_FED"
+
+idFeedItem :: Id -> Id
+idFeedItem (Id itemId) = Id $ "FEED_" <> T.toUpper itemId
+
+idFeed :: Id
+idFeed = Id "FEED"
+
+idUpgradeDone :: Id
+idUpgradeDone = Id "UPGRADE_DONE"
+
+idUpgradeRandomMonster :: Id
+idUpgradeRandomMonster = Id "UPGRADE_RANDOM_MONSTER"
+
+idNotUpgrade :: Id
+idNotUpgrade = Id "NOT_UPGRADE"
+
+idUpgradeRandom :: Id
+idUpgradeRandom = Id "UPGRADE_RANDOM"
+
+idUpgradeStandardMonster :: UpgradeStandard -> Id
+idUpgradeStandardMonster (UpgradeStandard _ (Id monId)) =
+  Id $ "UPGRADE_STANDARD_MONSTER_" <> T.toUpper monId
+
+idUpgradeStandard :: Id
+idUpgradeStandard = Id "UPGRADE_STANDARD"
+
+idLevelUpDone :: Id
+idLevelUpDone = Id "LEVEL_UP_DONE"
+
+idLevelUp :: Id
+idLevelUp = Id "LEVEL_UP"
+
+idShowStatus :: Id
+idShowStatus = Id "SHOW_STATUS"
 
 opLT :: Op
 opLTEQ :: Op
@@ -49,129 +93,122 @@ varCurrentExp = Var "zombie_current_exp" "counter" "friend"
 varTotalExp   = Var "zombie_total_exp" "counter" "friend"
 varFriendship = Var "zombie_friendship" "counter" "friend"
 
-valVarTmpCurrentExp :: Val
-valVarTmpTotalExp :: Val
-valVarTmpNeedExp :: Val
-valVarTmpFriendship :: Val
+valCurrentExp :: Val
+valTotalExp :: Val
+valTmpCurrentExp :: Val
+valTmpTotalExp :: Val
+valTmpNeedExp :: Val
+valTmpFriendship :: Val
 
-valVarTmpCurrentExp = UValVar "tmp_zombie_current_exp"
-valVarTmpTotalExp = UValVar "tmp_zombie_total_exp"
-valVarTmpNeedExp = UValVar "tmp_zombie_need_exp"
-valVarTmpFriendship = UValVar "tmp_zombie_friendship"
+valCurrentExp = NpcVal "zombie_current_exp"
+valTotalExp = NpcVal "zombie_total_exp"
+valTmpCurrentExp = ContextVal "tmp_zombie_current_exp"
+valTmpTotalExp = ContextVal "tmp_zombie_total_exp"
+valTmpNeedExp = ContextVal "tmp_zombie_need_exp"
+valTmpFriendship = ContextVal "tmp_zombie_friendship"
 
+{-# DEPRECATED toUValVar "" #-}
+{-# DEPRECATED toNpcValVar "" #-}
 toUValVar :: Var -> Val
 toNpcValVar :: Var -> Val
 
-toUValVar (Var n t c) = UValVar $ t <> "_" <> c <> "_" <> n
-toNpcValVar (Var n t c) = NpcValVar $ t <> "_" <> c <> "_" <> n
+toUValVar (Var n t c) = UVal $ t <> "_" <> c <> "_" <> n
+toNpcValVar (Var n t c) = NpcVal $ t <> "_" <> c <> "_" <> n
 
 showVal :: Val -> String
-showVal (UValVar val) = "<u_val:" <> T.unpack val <> ">"
-showVal (NpcValVar val) = "<npc_val:" <> T.unpack val <> ">"
+showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
+showVal (NpcVal val) = "<npc_val:" <> T.unpack val <> ">"
+showVal (ContextVal val) = "<context_val:" <> T.unpack val <> ">"
+showVal (GlobalVal val) = "<global_val:" <> T.unpack val <> ">"
+showVal (VarVal _) = ""
 
-nextLevelIndex :: Reader TalkConfig Int
+nextLevelIndex :: TalkAction Int
 nextLevelIndex = view level
 
-nextLevelExp :: Reader TalkConfig (Maybe Int)
+nextLevelExp :: TalkAction (Maybe Int)
 nextLevelExp = do
   needExp' <- view needExp
   i <- nextLevelIndex
   return $ needExp' V.!? i
 
-responseFeed :: Reader TalkConfig Response
-responseFeed = simpleResponse "餌を与える" =<< talkFeed
+responseMainFeed :: TalkAction Response
+responseMainFeed = simpleResponse "餌を与える" <$> talkFeed
 
-responseUpgradeRandom :: Reader TalkConfig (Maybe Response)
-responseUpgradeRandom = do
+responseMainUpgradeRandom :: TalkAction (Maybe Response)
+responseMainUpgradeRandom = do
   (UpgradeRandom uc urt) <- view upgradeRandom
-  toTrial uc urt
-  where
-    toTrial uc urt = do
-      let cond = case (uc, urt) of
-                   (UCFalse, _) -> Nothing
-                   (_, URNone) -> Nothing
-                   _ -> Just ConditionNone
-      t <- fmap simpleTrial $ makeTResponse [] =<< talkUpgradeRandom
-      return $ makeResponse "ランダム進化" t <$> cond
+  talkUpgradeRandomMain' <- talkUpgradeRandomMain
+  return $ case (uc, urt) of
+               (UCFalse, _) -> Nothing
+               (_, URNone) -> Nothing
+               _ -> Just $ simpleResponse "ランダム進化" talkUpgradeRandomMain'
 
-responseUpgradeStandard :: Reader TalkConfig (Maybe Response)
-responseUpgradeStandard = do
+responseMainUpgradeStandard :: TalkAction (Maybe Response)
+responseMainUpgradeStandard = do
   uss <- view upgradeStandard
   if null uss
      then return Nothing
-     else fmap Just $ simpleResponse "通常進化" =<< talkUpgradeStandard
+     else fmap Just $ simpleResponse "通常進化" <$> talkUpgradeStandard
 
-responseLevelUp :: Reader TalkConfig (Maybe Response)
-responseLevelUp = do
-  t <- fmap simpleTrial $ makeTResponse [] =<< talkLevelUp
+responseMainLevelUp :: TalkAction (Maybe Response)
+responseMainLevelUp = do
+  talkLevelUp' <- talkLevelUp
   e <- nextLevelExp
   return $ case e of
             Nothing -> Nothing
-            Just e' -> Just $ makeResponse "レベルアップ可能" t
-                            $ ConditionCompareVar
-                            $ NpcCompareVar varCurrentExp opGTEQ e'
+            Just e' ->
+              Just $ simpleResponse "レベルアップ可能" talkLevelUp'
+                      & condition .~ ConditionMath (Math1 $ valCurrentExp >= e')
 
-responseSpecialAction :: Reader TalkConfig (Maybe Response)
-responseSpecialAction = return Nothing
+responseMainSpecialAction :: TalkAction (Maybe Response)
+responseMainSpecialAction = return Nothing
 
-responseShowStatus :: Reader TalkConfig Response
-responseShowStatus = do
-  t <- fmap simpleTrial $ makeTResponse [ EffectArithmetic
-                                           $ ArithmeticAssign valVarTmpCurrentExp
-                                             $ ArithmeticVal (toNpcValVar varCurrentExp)
-                                        , EffectArithmetic
-                                           $ ArithmeticAssign valVarTmpTotalExp
-                                             $ ArithmeticVal (toNpcValVar varTotalExp)
-                                        , EffectArithmetic
-                                           $ ArithmeticAssign valVarTmpFriendship
-                                             $ ArithmeticVal (toNpcValVar varFriendship)
-                                        ] =<< talkShowStatus
-  return $ makeResponse "ステータス" t ConditionNone
+responseMainShowStatus :: TalkAction Response
+responseMainShowStatus = do
+  talkShowStatus' <- talkShowStatus
+  return $ simpleResponse "ステータス" talkShowStatus'
+    & successEffect .~
+      [ EffectMath $ valTmpCurrentExp =: valCurrentExp
+      , EffectMath $ valTmpTotalExp =: valTotalExp
+      ]
 
-talkMain :: Reader TalkConfig Talk
+talkMain :: TalkAction Talk
 talkMain = do
-  makeTalk (Id "MAIN")
-           Nothing
-           (DynamicLineText "友達ゾンビに話しかけたときのフーレバー")
-           . catMaybes =<< sequence
-                [ Just <$> responseFeed
-                , responseUpgradeRandom
-                , responseUpgradeStandard
-                , responseLevelUp
-                , responseSpecialAction
-                , Just <$> responseShowStatus
-                , return $ Just $ makeResponse "会話を終える" trialTalkDone ConditionNone
-                ]
+  res <- catMaybes <$> sequence
+    [ Just <$> responseMainFeed
+    , responseMainUpgradeRandom
+    , responseMainUpgradeStandard
+    , responseMainLevelUp
+    , Just <$> responseMainShowStatus
+    , return $ Just responseDone
+    ]
+  returnTalk idMain $ def
+    & dynamicLine .~ DynamicLineText "友達ゾンビに話しかけたときのフーレバー"
+    & responses .~ res
 
-talkItemFed :: Reader TalkConfig Talk
+talkItemFed :: TalkAction Talk
 talkItemFed = do
-  t <- fmap simpleTrial $ makeTResponse [] =<< talkFeed
-  makeTalk (Id "ITEM_FED")
-           Nothing
-           (DynamicLineText "よろこんでいるように見えます")
-           [ makeResponse "・・・" t ConditionNone ]
+  returnTalk idItemFed $ def
+    & dynamicLine .~ DynamicLineText "よろこんでいるように見えます。"
+    & responses .~ [ responseTop ]
 
-talkFeedItem :: Id -> Reader TalkConfig Talk
-talkFeedItem itemId@(Id itemText) = do
-  let backResponse = [ simpleResponse "メインメニュー" =<< talkMain
-                     , simpleResponse "戻る" =<< talkFeed
-                     ]
-      chooseNumResponse = flip map [1,2,4,8,16,32,64,128] $ \x -> do
-        t <- fmap simpleTrial $ makeTResponse [ UConsumeItem itemId x
-                                              , NpcAdjustVar varCurrentExp
-                                                             $ x * itemExp itemId
-                                              , NpcAdjustVar varTotalExp
-                                                             $ x * itemExp itemId
-                                              ] =<< talkItemFed
-        return $ makeResponse (T.pack (show x) <> "個") t
-               $ UHasItems itemId x
-  makeTalk (Id $ "FEED_" <> T.toUpper itemText)
-           Nothing
-           (DynamicLineText "個数を選択")
-           =<< sequence (chooseNumResponse ++ backResponse)
+talkFeedItem :: Id -> TalkAction Talk
+talkFeedItem itemId = do
+  talkItemFed' <- talkItemFed
+  let chooseNumResponse = flip map [1,2,4,8,16,32,64,128] $ \x -> do
+        simpleResponse (T.pack (show x) <> "個") talkItemFed'
+          & condition .~ UHasItems itemId x
+          & successEffect .~
+            [ UConsumeItem itemId x
+            , EffectMath $ valCurrentExp += x * itemExp itemId
+            , EffectMath $ valTotalExp += x * itemExp itemId
+            ]
+  returnTalk (idFeedItem itemId) $ def
+    & dynamicLine .~ DynamicLineText "個数を選択"
+    & responses .~ chooseNumResponse <> [ responseBack ]
 
-responseFeedItem :: Reader TalkConfig [Response]
-responseFeedItem = mapM (\(i, t) -> simpleResponse t =<< talkFeedItem i)
+responseFeedItem :: TalkAction [Response]
+responseFeedItem = mapM (\(i, t) -> simpleResponse t <$> talkFeedItem i)
   $ mapMaybe (\i -> (i,) <$> idToName i)
     [ idTaintedMeatPremium
     , idTaintedMeatHighPremium
@@ -179,24 +216,30 @@ responseFeedItem = mapM (\(i, t) -> simpleResponse t =<< talkFeedItem i)
     , idTaintedMarrowHighPremium
     ]
 
-talkFeed :: Reader TalkConfig Talk
+talkFeed :: TalkAction Talk
 talkFeed = do
   rs <- responseFeedItem
-  resMain <- simpleResponse "戻る" =<< talkMain
-  makeTalk (Id "FEED")
-           Nothing
-           (DynamicLineText "餌の種類を選択")
-           $ rs ++ [ resMain ]
+  returnTalk idFeed $ def
+    & dynamicLine .~ DynamicLineText "餌の種類を選択"
+    & responses .~ rs <> [ responseTop ]
 
-talkUpgradeDone :: Reader TalkConfig Talk
+talkUpgradeDone :: TalkAction Talk
 talkUpgradeDone = do
-  makeTalk (Id "UPGRADE_DONE")
-            Nothing
-            (DynamicLineText "全身が痙攣を起こして喜んでいるように見えます")
-            [ makeResponse "・・・" trialTalkDone ConditionNone ]
+  returnTalk idUpgradeDone $ def
+    & dynamicLine .~ DynamicLineText "全身が痙攣を起こして喜んでいるように見えます"
+    & responses .~ [ responseDone ]
 
-talkUpgradeRandomMonster :: Reader TalkConfig Talk
+talkUpgradeRandomMonster :: TalkAction Talk
 talkUpgradeRandomMonster = do
+  res <- responseUpgradeRandomMonster
+  returnTalk idUpgradeRandomMonster $ def
+    & dynamicLine .~ DynamicLineText "(口を開けている)"
+    & responses .~ [ res
+                   , responseBack
+                   ]
+
+responseUpgradeRandomMonster :: TalkAction Response
+responseUpgradeRandomMonster = do
   (UpgradeRandom uc urt) <- view upgradeRandom
   let consume = case uc of
                  UCTrue -> Nothing
@@ -205,36 +248,31 @@ talkUpgradeRandomMonster = do
   let cond = case uc of
                UCHaveItem itemId n -> UHasItems itemId n
                _ -> ConditionNone
-  t <- fmap simpleTrial $ makeTResponse
-                              (catMaybes
-                                [ flip NpcCastSpell False <$> idSpellUpgradeRandom urt
-                                , consume
-                                , Just $ EffectArithmetic $
-                                    ArithmeticAssign (toNpcValVar varCurrentExp)
-                                    $ ArithmeticVal (toNpcValVar varTotalExp)
-                                ]
-                              ) =<< talkUpgradeDone
-  backResponse <- simpleResponse "戻る" =<< talkUpgradeRandom
-  makeTalk (Id "UPGRADE_RANDOM_MONSTER")
-            Nothing
-            (DynamicLineText "(口を開けている)")
-            [ makeResponse "口の中に餌を入れる" t cond
-            , backResponse
-            ]
+  talkUpgradeDone' <- talkUpgradeDone
+  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone' 
+    & condition .~ cond
+    & successEffect .~ catMaybes
+      [ flip NpcCastSpell False <$> idSpellUpgradeRandom urt
+      , consume
+      , Just $ EffectMath $ valCurrentExp =: valTotalExp
+      ]
 
-talkNotUpgrade :: Reader TalkConfig Talk
-talkNotUpgrade = do
-  let t = simpleTrial $ TResponse (Id "TALK_NONE") []
-  makeTalk (Id "NOT_UPGRADE")
-            Nothing
-            (DynamicLineText "与えるアイテムがない")
-            [ makeResponse "戻る" t ConditionNone ]
+talkNotRandomUpgrade :: TalkAction Talk
+talkNotRandomUpgrade = do
+  returnTalk idNotUpgrade $ def
+    & dynamicLine .~ DynamicLineText "与えるアイテムがない"
+    & responses .~ [ responseBack ]
 
-talkUpgradeRandom :: Reader TalkConfig Talk
-talkUpgradeRandom = do
+talkUpgradeRandomMain :: TalkAction Talk
+talkUpgradeRandomMain = do
+  responseUpgradeRandomMain' <- responseUpgradeRandomMain
+  returnTalk idUpgradeRandom $ def
+    & dynamicLine .~ DynamicLineText "ランダム進化メニュー"
+    & responses .~ responseUpgradeRandomMain' <> [responseBack]
+
+responseUpgradeRandomMain :: TalkAction [Response]
+responseUpgradeRandomMain = do
   (UpgradeRandom uc _) <- view upgradeRandom
-  upgradeTresponse <- makeTResponse [] =<< talkUpgradeRandomMonster
-  notUpgradeTresponse <- makeTResponse [] =<< talkNotUpgrade
   let ucText = case uc of
                  UCTrue -> Just "要求アイテムなし"
                  UCFalse -> Nothing
@@ -245,91 +283,98 @@ talkUpgradeRandom = do
             UCTrue -> Just ConditionNone
             UCFalse -> Nothing
             UCHaveItem i n -> Just $ UHasItems i n
-      t = fmap (\x -> makeTrial x upgradeTresponse notUpgradeTresponse) c
-  let randomUpgradeResponse = maybeToList $ makeResponse <$> ucText <*> t <*> Just ConditionNone
-  backResponse <- simpleResponse "戻る" =<< talkMain
-  makeTalk (Id "UPGRADE_RANDOM")
-            Nothing
-            (DynamicLineText "ランダム進化メニュー")
-            $ randomUpgradeResponse ++ [backResponse]
+  talkUpgradeRandomMonster' <- talkUpgradeRandomMonster
+  talkNotRandomUpgrade' <- talkNotRandomUpgrade
+  return $ maybeToList $ do
+    ucText' <- ucText
+    c' <- c
+    Just $ def
+      & text .~ ucText'
+      & trial .~ c'
+      & success .~ talkUpgradeRandomMonster'
+      & failure ?~ talkNotRandomUpgrade'
 
-talkUpgradeStandardMonster :: UpgradeStandard -> Reader TalkConfig Talk
-talkUpgradeStandardMonster us@(UpgradeStandard uc (Id monId)) = do
+talkUpgradeStandardMonster :: UpgradeStandard -> TalkAction Talk
+talkUpgradeStandardMonster us = do
+  res <- responseUpgradeStandardMonster us
+  returnTalk (idUpgradeStandardMonster us) $ def
+    & dynamicLine .~ DynamicLineText "(口を開けている)"
+    & responses .~ [ res
+                   , responseBack
+                   ]
+
+responseUpgradeStandardMonster :: UpgradeStandard -> TalkAction Response
+responseUpgradeStandardMonster us@(UpgradeStandard uc _) = do
   let consume = case uc of
               UCHaveItem i n -> Just $ UConsumeItem i n
               _ -> Nothing
-  t <- fmap simpleTrial <$> makeTResponse (catMaybes
-                          [ Just $ NpcCastSpell (idSpellUpgradeStandard us) False
-                          , consume
-                          , Just $ EffectArithmetic $
-                              ArithmeticAssign (toNpcValVar varCurrentExp)
-                              $ ArithmeticVal (toNpcValVar varTotalExp)
-                          ]
-                       ) =<< talkUpgradeDone
-  let cond = case uc of
-               UCHaveItem itemId n -> UHasItems itemId n
+      cond = case uc of
+               UCHaveItem i n -> UHasItems i n
                _ -> ConditionNone
-  makeTalk (Id $ "UPGRADE_STANDARD_MONSTER_" <> T.toUpper monId)
-            Nothing
-            (DynamicLineText "(口を開けている)")
-            =<< sequence
-              [ return $ makeResponse "口の中に餌を入れる" t cond
-              , simpleResponse "戻る" =<< talkUpgradeStandard
-              ]
-upgradeStandardToResponse :: UpgradeStandard -> Reader TalkConfig Response
-upgradeStandardToResponse us = do
-  t <- fmap simpleTrial $ makeTResponse  [] =<< talkUpgradeStandardMonster us
-  return $ makeResponse (usToText us) t ConditionNone
+  talkUpgradeDone' <- talkUpgradeDone
+  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone'
+    & condition .~ cond
+    & successEffect .~ catMaybes
+      [ Just $ NpcCastSpell (idSpellUpgradeStandard us) False
+      , consume
+      , Just $ EffectMath $ valCurrentExp =: valTotalExp
+      ]
+
+talkUpgradeStandard :: TalkAction Talk
+talkUpgradeStandard = do
+  ress <- responseUpgradeStandard
+  returnTalk idUpgradeStandard $ def
+    & dynamicLine .~ DynamicLineText "通常進化メニュー"
+    & responses .~ ress <> [ responseBack ]
+
+responseUpgradeStandard :: TalkAction [Response]
+responseUpgradeStandard = do
+  mapM responseUpgradeStandard' =<< view upgradeStandard
+
+responseUpgradeStandard' :: UpgradeStandard -> TalkAction Response
+responseUpgradeStandard' us = do
+  talkUpgradeStandardMonster' <- talkUpgradeStandardMonster us
+  return $ simpleResponse (usToText us) talkUpgradeStandardMonster'
     where
       usToText (UpgradeStandard uc monId) =
         case uc of
-          UCTrue -> fromMaybe "" (M.idToName monId)
+          UCTrue -> fromMaybe "DID NOT FIND NAME" (M.idToName monId)
           UCFalse -> "no upgrade"
           UCHaveItem itemId n -> "[" <> fromMaybe "" (I.idToName itemId) <> " " <> T.pack (show n) <> "] "
-                                      <> fromMaybe "" (M.idToName monId)
-talkUpgradeStandard :: Reader TalkConfig Talk
-talkUpgradeStandard = do
-  uss <- map upgradeStandardToResponse <$> view upgradeStandard
-  backResponse <- simpleResponse "戻る" =<< talkMain
-  makeTalk (Id "UPGRADE_STANDARD")
-            Nothing
-            (DynamicLineText "通常進化メニュー")
-            =<< sequence
-            (uss ++ [return backResponse])
 
-talkLevelUpDone :: Reader TalkConfig Talk
+talkLevelUpDone :: TalkAction Talk
 talkLevelUpDone = do
-  makeTalk (Id "LEVEL_UP_DONE")
-            Nothing
-            (DynamicLineText "レベルが上がりました")
-            [ makeResponse "・・・" trialTalkDone ConditionNone ]
+  returnTalk idLevelUpDone $ def
+    & dynamicLine .~ DynamicLineText "レベルが上がりました"
+    & responses .~ [ responseDone ]
 
-talkLevelUp :: Reader TalkConfig Talk
+talkLevelUp :: TalkAction Talk
 talkLevelUp = do
+  rss <- responseLevelUp
+  l <- view level
+  returnTalk idLevelUp $ def
+    & dynamicLine .~ DynamicLineText ("レベルアップメニュー(現在レベル" <> T.pack (show l) <> ")")
+    & responses .~ rss <> [ responseBack ]
+
+responseLevelUp :: TalkAction [Response]
+responseLevelUp = do
   l <- view level
   exps <- view needExp
   monId <- view monsterBase
-  let levelList = mapMaybe (\x -> (x,) <$> exps V.!? (l + x - 1)) [1,2,4,8,16,32,64,99]
-  let chooseLevelResponse = flip map levelList $ \(x, y) -> do
-        let nextLevel = l + x
-        t <- fmap simpleTrial $ makeTResponse
-                                  [ NpcCastSpell (idSpellLevelUp monId nextLevel) False
-                                  , NpcAdjustVar varCurrentExp (-y)
-                                  ] =<< talkLevelUpDone
-        return $ makeResponse ("[レベル+" <> T.pack (show x) <> "] "
-                                <> "レベル" <> T.pack (show nextLevel)
-                              ) t
-                              $ ConditionCompareVar
-                                $ NpcCompareVar varCurrentExp opGTEQ y
-  let backResponse = simpleResponse "戻る" =<< talkMain
-  makeTalk (Id "LEVEL_UP")
-            Nothing
-            (DynamicLineText $ "レベルアップメニュー(現在レベル" <> T.pack (show l) <> ")")
-            =<< sequence (chooseLevelResponse ++ [backResponse])
+  talkLevelUpDone' <- talkLevelUpDone
+  let levelList = mapMaybe (\x -> (x,) <$> exps V.!? (l P.+ x P.- 1)) [1,2,4,8,16,32,64,99]
+  return $ flip map levelList $ \(x, y) -> do
+    let nextLevel = l P.+ x
+        resText = "[レベル+" <> T.pack (show x) <> "] "
+                    <> "レベル" <> T.pack (show nextLevel)
+    simpleResponse resText talkLevelUpDone'
+      & condition .~ ConditionMath (Math1 $ valCurrentExp >= y)
+      & successEffect .~
+        [ NpcCastSpell (idSpellLevelUp monId nextLevel) False
+        , EffectMath $ valCurrentExp -= y
+        ]
 
---talkSpecialAction = undefined
-
-talkShowStatus :: Reader TalkConfig Talk
+talkShowStatus :: TalkAction Talk
 talkShowStatus = do
   s <- view status
   level' <- view level
@@ -344,41 +389,13 @@ talkShowStatus = do
                        <> showLens " 耐斬: " (armor.cut)
                        <> showLens " 耐刺: " (armor.stab)
                     , showLens "戦闘スキル: " (melee.skill)
-                    , "経験値: " <> showVal valVarTmpCurrentExp
+                    , "経験値: " <> showVal valTmpCurrentExp
                     ]
-  t <- fmap simpleTrial $ makeTResponse [] =<< talkMain
-  makeTalkSimple (Id "SHOW_STATUS")
-                  statusText
-                  "・・・"
-                  t
-                  []
+  returnTalk idShowStatus $ def
+    & dynamicLine .~ DynamicLineText statusText
+    & responses .~ [ responseBack ]
 
-friendTalk :: Monster -> [(Int, [Talk])]
+friendTalk :: Monster -> [(Int, Talk)]
 friendTalk mon =
-  let talkFeedItems = map talkFeedItem
-        [ idTaintedMeatPremium
-        , idTaintedMeatHighPremium
-        , idTaintedMarrowPremium
-        , idTaintedMarrowHighPremium
-        ]
-      talkUpgradeStandardMonster' = map talkUpgradeStandardMonster $ mon^.upgradeStandard
-      talkList = sequence $ concat
-        [ [ talkMain
-          , talkItemFed
-          ]
-        , talkFeedItems
-        , [ talkFeed
-          , talkUpgradeDone
-          , talkUpgradeRandomMonster
-          , talkNotUpgrade
-          , talkUpgradeRandom
-          ]
-        , talkUpgradeStandardMonster'
-        , [ talkUpgradeStandard
-          , talkLevelUpDone
-          , talkLevelUp
-          , talkShowStatus
-          ]
-        ]
-  in getFriendTalkConfig mon
-      & map (\tc -> (tc ^. level, runReader talkList tc))
+  getFriendTalkConfig mon
+    & map (\tc -> (tc ^. level, runReader talkMain tc))

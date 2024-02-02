@@ -13,6 +13,7 @@ import Cdda.Id.Friend
 import Cdda.Monster.Status
 import Cdda.Monster.Petfood
 import Cdda.Monster.Exp
+import Cdda.Talk.Utils
 
 import Data.List (zip4)
 import qualified Data.Vector as V
@@ -29,6 +30,7 @@ getVanillaTalkConfig mon = TalkConfig
   , _talkConfigStatus = mon^.status
   , _talkConfigLevel = 0
   , _talkConfigNeedExp = V.empty
+  , _talkConfigTopTalkId = mergeId (mon^.base) $ Id "MAIN"
   }
 
 getFriendTalkConfig :: Monster -> [TalkConfig]
@@ -50,4 +52,5 @@ getFriendTalkConfig mon =
         , _talkConfigStatus = s
         , _talkConfigLevel = l
         , _talkConfigNeedExp = needExp'
+        , _talkConfigTopTalkId = mergeId m $ Id "MAIN"
         }

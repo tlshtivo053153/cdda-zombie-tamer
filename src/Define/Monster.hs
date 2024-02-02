@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 module Define.Monster
   ( Armor(..)
   , Damage(..)
@@ -17,7 +18,9 @@ module Define.Monster
   , Monster(..)
   ) where
 
+import GHC.Generics (Generic)
 import Data.Text
+import Data.Default
 
 import Define.Core
 
@@ -32,12 +35,14 @@ data Armor = Armor
   , _armorCold   :: Int
   , _armorPure   :: Int
   }
+  deriving (Generic, Default)
 
 data Damage = Damage
   { _damageDamageType :: Text
   , _damageAmount :: Int
   , _damageArmorPenetration :: Int
   }
+  deriving (Generic, Default)
 
 data Melee = Melee
   { _meleeSkill     :: Int
@@ -45,6 +50,7 @@ data Melee = Melee
   , _meleeDiceSides :: Int
   , _meleeDamage    :: [Damage]
   }
+  deriving (Generic, Default)
 
 data Status = Status
   { _statusHp :: Int
@@ -54,9 +60,13 @@ data Status = Status
   , _statusMelee :: Melee
   , _statusRegenerates :: Int
   }
+  deriving (Generic, Default)
 
 -- Growth a b -> STATUS: stats * a^(level-1) + b*(level-1)
 data Growth = Growth Rational Rational
+
+instance Default Growth where
+  def = Growth 1 0
 
 data ArmorGrowth = ArmorGrowth
   { _armorGrowthBash :: Growth
@@ -69,12 +79,14 @@ data ArmorGrowth = ArmorGrowth
   , _armorGrowthCold :: Growth
   , _armorGrowthPure :: Growth
   }
+  deriving (Generic, Default)
 
 data DamageGrowth = DamageGrowth
   { _damageGrowthDamageType :: Text
   , _damageGrowthAmount :: Growth
   , _damageGrowthArmorPenetration :: Growth
   }
+  deriving (Generic, Default)
 
 data MeleeGrowth = MeleeGrowth
   { _meleeGrowthSkill :: Growth
@@ -82,6 +94,7 @@ data MeleeGrowth = MeleeGrowth
   , _meleeGrowthDiceSides :: Growth
   , _meleeGrowthDamage :: [DamageGrowth]
   }
+  deriving (Generic, Default)
 
 data StatusGrowth = StatusGrowth
   { _statusGrowthHp :: Growth
@@ -93,6 +106,7 @@ data StatusGrowth = StatusGrowth
   , _statusGrowthExp :: Growth
   , _statusGrowthMaxLevel :: Int
   }
+  deriving (Generic, Default)
 
 type Strength = Int
 

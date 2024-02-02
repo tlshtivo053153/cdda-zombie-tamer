@@ -7,6 +7,7 @@ import Prelude hiding (id)
 import Define.Core
 import Define.Monster
 import Define.Talk
+import Define.EOC
 import Define.MakeFields
 
 import Cdda.Talk.Utils
@@ -14,15 +15,14 @@ import Cdda.Talk.Config
 
 import Cdda.Id.Spell
 
+import Data.Default
+
 import Control.Monad.Reader
 
 import Control.Lens
 
-vanillaTalk :: Monster -> [Talk]
-vanillaTalk mon =
-  runReader
-    (sequence [ talkMain, talkFriendTamed ])
-    $ getVanillaTalkConfig mon
+vanillaTalk :: Monster -> Talk
+vanillaTalk mon = runReader talkMain $ getVanillaTalkConfig mon
 
 idMain :: Id
 idMain = Id "MAIN"
@@ -39,26 +39,25 @@ _effectsToFriend consumeItem n = do
     , UConsumeItem consumeItem n
     ]
 
-effectsToFriend :: Reader TalkConfig [Effect]
+effectsToFriend :: TalkAction [Effect]
 effectsToFriend = do
   monId <- view monsterId
   let spellId = idSpellToFriend monId
   return [ NpcCastSpell spellId False ]
 
-talkMain :: Reader TalkConfig Talk
+talkMain :: TalkAction Talk
 talkMain = do
-  friendTamed <- simpleTrial <$> join (makeTResponse <$> effectsToFriend <*> talkFriendTamed)
-  makeTalk idMain
-           Nothing
-           (DynamicLineText "(ゾンビに話しかけたときのフレーバー)")
-           [ makeResponse "友達になる" friendTamed ConditionNone
-           , makeResponse "会話を終了" trialTalkDone ConditionNone
-           ]
+  talkFriendTamed' <- talkFriendTamed
+  effectsToFriend' <- effectsToFriend
+  returnTalk idMain $ def
+    & dynamicLine .~ DynamicLineText "(ゾンビに話しかけたときのフレーバー)"
+    & responses .~
+      [ simpleResponse "友達になる" talkFriendTamed'
+          & successEffect .~ effectsToFriend'
+      , responseDone
+      ]
 
-talkFriendTamed :: Reader TalkConfig Talk
-talkFriendTamed = do
-  makeTalkSimple idFriendTamed
-    "あなたと友達になりました"
-    "・・・"
-    trialTalkDone
-    []
+talkFriendTamed :: TalkAction Talk
+talkFriendTamed = returnTalk idFriendTamed $ def
+  & dynamicLine .~ DynamicLineText "あなたと友達になりました。"
+  & responses .~ [ responseDone ]

@@ -154,13 +154,13 @@ makeCddaMod = J.CddaMod
             return (FP.getMonsterFriend i, m)
        in mapMaybe f I.allFriendMonster
   , J._cddaModTalkVanilla    =
-      let vanilla = concatMap (map J.convTalk . vanillaTalk) allMonsterFriend
-       in [(FP.getTalkVanilla, vanilla)]
+      let vanilla = concatMap (J.concatTalk . vanillaTalk) allMonsterFriend
+       in [(FP.getTalkVanilla, L.nubOrdOn J._talkId vanilla)]
   , J._cddaModTalkFriend     =
       let f m = map (g m) $ friendTalk m
-          g :: Monster -> (Int, [Talk]) -> (FilePath, [J.Talk])
+          g :: Monster -> (Int, Talk) -> (FilePath, [J.Talk])
           g m = bimap (FP.getTalkFriend (m ^. base))
-                      (map J.convTalk)
+                      (L.nubOrdOn J._talkId . J.concatTalk)
        in concatMap f allMonsterFriend
   , J._cddaModSpellToFriend  =
       let spell = map (\m -> J.convSpellPolymorph $ S.spellToFriend $ m ^. base) allMonsterFriend

@@ -11,6 +11,7 @@ module Define.Json
   , DeathFunction(..)
   , DeathFunctionEffect(..)
   , Talk(..)
+  , SpeakerEffect(..)
   , Response(..)
   , Trial(..)
   , TrialResponse(..)
@@ -36,6 +37,7 @@ import Define.Aeson
 import qualified Define.Core as C
 import qualified Define.MonsterGroup as C
 import qualified Define.Talk as CT
+import qualified Define.EOC as E
 
 import Data.Aeson
 import qualified Data.Text as T
@@ -175,7 +177,7 @@ instance ToJSON DeathFunctionEffect where
 data Talk = Talk
   { _talkId :: C.Id
   , _talkCddaType :: T.Text
-  , _talkSpeakerEffect :: Maybe CT.Effect
+  , _talkSpeakerEffect :: Maybe SpeakerEffect
   , _talkDynamicLine :: CT.DynamicLine
   , _talkResponses :: [Response]
   }
@@ -184,9 +186,19 @@ data Talk = Talk
 instance ToJSON Talk where
   toJSON = genericToJSON cddaOption
 
+data SpeakerEffect = SpeakerEffect
+  { _speakereffectSentinel :: Maybe T.Text
+  , _speakereffectCondition :: Maybe E.Condition
+  , _speakereffectEffect :: [E.Effect]
+  }
+  deriving Generic
+
+instance ToJSON SpeakerEffect where
+  toJSON = genericToJSON cddaOption
+
 data Response = Response
   { _responseText :: T.Text
-  , _responseCondition :: Maybe CT.Condition
+  , _responseCondition :: Maybe E.Condition
   , _responseTrial :: Trial
   , _responseSuccess :: TrialResponse
   , _responseFailure :: Maybe TrialResponse
@@ -198,7 +210,7 @@ instance ToJSON Response where
 
 data Trial = Trial
   { _trialCddaType :: T.Text
-  , _trialCondition :: Maybe CT.Condition
+  , _trialCondition :: Maybe E.Condition
   }
   deriving Generic
 
@@ -206,7 +218,7 @@ instance ToJSON Trial where
   toJSON = genericToJSON cddaOption
 
 data TrialResponse = TrialResponse
-  { _trialresponseTopic :: T.Text
+  { _trialresponseTopic :: C.Id
   , _trialresponseEffect :: Maybe TalkEffects
   }
   deriving Generic
@@ -214,7 +226,7 @@ data TrialResponse = TrialResponse
 instance ToJSON TrialResponse where
   toJSON = genericToJSON cddaOption
 
-newtype TalkEffects = TalkEffects [CT.Effect]
+newtype TalkEffects = TalkEffects [E.Effect]
 
 instance ToJSON TalkEffects where
   toJSON (TalkEffects es) = toJSON es
