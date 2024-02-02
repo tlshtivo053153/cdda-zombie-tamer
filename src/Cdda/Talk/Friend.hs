@@ -16,11 +16,9 @@ import Cdda.Talk.Utils
 import Cdda.Talk.Config
 
 import qualified Cdda.Monster as M
-import qualified Cdda.Item as I
 import Cdda.Id.Item
 import Cdda.Id.Spell
 import Cdda.Monster.Exp
-import Cdda.Item
 import Cdda.EOC.Math
 
 import qualified Data.Text as T
@@ -78,6 +76,10 @@ valTmpTotalExp :: Val
 valTmpNeedExp :: Val
 valTmpHp :: Val
 valTmpMaxHp :: Val
+valTmpBash :: Val
+valTmpBullet :: Val
+valTmpCut :: Val
+valTmpStab :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
@@ -86,6 +88,10 @@ valTmpTotalExp = ContextVal "tmp_zombie_total_exp"
 valTmpNeedExp = ContextVal "tmp_zombie_need_exp"
 valTmpHp = ContextVal "tmp_zombie_hp"
 valTmpMaxHp = ContextVal "tmp_zombie_max_hp"
+valTmpBash = ContextVal "tmp_zombie_bash"
+valTmpBullet = ContextVal "tmp_zombie_bullet"
+valTmpCut = ContextVal "tmp_zombie_cut"
+valTmpStab = ContextVal "tmp_zombie_stab"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -147,6 +153,10 @@ responseMainShowStatus = do
       , EffectMath $ valTmpTotalExp =: valTotalExp
       , EffectMath $ valTmpHp =: MathExpr "n_hp('torso')"
       , EffectMath $ valTmpMaxHp =: MathExpr "n_hp_max('torso')"
+      , EffectMath $ valTmpBash =: MathExpr "n_armor('bash', 'torso')"
+      , EffectMath $ valTmpBullet =: MathExpr "n_armor('bullet', 'torso')"
+      , EffectMath $ valTmpCut =: MathExpr "n_armor('cut', 'torso')"
+      , EffectMath $ valTmpStab =: MathExpr "n_armor('stab', 'torso')"
       ]
 
 talkMain :: TalkAction Talk
@@ -362,10 +372,10 @@ talkShowStatus = do
                       <> showVal valTmpMaxHp
                     , showLens "速度: " speed
                        <> showLens " 回避: " dodge
-                    , showLens "耐打: " (armor.bash)
-                       <> showLens " 耐弾: " (armor.bullet)
-                       <> showLens " 耐斬: " (armor.cut)
-                       <> showLens " 耐刺: " (armor.stab)
+                    , "耐打: " <> showVal valTmpBash
+                       <> " 耐弾: " <> showVal valTmpBullet
+                       <> " 耐斬: " <> showVal valTmpCut
+                       <> " 耐刺: " <> showVal valTmpStab
                     , showLens "戦闘スキル: " (melee.skill)
                     , "経験値: " <> showVal valTmpCurrentExp
                     ]
