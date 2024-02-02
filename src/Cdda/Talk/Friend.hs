@@ -71,49 +71,17 @@ idLevelUp = Id "LEVEL_UP"
 idShowStatus :: Id
 idShowStatus = Id "SHOW_STATUS"
 
-opLT :: Op
-opLTEQ :: Op
-opGT :: Op
-opGTEQ :: Op
-opEQ :: Op
-opNotEQ :: Op
-
-opLT = Op "<"
-opLTEQ = Op  "<="
-opGT = Op ">"
-opGTEQ = Op ">"
-opEQ = Op "=="
-opNotEQ = Op "!="
-
-varCurrentExp :: Var
-varTotalExp :: Var
-varFriendship :: Var
-
-varCurrentExp = Var "zombie_current_exp" "counter" "friend"
-varTotalExp   = Var "zombie_total_exp" "counter" "friend"
-varFriendship = Var "zombie_friendship" "counter" "friend"
-
 valCurrentExp :: Val
 valTotalExp :: Val
 valTmpCurrentExp :: Val
 valTmpTotalExp :: Val
 valTmpNeedExp :: Val
-valTmpFriendship :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
 valTmpCurrentExp = ContextVal "tmp_zombie_current_exp"
 valTmpTotalExp = ContextVal "tmp_zombie_total_exp"
 valTmpNeedExp = ContextVal "tmp_zombie_need_exp"
-valTmpFriendship = ContextVal "tmp_zombie_friendship"
-
-{-# DEPRECATED toUValVar "" #-}
-{-# DEPRECATED toNpcValVar "" #-}
-toUValVar :: Var -> Val
-toNpcValVar :: Var -> Val
-
-toUValVar (Var n t c) = UVal $ t <> "_" <> c <> "_" <> n
-toNpcValVar (Var n t c) = NpcVal $ t <> "_" <> c <> "_" <> n
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
