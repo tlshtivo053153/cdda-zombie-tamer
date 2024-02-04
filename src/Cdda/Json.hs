@@ -426,6 +426,6 @@ convTransFurniture t = J.TransFurniture
 
 convFlag :: Flag -> J.Flag
 convFlag (Flag fId) = J.Flag
-  { J._flagType = "json_flag"
+  { J._flagType = "monster_flag"
   , J._flagId = Id fId
   }
