@@ -10,6 +10,7 @@ module Define.Json
   , Damage(..)
   , DeathFunction(..)
   , DeathFunctionEffect(..)
+  , Extend(..)
   , Talk(..)
   , SpeakerEffect(..)
   , Response(..)
@@ -114,6 +115,7 @@ data Monster = Monster
   , _monsterHarvest        :: Maybe C.Id
   , _monsterDissect        :: Maybe C.Id
   , _monsterDeathFunction  :: Maybe DeathFunction
+  , _monsterExtend         :: Maybe Extend
   }
   deriving Generic
 
@@ -174,6 +176,14 @@ data DeathFunctionEffect = DeathFunctionEffect
   deriving Generic
 
 instance ToJSON DeathFunctionEffect where
+  toJSON = genericToJSON cddaOption
+
+newtype Extend = Extend
+  { _extendFlags :: [T.Text]
+  }
+  deriving Generic
+
+instance ToJSON Extend where
   toJSON = genericToJSON cddaOption
 
 data Talk = Talk

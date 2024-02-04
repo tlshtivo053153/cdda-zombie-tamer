@@ -35,6 +35,8 @@ import Cdda.Id.Spell
 import Cdda.Talk.Utils
 import Cdda.Monster.Strength
 import Cdda.DeathFunction
+import Cdda.Flag.Level
+import Cdda.Flag.Upgrade
 
 import qualified Define.Json as J
 
@@ -121,6 +123,13 @@ convMonsters m = map f statuss
                             , _deathFunctionMessage    = Nothing
                             }
                in addSpell *> Just (convDeathFunction df')
+          , J._monsterExtend = Just $ J.Extend
+              { J._extendFlags =
+                let flagLevel = runFlag $ getLevel l
+                    flagRandoms = map runFlag $ getRandom $ m ^. base
+                    flagStandards = map runFlag $ getStandard $ m ^. base
+                 in [flagLevel] ++ flagRandoms ++ flagStandards
+              }
           }
 
 convDeathFunction :: DeathFunction -> J.DeathFunction

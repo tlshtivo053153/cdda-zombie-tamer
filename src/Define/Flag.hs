@@ -4,5 +4,5 @@ module Define.Flag
 
 import Data.Text
 
-newtype Flag = Flag Text
+newtype Flag = Flag { runFlag :: Text }
   deriving (Eq, Ord)

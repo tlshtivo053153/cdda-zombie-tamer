@@ -23,6 +23,7 @@ import Data.Text
 import Data.Default
 
 import Define.Core
+import Define.Flag
 
 data Armor = Armor
   { _armorBash   :: Int
@@ -142,5 +143,6 @@ data Monster = Monster
   , _monsterFriendCost :: Int
   , _monsterUpgradeRandom :: UpgradeRandom
   , _monsterUpgradeStandard :: [UpgradeStandard]
+  , _monsterFlags :: [Flag]
   }
 

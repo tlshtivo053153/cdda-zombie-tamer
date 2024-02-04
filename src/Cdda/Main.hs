@@ -106,6 +106,7 @@ makeCddaMod = J.CddaMod
                             , _deathFunctionMessage    = Nothing
                             }
                in addSpell *> Just (J.convDeathFunction df')
+            , J._monsterExtend = Nothing
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -143,6 +144,7 @@ makeCddaMod = J.CddaMod
                             , _deathFunctionMessage    = Nothing
                             }
                in addSpell *> Just (J.convDeathFunction df')
+            , J._monsterExtend = Nothing
             }
           frineds = mapMaybe (fmap fMon . getMonsterFriend) I.allFriendMonster
           nonFriends = map nfMon I.allNonFriendMonster

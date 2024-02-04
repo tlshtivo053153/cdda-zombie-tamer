@@ -18,6 +18,7 @@ import Cdda.Monster.Growth
 import Cdda.Monster.Strength
 import Cdda.Monster.Petfood
 import Cdda.Monster.Upgrade
+import Cdda.Flag.Upgrade
 
 allMonsterFriend :: [Monster]
 allMonsterFriend = mapMaybe getMonsterFriend I.allFriendMonster
@@ -40,6 +41,7 @@ getMonsterFriend i = do
     , _monsterFriendCost      = cost
     , _monsterUpgradeRandom   = getUpgradeRandom i
     , _monsterUpgradeStandard = getUpgradeStandard i
+    , _monsterFlags            = getRandom i ++ getStandard i
     }
 
 idToName :: Id -> Maybe T.Text
