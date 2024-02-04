@@ -16,6 +16,7 @@ module Cdda.Json
   , convFurniture
   , convTerFurnTransform
   , convTransFurniture
+  , convFlag
   ) where
 
 import Prelude hiding (id, pure)
@@ -50,6 +51,7 @@ import Define.Furniture
 import Define.TerFurnTransform
 import Define.DeathFunction
 import Define.EOC
+import Define.Flag
 
 convItemPetfood :: ItemPetfood -> J.Item
 convItemPetfood i = J.Item
@@ -411,4 +413,10 @@ convTransFurniture :: TransFurniture -> J.TransFurniture
 convTransFurniture t = J.TransFurniture
   { J._transfurnitureResult         = t ^. result
   , J._transfurnitureValidFurniture = [t ^. validFurniture]
+  }
+
+convFlag :: Flag -> J.Flag
+convFlag (Flag fId) = J.Flag
+  { J._flagType = "json_flag"
+  , J._flagId = Id fId
   }

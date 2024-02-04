@@ -29,6 +29,7 @@ module Define.Json
   , FurnitureItem(..)
   , TerFurnTransform(..)
   , TransFurniture(..)
+  , Flag(..)
   ) where
 
 import GHC.Generics
@@ -63,6 +64,7 @@ data CddaMod = CddaMod
   , _cddaModHarvestDropType :: CddaJson HarvestDropType
   , _cddaModFurniture :: CddaJson Furniture
   , _cddaModTerFurnTransform :: CddaJson TerFurnTransform
+  , _cddaModFlag :: CddaJson Flag
   }
 
 data ModInfo = ModInfo
@@ -376,4 +378,13 @@ data TransFurniture = TransFurniture
   deriving Generic
 
 instance ToJSON TransFurniture where
+  toJSON = genericToJSON cddaOption
+
+data Flag = Flag
+  { _flagType :: T.Text
+  , _flagId :: C.Id
+  }
+  deriving Generic
+
+instance ToJSON Flag where
   toJSON = genericToJSON cddaOption

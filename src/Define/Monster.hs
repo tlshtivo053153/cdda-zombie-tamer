@@ -122,6 +122,7 @@ data UpgradeRandomType
   | URElectric
   | URSkeleton
   | URNone
+  deriving Show
 
 data UpgradeCondition
   = UCTrue

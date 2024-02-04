@@ -47,6 +47,7 @@ import Cdda.HarvestDropType
 import Cdda.Furniture
 import Cdda.TerFurnTransform
 import Cdda.DeathFunction
+import Cdda.Flag
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -199,6 +200,7 @@ makeCddaMod = J.CddaMod
   , J._cddaModHarvestDropType = (FP.getHarvestDropType, [J.convHarvestDropType harvestDropTypeTaintedFood])
   , J._cddaModFurniture = (FP.getFurniture, map J.convFurniture allFurniture)
   , J._cddaModTerFurnTransform = (FP.getTerFurnTransform, map J.convTerFurnTransform allTerFurnTransform)
+  , J._cddaModFlag = (FP.getFlag, map J.convFlag allFlag)
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -221,6 +223,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ [ f (m ^. harvestDropType) ]
   ++ [ f (m ^. furniture) ]
   ++ [ f (m ^. terFurnTransform) ]
+  ++ [ f (m ^. flag) ]
     where
       f (path, objs) = (path, encode objs)
 

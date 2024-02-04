@@ -18,6 +18,7 @@ module Cdda.FilePath
   , getHarvestDropType
   , getFurniture
   , getTerFurnTransform
+  , getFlag
   ) where
 
 import System.FilePath
@@ -81,3 +82,6 @@ getFurniture = "furniture.json"
 
 getTerFurnTransform :: FilePath
 getTerFurnTransform = "ter_furn_transform.json"
+
+getFlag :: FilePath
+getFlag = "flags.json"
