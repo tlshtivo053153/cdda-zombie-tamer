@@ -17,7 +17,6 @@ import Cdda.Monster.Status
 import Cdda.Monster.Growth
 import Cdda.Monster.Strength
 import Cdda.Monster.Petfood
-import Cdda.Monster.Upgrade
 import Cdda.Flag.Upgrade
 
 allMonsterFriend :: [Monster]
@@ -39,8 +38,6 @@ getMonsterFriend i = do
     , _monsterStrength        = strength
     , _monsterPetfood         = petfood
     , _monsterFriendCost      = cost
-    , _monsterUpgradeRandom   = getUpgradeRandom i
-    , _monsterUpgradeStandard = getUpgradeStandard i
     , _monsterFlags            = getRandom i ++ getStandard i
     }
 

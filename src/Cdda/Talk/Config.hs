@@ -24,8 +24,6 @@ getVanillaTalkConfig :: Monster -> TalkConfig
 getVanillaTalkConfig mon = TalkConfig
   { _talkConfigMonsterId = mon^.base
   , _talkConfigMonsterBase = mon^.base
-  , _talkConfigUpgradeRandom = mon^.upgradeRandom
-  , _talkConfigUpgradeStandard = mon^.upgradeStandard
   , _talkConfigPetfood = mon^.petfood
   , _talkConfigStatus = mon^.status
   , _talkConfigLevel = 0
@@ -46,8 +44,6 @@ getFriendTalkConfig mon =
         TalkConfig
         { _talkConfigMonsterId = m
         , _talkConfigMonsterBase = mon^.base
-        , _talkConfigUpgradeRandom = mon^.upgradeRandom
-        , _talkConfigUpgradeStandard = mon^.upgradeStandard
         , _talkConfigPetfood = p
         , _talkConfigStatus = s
         , _talkConfigLevel = l

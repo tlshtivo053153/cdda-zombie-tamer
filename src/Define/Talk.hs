@@ -107,8 +107,6 @@ instance Default Talk where
 data TalkConfig = TalkConfig
   { _talkConfigMonsterId :: Id
   , _talkConfigMonsterBase :: Id
-  , _talkConfigUpgradeRandom :: UpgradeRandom
-  , _talkConfigUpgradeStandard :: [UpgradeStandard]
   , _talkConfigPetfood :: PetFood
   , _talkConfigStatus :: Status
   , _talkConfigLevel :: Int
@@ -120,8 +118,6 @@ instance Default TalkConfig where
   def = TalkConfig
     { _talkConfigMonsterId       = def
     , _talkConfigMonsterBase     = def
-    , _talkConfigUpgradeRandom   = UpgradeRandom UCFalse URNone
-    , _talkConfigUpgradeStandard = []
     , _talkConfigPetfood         = PetFood []
     , _talkConfigStatus          = def
     , _talkConfigLevel           = 1

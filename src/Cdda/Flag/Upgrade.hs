@@ -1,9 +1,13 @@
 {-# LANGUAGE OverloadedStrings, TupleSections #-}
 module Cdda.Flag.Upgrade
   ( randoms
+  , random
   , getRandom
   , standards
   , getStandard
+  , standard
+  , flagUpgradeFromZombie
+  , flagUpgradeFromZombieMedic
   ) where
 
 import Define.Core

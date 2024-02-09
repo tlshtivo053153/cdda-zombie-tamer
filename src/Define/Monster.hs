@@ -125,10 +125,7 @@ data UpgradeRandomType
   | URNone
   deriving Show
 
-data UpgradeCondition
-  = UCTrue
-  | UCFalse
-  | UCHaveItem Id Int
+data UpgradeCondition = UCHaveItem Id Int
 
 data UpgradeRandom = UpgradeRandom UpgradeCondition UpgradeRandomType
 
@@ -141,8 +138,6 @@ data Monster = Monster
   , _monsterStrength :: Strength
   , _monsterPetfood :: PetFood
   , _monsterFriendCost :: Int
-  , _monsterUpgradeRandom :: UpgradeRandom
-  , _monsterUpgradeStandard :: [UpgradeStandard]
   , _monsterFlags :: [Flag]
   }
 

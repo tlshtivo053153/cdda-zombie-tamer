@@ -10,8 +10,10 @@ module Define.EOC
   , Var(..)
   , CompareVar(..)
   , Condition(..)
+  , EValue(..)
   , Effect(..)
   , Expr(..)
+  , ToEValue(..)
   ) where
 
 import GHC.Generics (Generic)
@@ -132,10 +134,10 @@ data CompareVar = UCompareVar Var Op Int
 data Condition = ConditionAnd [Condition]
                | ConditionOr [Condition]
                | ConditionNot Condition
-               | UHasItems Id Int
                | ConditionMath Math
                | ConditionCompareVar CompareVar
                | ConditionNone
+               | ConditionEffect Effect
 
 instance Default Condition where
   def = ConditionNone
@@ -149,11 +151,6 @@ toJSONCondition :: Condition -> Maybe Value
 toJSONCondition (ConditionAnd cs)          = Just $ object [ "and" .= map toJSONCondition cs ]
 toJSONCondition (ConditionOr cs)           = Just $ object [ "or" .= map toJSONCondition cs ]
 toJSONCondition (ConditionNot c)           = Just $ object [ "not" .= toJSONCondition c ]
-toJSONCondition (UHasItems itemId n)       = Just $ object [ "u_has_items" .= object
-                                                      [ "item" .= itemId
-                                                      , "count" .= n
-                                                      ]
-                                                    ]
 toJSONCondition (ConditionMath m) = Just $ toJSON m
 toJSONCondition ConditionNone              = Nothing
 toJSONCondition (ConditionCompareVar cvar) =
@@ -176,22 +173,36 @@ toJSONCondition (ConditionCompareVar cvar) =
     NpcCompareVar v op n -> toCompareVarObject "npc_compare_var" v op n
     UCompareTime v op time -> toCompareTimeObject "u_compare_time" v op time
     NpcCompareTime v op time -> toCompareTimeObject "npc_compare_time" v op time
+toJSONCondition (ConditionEffect e) = Just $ toJSON e
+
+data EValue = EInt Int
+            | EString Text
+            | EBool Bool
+            | EVal Val
+
+instance ToJSON EValue where
+  toJSON v = case v of
+                EInt i -> toJSON i
+                EString t -> toJSON t
+                EBool b -> toJSON b
+                EVal val -> toJSON val
 
 {-# DEPRECATED EffectArithmetic "replace Math" #-}
 {-# DEPRECATED UAdjustVar "replace Math" #-}
 {-# DEPRECATED NpcAdjustVar "replace Math" #-}
 data Effect = EffectArithmetic Arithmetic
             | EffectMath Math
-            | NpcCastSpell Id Bool
-            | UConsumeItem Id Int
-            | UConsumeItemVal Val Val
+            | NpcCastSpell EValue EValue
+            | UConsumeItem EValue EValue
             | UMessage Text Text Bool
             | UAdjustVar Var Int
             | NpcAdjustVar Var Int
             | UAddMorale Id Int Int Text Text
             | UAddEffect Id Int
             | NpcAddEffect Id Int
-            | SetStringVar Val Text Bool
+            | SetStringVar EValue EValue EValue
+            | UHasItems EValue EValue
+            | NpcHasFlag EValue
 
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
@@ -203,9 +214,6 @@ instance ToJSON Effect where
                                              ]
   toJSON (UConsumeItem itemId n   ) = object [ "u_consume_item" .= itemId
                                              , "count" .= n
-                                             ]
-  toJSON (UConsumeItemVal v n ) = object [ "u_consume_item" .= toJSON v
-                                             , "count" .= toJSON n
                                              ]
   toJSON (UMessage t1 t2 b        ) = object [ "u_message" .= t1
                                              , "type" .= t2
@@ -237,6 +245,14 @@ instance ToJSON Effect where
                                        , "target_var" .= toJSON v
                                        , "parse_tags" .= b
                                        ]
+  toJSON (UHasItems itemId n) = object
+                            [ "u_has_items" .= object
+                              [ "item" .= itemId
+                              , "count" .= n
+                              ]
+                            ]
+
+  toJSON (NpcHasFlag f) = object [ "npc_has_flag" .= f ]
 
 class Expr e where
   toExpr :: e -> MathExpr
@@ -254,3 +270,21 @@ instance Expr Val where
 
 instance Expr MathExpr where
   toExpr = id
+
+class ToEValue v where
+  toEValue :: v -> EValue
+
+instance ToEValue Int where
+  toEValue = EInt
+
+instance ToEValue Text where
+  toEValue = EString
+
+instance ToEValue Bool where
+  toEValue = EBool
+
+instance ToEValue Val where
+  toEValue = EVal
+
+instance ToEValue Id where
+  toEValue (Id i) = toEValue i

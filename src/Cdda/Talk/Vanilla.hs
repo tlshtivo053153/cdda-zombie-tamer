@@ -12,6 +12,7 @@ import Define.MakeFields
 
 import Cdda.Talk.Utils
 import Cdda.Talk.Config
+import Cdda.EOC
 
 import Cdda.Id.Spell
 
@@ -35,15 +36,15 @@ _effectsToFriend consumeItem n = do
   (Id monId) <- view monsterId
   let spellId = Id $ "spell_" <> monId <> "_to_friend"
   return
-    [ NpcCastSpell spellId False
-    , UConsumeItem consumeItem n
+    [ npcCastSpell spellId False
+    , uConsumeItem consumeItem n
     ]
 
 effectsToFriend :: TalkAction [Effect]
 effectsToFriend = do
   monId <- view monsterId
   let spellId = idSpellToFriend monId
-  return [ NpcCastSpell spellId False ]
+  return [ npcCastSpell spellId False ]
 
 talkMain :: TalkAction Talk
 talkMain = do

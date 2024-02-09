@@ -179,7 +179,7 @@ makeCddaMod = J.CddaMod
         convSpell' s = let s' = J.convSpellPolymorph s in s' { J._spellFlags = "POLYMORPH_GROUP" : J._spellFlags s' }
      in [(FP.getSpellUpgradeRandom, spell)]
   , J._cddaModSpellUpgradeStandard =
-    let spell = map (J.convSpellPolymorph . S.spellUpgradeStandard) allUpgradeStandardList
+    let spell = map (J.convSpellPolymorph . S.spellUpgradeStandard . fst) allUpgradeStandardList
         spellNub = L.nubOrdOn J._spellId spell
      in [(FP.getSpellUpgradeStandard, spellNub)]
   , J._cddaModSpellDeathFunc =
