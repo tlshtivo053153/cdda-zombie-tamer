@@ -3,7 +3,7 @@ module Cdda.Talk.Friend
   ( friendTalk
   ) where
 
-import Prelude hiding (id, (+), (-), (*), (>), (>=), (++))
+import Prelude hiding (id, (+), (-), (*), (>), (>=), (++), (==))
 import qualified Prelude as P
 
 import Define.Core
@@ -90,9 +90,11 @@ valTmpFoodName :: Val
 valTmpFoodHaveNum :: Val
 valTmpFoodConsumeNum :: Val
 valTmpFoodExp :: Val
+valTmpLevel :: Val
 valNeedItemId :: Val
 valNeedItemNum :: Val
 valSpellUpgrade :: Val
+valIsInitialize :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
@@ -110,9 +112,11 @@ valTmpFoodName = ContextVal "tmp_food_name"
 valTmpFoodHaveNum = ContextVal "tmp_food_have_num"
 valTmpFoodConsumeNum = ContextVal "tmp_food_consume_num"
 valTmpFoodExp = ContextVal "tmp_food_exp"
+valTmpLevel = ContextVal "tmp_level"
 valNeedItemId = ContextVal "need_item_id"
 valNeedItemNum = ContextVal "need_item_num"
 valSpellUpgrade = ContextVal "spell_upgrade"
+valIsInitialize = NpcVal "is_initialize"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -123,6 +127,12 @@ showVal (VarVal _) = ""
 
 showItemName :: Id -> String
 showItemName (Id itemName) = "<item_name:" <> T.unpack itemName <> ">"
+
+initVar :: [Effect]
+initVar =
+  [ runEocs (initLevel ^. id)
+  , NpcAddVar valIsInitialize "yes"
+  ]
 
 nextLevelIndex :: TalkAction Int
 nextLevelIndex = view level
@@ -184,6 +194,8 @@ responseMainLevelUp = do
             Just e' ->
               Just $ simpleResponse "レベルアップ可能" talkLevelUp'
                       & condition .~ ConditionMath (Math1 $ valCurrentExp >= e')
+                      & successEffect .~
+                        [ EffectMath $ valTmpLevel =: valLevel ]
 
 responseMainSpecialAction :: TalkAction (Maybe Response)
 responseMainSpecialAction = return Nothing
@@ -216,6 +228,8 @@ talkMain = do
   returnTalk idMain $ def
     & dynamicLine .~ DynamicLineText "友達ゾンビに話しかけたときのフーレバー"
     & responses .~ res
+    & speakerEffectCondition ?~ ConditionNot (ConditionEffect $ NpcHasVar valIsInitialize "yes")
+    & speakerEffect .~ initVar
 
 talkItemFed :: TalkAction Talk
 talkItemFed = do
@@ -383,9 +397,8 @@ talkLevelUpDone = do
 talkLevelUp :: TalkAction Talk
 talkLevelUp = do
   rss <- responseLevelUp
-  l <- view level
   returnTalk idLevelUp $ def
-    & dynamicLine .~ DynamicLineText ("レベルアップメニュー(現在レベル" <> T.pack (show l) <> ")")
+    & dynamicLine .~ DynamicLineText (T.pack $ "レベルアップメニュー(現在レベル" <> showVal valTmpLevel <> ")")
     & responses .~ rss <> [ responseBack ]
 
 responseLevelUp :: TalkAction [Response]
@@ -409,10 +422,9 @@ responseLevelUp = do
 talkShowStatus :: TalkAction Talk
 talkShowStatus = do
   s <- view status
-  level' <- view level
   let showLens t l = t <> show (s^.l)
       statusText = T.pack $ unlines
-                    [ "レベル: " <> show level'
+                    [ "レベル: " <> showVal valLevel
                     , "HP: "
                       <> showVal valTmpHp
                       <> "/"

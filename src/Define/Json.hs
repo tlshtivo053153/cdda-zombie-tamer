@@ -31,6 +31,7 @@ module Define.Json
   , TerFurnTransform(..)
   , TransFurniture(..)
   , Flag(..)
+  , Eoc(..)
   ) where
 
 import GHC.Generics
@@ -66,6 +67,7 @@ data CddaMod = CddaMod
   , _cddaModFurniture :: CddaJson Furniture
   , _cddaModTerFurnTransform :: CddaJson TerFurnTransform
   , _cddaModFlag :: CddaJson Flag
+  , _cddaModEoc :: CddaJson Eoc
   }
 
 data ModInfo = ModInfo
@@ -397,4 +399,14 @@ data Flag = Flag
   deriving Generic
 
 instance ToJSON Flag where
+  toJSON = genericToJSON cddaOption
+
+data Eoc = Eoc
+  { _eocType :: T.Text
+  , _eocId :: C.Id
+  , _eocEffect :: [E.Effect]
+  }
+  deriving Generic
+
+instance ToJSON Eoc where
   toJSON = genericToJSON cddaOption

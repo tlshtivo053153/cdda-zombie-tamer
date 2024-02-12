@@ -92,6 +92,7 @@ data Talk = TalkBack
           | Talk
   { _talkTalkId :: Id
   , _talkSpeakerEffect :: [Effect]
+  , _talkSpeakerEffectCondition :: Maybe Condition
   , _talkDynamicLine :: DynamicLine
   , _talkResponses :: [Response]
   }
@@ -100,6 +101,7 @@ instance Default Talk where
   def = Talk
     { _talkTalkId        = def
     , _talkSpeakerEffect = def
+    , _talkSpeakerEffectCondition = def
     , _talkDynamicLine   = def
     , _talkResponses     = def
     }

@@ -21,7 +21,7 @@ import Define.DeathFunction
 
 makeFields ''E.Effect
 
-makeFields ''EOC
+makeFields ''Eoc
 
 makeFields ''ItemPetfood
 

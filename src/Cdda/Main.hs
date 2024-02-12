@@ -48,6 +48,7 @@ import Cdda.Furniture
 import Cdda.TerFurnTransform
 import Cdda.DeathFunction
 import Cdda.Flag
+import Cdda.EOC
 
 makeModInfo :: J.ModInfo
 makeModInfo = J.ModInfo
@@ -203,6 +204,7 @@ makeCddaMod = J.CddaMod
   , J._cddaModFurniture = (FP.getFurniture, map J.convFurniture allFurniture)
   , J._cddaModTerFurnTransform = (FP.getTerFurnTransform, map J.convTerFurnTransform allTerFurnTransform)
   , J._cddaModFlag = (FP.getFlag, map J.convFlag allFlag)
+  , J._cddaModEoc = (FP.getEoc, map J.convEoc allEoc)
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -226,6 +228,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ [ f (m ^. furniture) ]
   ++ [ f (m ^. terFurnTransform) ]
   ++ [ f (m ^. flag) ]
+  ++ [ f (m ^. eoc) ]
     where
       f (path, objs) = (path, encode objs)
 

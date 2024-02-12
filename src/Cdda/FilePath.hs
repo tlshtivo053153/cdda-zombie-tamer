@@ -19,6 +19,7 @@ module Cdda.FilePath
   , getFurniture
   , getTerFurnTransform
   , getFlag
+  , getEoc
   ) where
 
 import System.FilePath
@@ -85,3 +86,6 @@ getTerFurnTransform = "ter_furn_transform.json"
 
 getFlag :: FilePath
 getFlag = "flags.json"
+
+getEoc :: FilePath
+getEoc = "eocs.json"

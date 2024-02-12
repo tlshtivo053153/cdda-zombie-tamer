@@ -23,6 +23,8 @@ module Cdda.EOC.Math
   , (*)
   , mathDiv
   , (/)
+  , mathEqual
+  , (==)
   , mathLess
   , (<)
   , mathLessEq
@@ -36,7 +38,7 @@ module Cdda.EOC.Math
   , mathFunc3
   ) where
 
-import Prelude hiding ( (+), (-), (*), (/), (<), (>), (<=), (>=), (/=), (++) )
+import Prelude hiding ( (+), (-), (*), (/), (<), (>), (<=), (>=), (/=), (++), (==) )
 import Data.Text
 import qualified Data.Text as T
 import Define.EOC
@@ -121,6 +123,12 @@ mathDiv = mathOp " / "
 
 (/) :: (Expr e1, Expr e2) => e1 -> e2 -> MathExpr
 (/) = mathDiv
+
+mathEqual :: (Expr e1, Expr e2) => e1 -> e2 -> MathExpr
+mathEqual = mathOp " == "
+
+(==) :: (Expr e1, Expr e2) => e1 -> e2 -> MathExpr
+(==) = mathEqual
 
 mathLess :: (Expr e1, Expr e2) => e1 -> e2 -> MathExpr
 mathLess = mathOp " < "

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 module Define.EOC
-  ( EOC(..)
+  ( Eoc(..)
   , Val(..)
   , Math(..)
   , MathExpr(..)
@@ -25,14 +25,24 @@ import qualified Data.Text as T
 
 import Define.Core
 
-data EOC = EOC
+data Eoc = Eoc
   { _eocId :: Id
-  , _eocRecurrence :: Int
-  , _eocCondition :: Condition
-  , _eocDeactiveConditon :: Condition
-  , _eocEffect :: Effect
-  , _eocFalseEffect :: Effect
+  , _eocRecurrence :: Maybe Int
+  , _eocCondition :: Maybe Condition
+  , _eocDeactiveConditon :: Maybe Condition
+  , _eocEffect :: [Effect]
+  , _eocFalseEffect :: Maybe [Effect]
   }
+
+instance Default Eoc where
+  def = Eoc
+    { _eocId = Id ""
+    , _eocRecurrence = Nothing
+    , _eocCondition = Nothing
+    , _eocDeactiveConditon = Nothing
+    , _eocEffect = []
+    , _eocFalseEffect = Nothing
+    }
 
 data Val = UVal Text
          | NpcVal Text
@@ -179,6 +189,10 @@ data EValue = EInt Int
             | EString Text
             | EBool Bool
             | EVal Val
+            | EMath Math
+            | ECondition Condition
+            | EEffect Effect
+            | EList [EValue]
 
 instance ToJSON EValue where
   toJSON v = case v of
@@ -186,6 +200,10 @@ instance ToJSON EValue where
                 EString t -> toJSON t
                 EBool b -> toJSON b
                 EVal val -> toJSON val
+                EMath m -> toJSON m
+                ECondition c -> toJSON c
+                EEffect e -> toJSON e
+                EList es -> toJSON es
 
 {-# DEPRECATED EffectArithmetic "replace Math" #-}
 {-# DEPRECATED UAdjustVar "replace Math" #-}
@@ -203,6 +221,13 @@ data Effect = EffectArithmetic Arithmetic
             | SetStringVar EValue EValue EValue
             | UHasItems EValue EValue
             | NpcHasFlag EValue
+            | RunEocUntil EValue Id
+            | RunEocs EValue
+            | If EValue EValue (Maybe EValue)
+            | SetCondition Id Condition
+            | ULoseVar Val
+            | NpcAddVar Val Text
+            | NpcHasVar Val Text
 
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
@@ -253,12 +278,45 @@ instance ToJSON Effect where
                             ]
 
   toJSON (NpcHasFlag f) = object [ "npc_has_flag" .= f ]
+  toJSON (RunEocUntil eoc c) = object [ "run_eoc_until" .= eoc
+                                      , "condition" .= c
+                                      , "iteration_count" .= (101 :: Int)
+                                      ]
+  toJSON (RunEocs eoc) = object [ "run_eocs" .= eoc ]
+  toJSON (If c t (Just e)) = object [ "if" .= c
+                                    , "then" .= t
+                                    , "else" .= e
+                                    ]
+  toJSON (If c t Nothing) = object [ "if" .= c
+                                   , "then" .= t
+                                   ]
+  toJSON (SetCondition condId cond) = object [ "set_condition" .= condId
+                                             , "condition" .= cond
+                                             ]
+  toJSON (ULoseVar (UVal v)) = object [ "u_lose_var" .= v ]
+  toJSON (ULoseVar _) = object [ "u_lose_var" .= ("undefined" :: T.Text) ]
+  toJSON (NpcAddVar (NpcVal v) va) = object [ "npc_add_var" .= v
+                                            , "value" .= va
+                                            ]
+  toJSON (NpcAddVar _ _) = object [ "npc_add_var" .= ("npc_add_var_undefined" :: T.Text)
+                                  , "value" .= ("undef" :: T.Text)
+                                  ]
+  toJSON (NpcHasVar (NpcVal v) va) = object [ "npc_has_var" .= v
+                                            , "value" .= va
+                                            ]
+  toJSON (NpcHasVar _ _) = object [ "npc_has_var" .= ("npc_has_var_undefined" :: T.Text)
+                                  , "value" .= ("undef" :: T.Text)
+                                  ]
 
 class Expr e where
   toExpr :: e -> MathExpr
 
 instance Expr Int where
   toExpr = MathExpr . T.pack . show
+
+instance Expr Bool where
+  toExpr True = MathExpr "1"
+  toExpr False = MathExpr "0"
 
 instance Expr Val where
   toExpr e = MathExpr $ case e of
@@ -288,3 +346,15 @@ instance ToEValue Val where
 
 instance ToEValue Id where
   toEValue (Id i) = toEValue i
+
+instance ToEValue Condition where
+  toEValue = ECondition
+
+instance ToEValue Math where
+  toEValue = EMath
+
+instance ToEValue Effect where
+  toEValue = EEffect
+
+instance (ToEValue a) => ToEValue [a] where
+  toEValue vs = EList $ map toEValue vs

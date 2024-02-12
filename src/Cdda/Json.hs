@@ -17,11 +17,13 @@ module Cdda.Json
   , convTerFurnTransform
   , convTransFurniture
   , convFlag
+  , convEoc
   ) where
 
 import Prelude hiding (id, pure)
 import Control.Applicative ( (<|>) )
 import Control.Lens
+import Control.Monad
 import Define.MakeFields
 import qualified Data.Map as M
 import Data.Ratio
@@ -170,8 +172,8 @@ convTalk topId preId t = do
     , J._talkSpeakerEffect = case t ^. speakerEffect of
                                [] -> Nothing
                                es -> Just $ J.SpeakerEffect
-                                 { J._speakereffectSentinel  = Just $ runId talkId' <> "_sentinel"
-                                 , J._speakereffectCondition = Nothing
+                                 { J._speakereffectSentinel  = Nothing
+                                 , J._speakereffectCondition = join $ t ^? speakerEffectCondition
                                  , J._speakereffectEffect    = es
                                  }
     , J._talkDynamicLine   = dynamicLine'
@@ -428,4 +430,11 @@ convFlag :: Flag -> J.Flag
 convFlag (Flag fId) = J.Flag
   { J._flagType = "monster_flag"
   , J._flagId = Id fId
+  }
+
+convEoc :: Eoc -> J.Eoc
+convEoc e = J.Eoc
+  { J._eocType = "effect_on_condition"
+  , J._eocId = e ^. id
+  , J._eocEffect = e ^. effect
   }
