@@ -5,6 +5,7 @@ module Cdda.Flag
 import Define.Flag
 import Cdda.Flag.Level
 import Cdda.Flag.Upgrade
+import Cdda.Flag.Monster
 
 allFlag :: [Flag]
-allFlag = concat [ levels, randoms, standards ]
+allFlag = concat [ levels, randoms, standards, allIsMonster ]

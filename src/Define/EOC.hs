@@ -228,6 +228,7 @@ data Effect = EffectArithmetic Arithmetic
             | ULoseVar Val
             | NpcAddVar Val Text
             | NpcHasVar Val Text
+            | Foreach Text Id Val [Effect]
 
 instance ToJSON Effect where
   toJSON (EffectArithmetic arith  ) = toJSON arith
@@ -307,6 +308,11 @@ instance ToJSON Effect where
   toJSON (NpcHasVar _ _) = object [ "npc_has_var" .= ("npc_has_var_undefined" :: T.Text)
                                   , "value" .= ("undef" :: T.Text)
                                   ]
+  toJSON (Foreach t mgId v es) = object [ "foreach" .= t
+                                   , "var" .= v
+                                   , "effect" .= es
+                                   , "target" .= mgId
+                                   ]
 
 class Expr e where
   toExpr :: e -> MathExpr

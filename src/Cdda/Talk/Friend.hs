@@ -85,6 +85,9 @@ valTmpBash :: Val
 valTmpBullet :: Val
 valTmpCut :: Val
 valTmpStab :: Val
+valTmpDodge :: Val
+valTmpSpeed :: Val
+valTmpMeleeSkill :: Val
 valTmpFoodId :: Val
 valTmpFoodName :: Val
 valTmpFoodHaveNum :: Val
@@ -107,6 +110,9 @@ valTmpBash = ContextVal "tmp_zombie_bash"
 valTmpBullet = ContextVal "tmp_zombie_bullet"
 valTmpCut = ContextVal "tmp_zombie_cut"
 valTmpStab = ContextVal "tmp_zombie_stab"
+valTmpDodge = ContextVal "tmp_zombie_dodge"
+valTmpSpeed = ContextVal "tmp_zombie_speed"
+valTmpMeleeSkill = ContextVal "tmp_zombie_melee"
 valTmpFoodId = ContextVal "tmp_food_id"
 valTmpFoodName = ContextVal "tmp_food_name"
 valTmpFoodHaveNum = ContextVal "tmp_food_have_num"
@@ -130,7 +136,9 @@ showItemName (Id itemName) = "<item_name:" <> T.unpack itemName <> ">"
 
 initVar :: [Effect]
 initVar =
-  [ runEocs (initLevel ^. id)
+  [ runEocs [ initLevel ^. id
+            , initStatus ^. id
+            ]
   , NpcAddVar valIsInitialize "yes"
   ]
 
@@ -207,12 +215,16 @@ responseMainShowStatus = do
     & successEffect .~
       [ EffectMath $ valTmpCurrentExp =: valCurrentExp
       , EffectMath $ valTmpTotalExp =: valTotalExp
+      , EffectMath $ valTmpLevel =: valLevel
       , EffectMath $ valTmpHp =: MathExpr "n_hp('torso')"
       , EffectMath $ valTmpMaxHp =: MathExpr "n_hp_max('torso')"
       , EffectMath $ valTmpBash =: MathExpr "n_armor('bash', 'torso')"
       , EffectMath $ valTmpBullet =: MathExpr "n_armor('bullet', 'torso')"
       , EffectMath $ valTmpCut =: MathExpr "n_armor('cut', 'torso')"
       , EffectMath $ valTmpStab =: MathExpr "n_armor('stab', 'torso')"
+      , EffectMath $ valTmpDodge =: valDodgeMon
+      , EffectMath $ valTmpSpeed =: valSpeedMon
+      , EffectMath $ valTmpMeleeSkill =: valMeleeSkillMon
       ]
 
 talkMain :: TalkAction Talk
@@ -421,21 +433,19 @@ responseLevelUp = do
 
 talkShowStatus :: TalkAction Talk
 talkShowStatus = do
-  s <- view status
-  let showLens t l = t <> show (s^.l)
-      statusText = T.pack $ unlines
-                    [ "レベル: " <> showVal valLevel
+  let statusText = T.pack $ unlines
+                    [ "レベル: " <> showVal valTmpLevel
                     , "HP: "
                       <> showVal valTmpHp
                       <> "/"
                       <> showVal valTmpMaxHp
-                    , showLens "速度: " speed
-                       <> showLens " 回避: " dodge
+                    , "速度: " <> showVal valTmpSpeed
+                       <> " 回避: " <> showVal valTmpDodge
                     , "耐打: " <> showVal valTmpBash
                        <> " 耐弾: " <> showVal valTmpBullet
                        <> " 耐斬: " <> showVal valTmpCut
                        <> " 耐刺: " <> showVal valTmpStab
-                    , showLens "戦闘スキル: " (melee.skill)
+                    , "戦闘スキル: " <> showVal valTmpMeleeSkill
                     , "経験値: " <> showVal valTmpCurrentExp
                     ]
   returnTalk idShowStatus $ def

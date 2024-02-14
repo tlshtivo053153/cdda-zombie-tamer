@@ -13,13 +13,16 @@ module Cdda.FilePath
   , getSpellDeathFunc
   , getSpellDeathFuncOverride
   , getUpgradeRandom
+  , getFriendGroup
   , getHarvest
   , getItemGroup
   , getHarvestDropType
   , getFurniture
   , getTerFurnTransform
   , getFlag
-  , getEoc
+  , getEocLevel
+  , getEocStatus
+  , getEocMonster
   ) where
 
 import System.FilePath
@@ -69,6 +72,9 @@ getSpellDeathFuncOverride = "spell"</>"death_function_override.json"
 getUpgradeRandom :: FilePath
 getUpgradeRandom = "monstergroups"</>"random.json"
 
+getFriendGroup :: FilePath
+getFriendGroup = "monstergroups"</>"friends.json"
+
 getHarvest :: FilePath
 getHarvest = "harvest.json"
 
@@ -87,5 +93,11 @@ getTerFurnTransform = "ter_furn_transform.json"
 getFlag :: FilePath
 getFlag = "flags.json"
 
-getEoc :: FilePath
-getEoc = "eocs.json"
+getEocLevel :: FilePath
+getEocLevel = "eoc"</>"level.json"
+
+getEocStatus :: FilePath
+getEocStatus = "eoc"</>"status.json"
+
+getEocMonster :: Id -> FilePath
+getEocMonster (Id monId) = "eoc"</>"monster"</> T.unpack monId <> ".json"

@@ -39,6 +39,7 @@ import Cdda.Monster.Strength
 import Cdda.DeathFunction
 import Cdda.Flag.Level
 import Cdda.Flag.Upgrade
+import Cdda.Flag.Monster
 
 import qualified Define.Json as J
 
@@ -130,7 +131,8 @@ convMonsters m = map f statuss
                 let flagLevel = runFlag $ getLevel l
                     flagRandoms = map runFlag $ getRandom $ m ^. base
                     flagStandards = map runFlag $ getStandard $ m ^. base
-                 in [flagLevel] ++ flagRandoms ++ flagStandards
+                    flagBaseMonster = runFlag $ isMonster $ m ^. base
+                 in [flagLevel] ++ flagRandoms ++ flagStandards ++ [flagBaseMonster]
               }
           }
 

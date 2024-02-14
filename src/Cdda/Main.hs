@@ -198,13 +198,20 @@ makeCddaMod = J.CddaMod
           return $ S.spellDeathOverride monId dfId exId
      in (FP.getSpellDeathFuncOverride, map J.convSpellDeathFunctionOverride dfs)
   , J._cddaModUpgradeRandom  = [(FP.getUpgradeRandom, map J.convMonsterGroup allMonsterGroup)]
+  , J._cddaModFriendGroup = (FP.getFriendGroup, [J.convMonsterGroup mgFriendBase])
   , J._cddaModHarvest = (FP.getHarvest, map J.convHarvest allHarvest)
   , J._cddaModItemGroup = (FP.getItemGroup, map J.convItemGroup allItemGroup)
   , J._cddaModHarvestDropType = (FP.getHarvestDropType, [J.convHarvestDropType harvestDropTypeTaintedFood])
   , J._cddaModFurniture = (FP.getFurniture, map J.convFurniture allFurniture)
   , J._cddaModTerFurnTransform = (FP.getTerFurnTransform, map J.convTerFurnTransform allTerFurnTransform)
   , J._cddaModFlag = (FP.getFlag, map J.convFlag allFlag)
-  , J._cddaModEoc = (FP.getEoc, map J.convEoc allEoc)
+  , J._cddaModEoc = [ (FP.getEocLevel, map J.convEoc [initLevel, hasLevel])
+                    , (FP.getEocStatus, map J.convEoc allEocStatus)
+                    ]
+                    ++ mapMaybe (\m -> case initStatusMonster m of
+                                    (Just initEoc) -> Just (FP.getEocMonster m, [J.convEoc initEoc])
+                                    _ -> Nothing
+                           ) I.allFriendMonster
   }
 
 outputCddaMod :: J.CddaMod -> IO ()
@@ -222,13 +229,14 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ [ f (m ^. spellDeathFunc) ]
   ++ [ f (m ^. spellDeathFuncOverride) ]
   ++ map f (m ^. upgradeRandom)
+  ++ [ f (m ^. friendGroup)]
   ++ [ f (m ^. harvest) ]
   ++ [ f (m ^. itemGroup) ]
   ++ [ f (m ^. harvestDropType) ]
   ++ [ f (m ^. furniture) ]
   ++ [ f (m ^. terFurnTransform) ]
   ++ [ f (m ^. flag) ]
-  ++ [ f (m ^. eoc) ]
+  ++ map f (m ^. eoc)
     where
       f (path, objs) = (path, encode objs)
 

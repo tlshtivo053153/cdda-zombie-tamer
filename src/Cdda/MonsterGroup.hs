@@ -1,5 +1,6 @@
 module Cdda.MonsterGroup
-  ( mgNormal
+  ( mgFriendBase
+  , mgNormal
   , mgFat
   , mgMedical
   , mgBoomer
@@ -18,6 +19,9 @@ import Define.MonsterGroup
 import Cdda.Id.Monster
 import Cdda.Id.MonsterGroup
 import Cdda.Id.Friend
+
+mgFriendBase :: MonsterGroup
+mgFriendBase = MonsterGroup idFriendBase $ map (`MGMonster` 1) allFriendMonster
 
 mgNormal :: MonsterGroup
 mgFat :: MonsterGroup

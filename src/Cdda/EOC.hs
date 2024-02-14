@@ -11,20 +11,33 @@ module Cdda.EOC
   , eocifelse
   , valLevel
   , valNextLevel
+  , valDodgeMon
+  , valSpeedMon
+  , valMeleeSkillMon
   , initLevel
   , hasLevel
-  , allEoc
+  , initStatus
+  , initStatusMonster
+  , allEocLevel
+  , allEocStatus
+  , allEocMonster
   ) where
 
 import Prelude hiding (id, (++), (==), (<=), (+))
 import Define.Core
 import Define.EOC
+import Define.Monster
 import Define.MakeFields
 
 import Cdda.EOC.Math
+import Cdda.Monster
+import Cdda.Monster.Status
+import Cdda.Id.MonsterGroup
+import Cdda.Id.Monster
 
 import Data.Default
 import qualified Data.Text as T
+import Data.Maybe
 
 import Control.Lens
 
@@ -81,6 +94,12 @@ idHasLevel = Id "EOC_ZE_UNTIL_HAS_LEVEL"
 idConditionLevelLoop :: Id
 idConditionLevelLoop = Id "condition_level"
 
+idInitStatus :: Id
+idInitStatus = Id "EOC_ZT_INITIALIZE_STATUS"
+
+idInitStatusMonster :: Id -> Id
+idInitStatusMonster (Id monId) = Id $ "EOC_ZT_INITIALIZE_STATUS_" <> monId
+
 valLoopIndex :: Val
 valLoopIndex = UVal "loop_num"
 
@@ -95,6 +114,39 @@ valLevel = NpcVal "zombie_level"
 
 valNextLevel :: Val
 valNextLevel = NpcVal "zombie_next_level"
+
+valBaseMonster :: Val
+valBaseMonster = ContextVal "base_monster_id"
+
+valBaseMonsterFlag :: Val
+valBaseMonsterFlag = ContextVal "base_monster_flag"
+
+valInitStatusEocId :: Val
+valInitStatusEocId = ContextVal "init_status_eoc_id"
+
+valDodge :: Int -> Val
+valDodge l = ContextVal $ T.pack $ "dodge" <> show l
+
+valSpeed :: Int -> Val
+valSpeed l = ContextVal $ T.pack $ "speed" <> show l
+
+valMeleeSkill :: Int -> Val
+valMeleeSkill l = ContextVal $ T.pack $ "melee_skill" <> show l
+
+valDodgeMon :: Val
+valDodgeMon = NpcVal "zombie_dodge"
+
+valSpeedMon :: Val
+valSpeedMon = NpcVal "zombie_speed"
+
+valMeleeSkillMon :: Val
+valMeleeSkillMon = NpcVal "zombie_melee_skill"
+
+valTmpStatus :: Val
+valTmpStatus = ContextVal "tmp_status"
+
+valTmpStatusV :: Val
+valTmpStatusV = VarVal "tmp_status"
 
 initLevel :: Eoc
 initLevel = def
@@ -125,8 +177,52 @@ hasLevel = def
     , EffectMath (mathIncrement valLoopIndex)
     ]
 
-allEoc :: [Eoc]
-allEoc =
+initStatus :: Eoc
+initStatus = def
+  & id .~ idInitStatus
+  & effect .~
+    [ Foreach "monstergroup" idFriendBase valBaseMonster
+      [ setStringVar valBaseMonsterFlag (T.pack $ "ZT_MON_IS_" <> showVal valBaseMonster) True
+      , eocif (npcHasFlag valBaseMonsterFlag)
+        [ setStringVar valInitStatusEocId (T.pack $ "EOC_ZT_INITIALIZE_STATUS_" <> showVal valBaseMonster) True
+        , runEocs valInitStatusEocId
+        ]
+      ]
+    ]
+
+initStatusMonster :: Id -> Maybe Eoc
+initStatusMonster monId = do
+  m <- getMonsterFriend monId
+  let maxLevel' = m ^. growth.maxLevel
+      growth' = m ^. growth
+      status' = m ^. status
+      statuss = map (\l -> (,) l $ statusWithLevel l growth' status') [1..maxLevel']
+  return $ def
+    & id .~ idInitStatusMonster monId
+    & effect .~ concatMap defineStatus statuss <>
+      [ setStringVar valTmpStatus (T.pack $ "_dodge" <> showVal valLevel) True
+      , EffectMath $ valDodgeMon =: valTmpStatusV
+      , setStringVar valTmpStatus (T.pack $ "_speed" <> showVal valLevel) True
+      , EffectMath $ valSpeedMon =: valTmpStatusV
+      , setStringVar valTmpStatus (T.pack $ "_melee_skill" <> showVal valLevel) True
+      , EffectMath $ valMeleeSkillMon =: valTmpStatusV
+      ]
+
+defineStatus :: (Int, Status) -> [Effect]
+defineStatus (l, s) =
+  [ EffectMath $ valDodge l =: (s ^. dodge)
+  , EffectMath $ valSpeed l =: (s ^. speed)
+  , EffectMath $ valMeleeSkill l =: (s ^. melee.skill)
+  ]
+
+allEocLevel :: [Eoc]
+allEocLevel =
   [ initLevel
   , hasLevel
   ]
+
+allEocStatus :: [Eoc]
+allEocStatus = [ initStatus ]
+
+allEocMonster :: [Eoc]
+allEocMonster = mapMaybe initStatusMonster allFriendMonster

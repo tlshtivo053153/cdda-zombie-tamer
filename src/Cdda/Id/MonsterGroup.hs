@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cdda.Id.MonsterGroup
-  ( idNormal
+  ( idFriendBase
+  , idNormal
   , idFat
   , idMedical
   , idBoomer
@@ -13,6 +14,9 @@ module Cdda.Id.MonsterGroup
 
 import Define.Core
 import Define.Monster
+
+idFriendBase :: Id
+idFriendBase = Id "GROUP_FRIEND_ZOMBIE_BASE"
 
 idNormal :: Id
 idFat :: Id

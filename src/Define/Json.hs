@@ -61,13 +61,14 @@ data CddaMod = CddaMod
   , _cddaModSpellDeathFunc :: CddaJson Spell
   , _cddaModSpellDeathFuncOverride :: CddaJson Spell
   , _cddaModUpgradeRandom :: [CddaJson MonsterGroup]
+  , _cddaModFriendGroup :: CddaJson MonsterGroup
   , _cddaModHarvest :: CddaJson Harvest
   , _cddaModItemGroup :: CddaJson ItemGroup
   , _cddaModHarvestDropType :: CddaJson HarvestDropType
   , _cddaModFurniture :: CddaJson Furniture
   , _cddaModTerFurnTransform :: CddaJson TerFurnTransform
   , _cddaModFlag :: CddaJson Flag
-  , _cddaModEoc :: CddaJson Eoc
+  , _cddaModEoc :: [CddaJson Eoc]
   }
 
 data ModInfo = ModInfo
