@@ -53,7 +53,7 @@ data CddaMod = CddaMod
   , _cddaModMonsterVanilla :: [CddaJson Monster]
   , _cddaModMonsterFriend :: [CddaJson Monster]
   , _cddaModTalkVanilla :: [CddaJson Talk]
-  , _cddaModTalkFriend :: [CddaJson Talk]
+  , _cddaModTalkFriend :: CddaJson Talk
   , _cddaModSpellToFriend :: [CddaJson Spell]
   , _cddaModSpellLevelUp :: [CddaJson Spell]
   , _cddaModSpellUpgradeRandom :: [CddaJson Spell]

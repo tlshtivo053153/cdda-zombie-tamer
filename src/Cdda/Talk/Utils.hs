@@ -21,11 +21,9 @@ import Control.Lens
 mergeId :: Id -> Id -> Id
 mergeId (Id monId) (Id tId) = Id $ "TALK_" <> monId <> "_" <> tId
 
-returnTalk :: Id -> Talk -> TalkAction Talk
-returnTalk tId t = do
-  monId <- view monsterId
-  return $ t
-    & talkId .~ mergeId monId tId
+returnTalk :: Id -> Talk -> Talk
+returnTalk (Id tId) t = t
+  & talkId .~ Id ("TALK_ZT_" <> tId)
 
 simpleResponse :: Text -> Talk -> Response
 simpleResponse rtext rtalk = def

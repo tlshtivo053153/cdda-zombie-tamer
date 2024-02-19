@@ -160,21 +160,11 @@ initVar =
   , NpcAddVar valIsInitialize "yes"
   ]
 
-nextLevelIndex :: TalkAction Int
-nextLevelIndex = view level
-
-nextLevelExp :: TalkAction (Maybe Int)
-nextLevelExp = do
-  needExp' <- view needExp
-  i <- nextLevelIndex
-  return $ needExp' V.!? i
-
-upgradeRandomToRespose :: (UpgradeRandom, [Flag]) -> TalkAction Response
-upgradeRandomToRespose (UpgradeRandom (UCHaveItem itemId n) urt, fs) = do
-  talkUpgradeRandomMonster' <- talkUpgradeRandomMonster
+upgradeRandomToRespose :: (UpgradeRandom, [Flag]) -> Response
+upgradeRandomToRespose (UpgradeRandom (UCHaveItem itemId n) urt, fs) =
   let resText = T.pack $ concat [ showItemName itemId, " ", show n]
       spell = runId <$> idSpellUpgradeRandom urt
-  return $ simpleResponse resText talkUpgradeRandomMonster'
+   in simpleResponse resText talkUpgradeRandomMonster
     & condition .~ case fs of
                      [Flag f] -> ConditionEffect $ npcHasFlag f
                      _ -> ConditionOr $ map (ConditionEffect . npcHasFlag . runFlag) fs
@@ -184,15 +174,14 @@ upgradeRandomToRespose (UpgradeRandom (UCHaveItem itemId n) urt, fs) = do
       , setStringVar valSpellUpgrade <$> spell <*> return False
       ]
 
-upgradeStandardToRespose :: (UpgradeStandard, [Flag]) -> TalkAction Response
+upgradeStandardToRespose :: (UpgradeStandard, [Flag]) -> Response
 upgradeStandardToRespose (us@(UpgradeStandard (UCHaveItem itemId n) monId), fs) = do
-  talkUpgradeStandardMonster' <- talkUpgradeStandardMonster
   let resText = case M.idToName monId of
                   Just monName -> T.pack $ concat [ "[", showItemName itemId, " ", show n, "]"
                                 , " ", T.unpack monName ]
                   Nothing -> "nothing"
       spell = idSpellUpgradeStandard us
-  return $ simpleResponse resText talkUpgradeStandardMonster'
+   in simpleResponse resText talkUpgradeStandardMonster
     & condition .~ case fs of
                      [Flag f] -> ConditionEffect $ npcHasFlag f
                      _ -> ConditionOr $ map (ConditionEffect . npcHasFlag . runFlag) fs
@@ -202,19 +191,18 @@ upgradeStandardToRespose (us@(UpgradeStandard (UCHaveItem itemId n) monId), fs) 
       , setStringVar valSpellUpgrade spell False
       ]
 
-responseMainFeed :: TalkAction Response
-responseMainFeed = simpleResponse "餌を与える" <$> talkFeed
+responseMainFeed :: Response
+responseMainFeed = simpleResponse "餌を与える" talkFeed
 
-responseMainUpgradeRandom :: TalkAction Response
-responseMainUpgradeRandom = simpleResponse "ランダム進化" <$> talkUpgradeRandomMain
+responseMainUpgradeRandom :: Response
+responseMainUpgradeRandom = simpleResponse "ランダム進化" talkUpgradeRandomMain
 
-responseMainUpgradeStandard :: TalkAction Response
-responseMainUpgradeStandard = simpleResponse "通常進化" <$> talkUpgradeStandard
+responseMainUpgradeStandard :: Response
+responseMainUpgradeStandard = simpleResponse "通常進化" talkUpgradeStandard
 
-responseMainLevelUp :: TalkAction Response
-responseMainLevelUp = do
-  talkLevelUp' <- talkLevelUp
-  return $ simpleResponse "レベルアップ可能" talkLevelUp'
+responseMainLevelUp :: Response
+responseMainLevelUp =
+  simpleResponse "レベルアップ可能" talkLevelUp
     & condition .~ ConditionAnd
       [ ConditionMath (Math1 $ valCurrentExp >= valNeedExpNextLevel)
       , ConditionMath (Math1 $ valLevel < valMaxLevel)
@@ -228,13 +216,12 @@ responseMainLevelUp = do
       , EffectMath $ valCanIncreased =: valCanLevelUp
       ]
 
-responseMainSpecialAction :: TalkAction (Maybe Response)
-responseMainSpecialAction = return Nothing
+responseMainSpecialAction :: (Maybe Response)
+responseMainSpecialAction = Nothing
 
-responseMainShowStatus :: TalkAction Response
-responseMainShowStatus = do
-  talkShowStatus' <- talkShowStatus
-  return $ simpleResponse "ステータス" talkShowStatus'
+responseMainShowStatus :: Response
+responseMainShowStatus =
+  simpleResponse "ステータス" talkShowStatus
     & successEffect .~
       [ EffectMath $ valTmpCurrentExp =: valCurrentExp
       , EffectMath $ valTmpTotalExp =: valTotalExp
@@ -250,50 +237,47 @@ responseMainShowStatus = do
       , EffectMath $ valTmpMeleeSkill =: valMeleeSkillMon
       ]
 
-talkMain :: TalkAction Talk
-talkMain = do
-  res <- catMaybes <$> sequence
-    [ Just <$> responseMainFeed
-    , Just <$> responseMainUpgradeRandom
-    , Just <$> responseMainUpgradeStandard
-    , Just <$> responseMainLevelUp
-    , Just <$> responseMainShowStatus
-    , return $ Just responseDone
-    ]
-  returnTalk idMain $ def
+talkMain :: Talk
+talkMain =
+  let res =
+        [ responseMainFeed
+        , responseMainUpgradeRandom
+        , responseMainUpgradeStandard
+        , responseMainLevelUp
+        , responseMainShowStatus
+        , responseDone
+        ]
+   in returnTalk idMain $ def
     & dynamicLine .~ DynamicLineText "友達ゾンビに話しかけたときのフーレバー"
     & responses .~ res
     & speakerEffectCondition ?~ ConditionNot (ConditionEffect $ NpcHasVar valIsInitialize "yes")
     & speakerEffect .~ initVar
 
-talkItemFed :: TalkAction Talk
-talkItemFed = do
+talkItemFed :: Talk
+talkItemFed =
   returnTalk idItemFed $ def
     & dynamicLine .~ DynamicLineText "よろこんでいるように見えます。"
     & responses .~ [ responseTop ]
 
-talkFeedItem :: TalkAction Talk
-talkFeedItem = do
-  responseFeedItem' <- responseFeedItem
+talkFeedItem :: Talk
+talkFeedItem =
   let dlText = T.pack $ unlines [ "選択アイテム: " <> showVal valTmpFoodName
                                 , "所持数: " <> showVal valTmpFoodHaveNum
                                 , "増加経験値: " <> showVal valTmpFoodExp
                                 ]
-  returnTalk idFeedItem $ def
+   in returnTalk idFeedItem $ def
     & dynamicLine .~ DynamicLineText dlText
-    & responses .~ responseFeedItem' <> [ responseBack ]
+    & responses .~ responseFeedItem <> [ responseBack ]
 
-responseFeedItem :: TalkAction [Response]
-responseFeedItem = do
-  talkPreItemFed' <- talkPreItemFed
-  return
-    [ simpleResponse "1個使用" talkPreItemFed'
+responseFeedItem :: [Response]
+responseFeedItem =
+    [ simpleResponse "1個使用" talkPreItemFed
       & successEffect .~
         [ EffectMath $ valTmpFoodConsumeNum =: (1 :: Int) ]
-    , simpleResponse "すべて使用" talkPreItemFed'
+    , simpleResponse "すべて使用" talkPreItemFed
       & successEffect .~
         [ EffectMath $ valTmpFoodConsumeNum =: valTmpFoodHaveNum ]
-    , simpleResponse "個数を選択" talkPreItemFed'
+    , simpleResponse "個数を選択" talkPreItemFed
       & successEffect .~
         [ EffectMath $ valTmpFoodConsumeNum =: MathExpr "num_input('個数を入力', 0)"
         , EffectMath $ valTmpFoodConsumeNum =:
@@ -301,26 +285,24 @@ responseFeedItem = do
         ]
     ]
 
-talkNotFeedItem :: TalkAction Talk
-talkNotFeedItem = do
+talkNotFeedItem :: Talk
+talkNotFeedItem =
   returnTalk idNotFeedItem $ def
     & dynamicLine .~ DynamicLineText "アイテムを持っていない"
     & responses .~ [ responseBack ]
 
-responseFeed :: TalkAction [Response]
-responseFeed = mapM responseFeed'
+responseFeed :: [Response]
+responseFeed = map responseFeed'
   [ idTaintedMeatPremium
   , idTaintedMeatHighPremium
   , idTaintedMarrowPremium
   , idTaintedMarrowHighPremium
   ]
 
-responseFeed' :: Id -> TalkAction Response
-responseFeed' itemId = do
-  talkFeedItem' <- talkFeedItem
-  talkNotFeedItem' <- talkNotFeedItem
+responseFeed' :: Id -> Response
+responseFeed' itemId =
   let itemText = T.pack $ showItemName itemId
-  return $ simpleResponse itemText talkFeedItem'
+   in simpleResponse itemText talkFeedItem
     & trial .~ ConditionEffect (uHasItems itemId (1 :: Int))
     & successEffect .~
       [ setStringVar valTmpFoodId itemId False
@@ -329,27 +311,24 @@ responseFeed' itemId = do
       , EffectMath $ valTmpFoodHaveNum =: mathFunc1 "u_item_count"
                                                     (MathExpr $ "'" <> runId itemId <> "'")
       ]
-    & failure ?~ talkNotFeedItem'
+    & failure ?~ talkNotFeedItem
 
-talkFeed :: TalkAction Talk
-talkFeed = do
-  rs <- responseFeed
+talkFeed :: Talk
+talkFeed =
   returnTalk idFeed $ def
     & dynamicLine .~ DynamicLineText "餌の種類を選択"
-    & responses .~ rs <> [ responseBack ]
+    & responses .~ responseFeed <> [ responseBack ]
 
-talkPreItemFed :: TalkAction Talk
-talkPreItemFed = do
-  rs <- responsePreItemFed
+talkPreItemFed :: Talk
+talkPreItemFed =
   let dlText = T.pack $ "使用個数: " <> showVal valTmpFoodConsumeNum
-  returnTalk idPreItemFed $ def
+   in returnTalk idPreItemFed $ def
     & dynamicLine .~ DynamicLineText dlText
-    & responses .~ rs : [ responseBack ]
+    & responses .~ responsePreItemFed : [ responseBack ]
 
-responsePreItemFed :: TalkAction Response
-responsePreItemFed = do
-  talkItemFed' <- talkItemFed
-  return $ simpleResponse "餌を与える" talkItemFed'
+responsePreItemFed :: Response
+responsePreItemFed =
+  simpleResponse "餌を与える" talkItemFed
     & condition .~ ConditionMath (Math1 $ valTmpFoodConsumeNum > (0 :: Int))
     & successEffect .~
       [ uConsumeItem valTmpFoodId valTmpFoodConsumeNum
@@ -357,25 +336,23 @@ responsePreItemFed = do
       , EffectMath $ valTotalExp += valTmpFoodConsumeNum * valTmpFoodExp
       ]
 
-talkUpgradeDone :: TalkAction Talk
-talkUpgradeDone = do
+talkUpgradeDone :: Talk
+talkUpgradeDone =
   returnTalk idUpgradeDone $ def
     & dynamicLine .~ DynamicLineText "全身が痙攣を起こして喜んでいるように見えます"
     & responses .~ [ responseDone ]
 
-talkUpgradeRandomMonster :: TalkAction Talk
-talkUpgradeRandomMonster = do
-  res <- responseUpgradeRandomMonster
+talkUpgradeRandomMonster :: Talk
+talkUpgradeRandomMonster =
   returnTalk idUpgradeRandomMonster $ def
     & dynamicLine .~ DynamicLineText "(口を開けている)"
-    & responses .~ [ res
+    & responses .~ [ responseUpgradeRandomMonster
                    , responseBack
                    ]
 
-responseUpgradeRandomMonster :: TalkAction Response
+responseUpgradeRandomMonster :: Response
 responseUpgradeRandomMonster = do
-  talkUpgradeDone' <- talkUpgradeDone
-  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone'
+  simpleResponse "口の中に餌を入れる" talkUpgradeDone
     & condition .~ ConditionEffect (uHasItems valNeedItemId valNeedItemNum)
     & successEffect .~
       [ npcCastSpell valSpellUpgrade False
@@ -386,29 +363,26 @@ responseUpgradeRandomMonster = do
       , runEocs (initStatus ^. id)
       ]
 
-talkUpgradeRandomMain :: TalkAction Talk
-talkUpgradeRandomMain = do
-  responseUpgradeRandomMain' <- responseUpgradeRandomMain
+talkUpgradeRandomMain :: Talk
+talkUpgradeRandomMain =
   returnTalk idUpgradeRandom $ def
     & dynamicLine .~ DynamicLineText "ランダム進化メニュー"
-    & responses .~ responseUpgradeRandomMain' <> [responseBack]
+    & responses .~ responseUpgradeRandomMain <> [responseBack]
 
-responseUpgradeRandomMain :: TalkAction [Response]
-responseUpgradeRandomMain = mapM upgradeRandomToRespose allUpgradeRandomList
+responseUpgradeRandomMain :: [Response]
+responseUpgradeRandomMain = map upgradeRandomToRespose allUpgradeRandomList
 
-talkUpgradeStandardMonster :: TalkAction Talk
-talkUpgradeStandardMonster = do
-  res <- responseUpgradeStandardMonster
+talkUpgradeStandardMonster :: Talk
+talkUpgradeStandardMonster =
   returnTalk idUpgradeStandardMonster $ def
     & dynamicLine .~ DynamicLineText "(口を開けている)"
-    & responses .~ [ res
+    & responses .~ [ responseUpgradeStandardMonster
                    , responseBack
                    ]
 
-responseUpgradeStandardMonster :: TalkAction Response
-responseUpgradeStandardMonster = do
-  talkUpgradeDone' <- talkUpgradeDone
-  return $ simpleResponse "口の中に餌を入れる" talkUpgradeDone'
+responseUpgradeStandardMonster :: Response
+responseUpgradeStandardMonster =
+  simpleResponse "口の中に餌を入れる" talkUpgradeDone
     & condition .~ ConditionEffect (uHasItems valNeedItemId valNeedItemNum)
     & successEffect .~
       [ npcCastSpell valSpellUpgrade False
@@ -419,45 +393,41 @@ responseUpgradeStandardMonster = do
       , runEocs (initStatus ^. id)
       ]
 
-talkUpgradeStandard :: TalkAction Talk
-talkUpgradeStandard = do
-  ress <- responseUpgradeStandard
+talkUpgradeStandard :: Talk
+talkUpgradeStandard =
   returnTalk idUpgradeStandard $ def
     & dynamicLine .~ DynamicLineText "通常進化メニュー"
-    & responses .~ ress <> [ responseBack ]
+    & responses .~ responseUpgradeStandard <> [ responseBack ]
 
-responseUpgradeStandard :: TalkAction [Response]
-responseUpgradeStandard = mapM upgradeStandardToRespose allUpgradeStandardList
+responseUpgradeStandard :: [Response]
+responseUpgradeStandard = map upgradeStandardToRespose allUpgradeStandardList
 
-talkLevelUpDone :: TalkAction Talk
+talkLevelUpDone :: Talk
 talkLevelUpDone = do
   returnTalk idLevelUpDone $ def
     & dynamicLine .~ DynamicLineText "レベルが上がりました"
     & responses .~ [ responseDone ]
 
-talkLevelUp :: TalkAction Talk
-talkLevelUp = do
-  rss <- responseLevelUp
+talkLevelUp :: Talk
+talkLevelUp =
   returnTalk idLevelUp $ def
     & dynamicLine .~ DynamicLineText (T.pack $ "レベルアップメニュー(現在レベル" <> showVal valTmpLevel <> ")")
-    & responses .~ rss <> [ responseBack ]
+    & responses .~ responseLevelUp <> [ responseBack ]
 
-responseLevelUp :: TalkAction [Response]
-responseLevelUp = do
-  talkSelectedLevel' <- talkSelectedLevel
-  return
-    [ simpleResponse (T.pack $ "[レベル+1] レベル" <> showVal valTmpNextLevel) talkSelectedLevel'
+responseLevelUp :: [Response]
+responseLevelUp =
+    [ simpleResponse (T.pack $ "[レベル+1] レベル" <> showVal valTmpNextLevel) talkSelectedLevel
       & successEffect .~
         [ EffectMath $ valSelectLevel =: valNextLevel
         , EffectMath $ valConsumeExp =: valNeedExpNextLevel
         ]
-    , simpleResponse (T.pack $ "[レベル+" <> showVal valCanIncrease <> "] レベル" <> showVal valCanIncreased) talkSelectedLevel'
+    , simpleResponse (T.pack $ "[レベル+" <> showVal valCanIncrease <> "] レベル" <> showVal valCanIncreased) talkSelectedLevel
       & successEffect .~
         [ EffectMath $ valSelectLevel =: valCanIncreased
         , setStringVar valTmpTotal (T.pack $ "n_exp_total" <> showVal valSelectLevel) True
         , EffectMath $ valConsumeExp =: valTmpTotalV
         ]
-    , simpleResponse "変化後のレベルを選択" talkSelectedLevel'
+    , simpleResponse "変化後のレベルを選択" talkSelectedLevel
       & successEffect .~
         [ EffectMath $ valSelectLevel =: MathExpr "num_input('変化後のレベルを入力', 0)"
         , EffectMath $ valSelectLevel =:
@@ -467,9 +437,8 @@ responseLevelUp = do
         ]
     ]
 
-talkSelectedLevel :: TalkAction Talk
-talkSelectedLevel = do
-  res <- responseSelectedLevel
+talkSelectedLevel :: Talk
+talkSelectedLevel =
   returnTalk idSelectedLevel $ def
     & dynamicLine .~ DynamicLineText (T.pack $ unlines
                                       [ "現在レベル: " <> showVal valTmpLevel
@@ -478,13 +447,11 @@ talkSelectedLevel = do
                                       <> "、現在経験値: " <> showVal valTmpCurrentExp
                                       ]
                                      )
-    & responses .~ res : [responseBack]
+    & responses .~ responseSelectedLevel : [responseBack]
 
-responseSelectedLevel :: TalkAction Response
-responseSelectedLevel = do
-  talkLevelUpDone' <- talkLevelUpDone
-  return $
-    simpleResponse "レベルを上げる" talkLevelUpDone'
+responseSelectedLevel :: Response
+responseSelectedLevel =
+    simpleResponse "レベルを上げる" talkLevelUpDone
       & successEffect .~
         [ setStringVar valSpellLevelUp (T.pack $ "spell_" <> showVal valBaseMonster <> "_level_" <> showVal valSelectLevel) True
         , npcCastSpell valSpellLevelUp False
@@ -494,8 +461,8 @@ responseSelectedLevel = do
         , runEocs (initStatus ^. id)
         ]
 
-talkShowStatus :: TalkAction Talk
-talkShowStatus = do
+talkShowStatus :: Talk
+talkShowStatus =
   let statusText = T.pack $ unlines
                     [ "レベル: " <> showVal valTmpLevel
                     , "HP: "
@@ -511,11 +478,9 @@ talkShowStatus = do
                     , "戦闘スキル: " <> showVal valTmpMeleeSkill
                     , "経験値: " <> showVal valTmpCurrentExp
                     ]
-  returnTalk idShowStatus $ def
+   in returnTalk idShowStatus $ def
     & dynamicLine .~ DynamicLineText statusText
     & responses .~ [ responseBack ]
 
-friendTalk :: Monster -> [(Int, Talk)]
-friendTalk mon =
-  getFriendTalkConfig mon
-    & map (\tc -> (tc ^. level, runReader talkMain tc))
+friendTalk :: Talk
+friendTalk = talkMain

@@ -24,6 +24,7 @@ import qualified Define.Json as J
 import Define.Monster
 import Define.DeathFunction
 import Define.Talk
+import Define.Flag
 import Define.MakeFields
 
 import qualified Cdda.Id.Monster as I
@@ -48,6 +49,7 @@ import Cdda.Furniture
 import Cdda.TerFurnTransform
 import Cdda.DeathFunction
 import Cdda.Flag
+import Cdda.Flag.Monster
 import Cdda.EOC
 
 makeModInfo :: J.ModInfo
@@ -86,7 +88,7 @@ makeCddaMod = J.CddaMod
             , J._monsterArmor          = Nothing
             , J._monsterRegenerates    = Nothing
             , J._monsterPetfood        = Just $ J.convPetfood $ m ^. petfood
-            , J._monsterChatTopics = Just $ return $ mergeId (m ^. base) (Id "MAIN")
+            , J._monsterChatTopics = Just [Id "TALK_ZT_VANILLA_MAIN"]
             , J._monsterHarvest        = Nothing
             , J._monsterDissect        =
               let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap
@@ -107,7 +109,12 @@ makeCddaMod = J.CddaMod
                             , _deathFunctionMessage    = Nothing
                             }
                in addSpell *> Just (J.convDeathFunction df')
-            , J._monsterExtend = Nothing
+            , J._monsterExtend = Just $ J.Extend
+              { J._extendFlags =
+                let flagBaseMonster = runFlag $ isMonster $ m ^. base
+                 in [flagBaseMonster]
+              }
+
             }
           nfMon :: Id -> J.Monster
           nfMon monId = J.Monster
@@ -157,15 +164,8 @@ makeCddaMod = J.CddaMod
             m <- J.convMonsters <$> getMonsterFriend i
             return (FP.getMonsterFriend i, m)
        in mapMaybe f I.allFriendMonster
-  , J._cddaModTalkVanilla    =
-      let vanilla = concatMap (J.concatTalk . vanillaTalk) allMonsterFriend
-       in [(FP.getTalkVanilla, L.nubOrdOn J._talkId vanilla)]
-  , J._cddaModTalkFriend     =
-      let f m = map (g m) $ friendTalk m
-          g :: Monster -> (Int, Talk) -> (FilePath, [J.Talk])
-          g m = bimap (FP.getTalkFriend (m ^. base))
-                      (L.nubOrdOn J._talkId . J.concatTalk)
-       in concatMap f allMonsterFriend
+  , J._cddaModTalkVanilla    = [(FP.getTalkVanilla, L.nubOrdOn J._talkId $ J.concatTalk vanillaTalk)]
+  , J._cddaModTalkFriend = (FP.getTalkFriend, L.nubOrdOn J._talkId $ J.concatTalk friendTalk)
   , J._cddaModSpellToFriend  =
       let spell = map (\m -> J.convSpellPolymorph $ S.spellToFriend $ m ^. base) allMonsterFriend
        in [(FP.getSpellToFriend, spell)]
@@ -223,7 +223,7 @@ outputCddaMod m = mapM_ cddaJsonToFile $
   ++ map f (m ^. monsterVanilla)
   ++ map f (m ^. monsterFriend)
   ++ map f (m ^. talkVanilla)
-  ++ map f (m ^. talkFriend)
+  ++ [f (m ^. talkFriend)]
   ++ map f (m ^. spellToFriend)
   ++ map f (m ^. spellLevelUp)
   ++ map f (m ^. spellUpgradeRandom)

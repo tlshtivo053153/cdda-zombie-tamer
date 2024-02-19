@@ -105,7 +105,7 @@ convMonsters m = map f statuss
               }
           , J._monsterRegenerates    = Just $ monStatus ^. regenerates
           , J._monsterPetfood        = Just $ convPetfood $ m ^. petfood
-          , J._monsterChatTopics     = Just $ return $ mergeId monId (Id "MAIN")
+          , J._monsterChatTopics     = Just [Id "TALK_ZT_MAIN"]
           , J._monsterHarvest        = Nothing
           , J._monsterDissect        =
               let zombie = idHarvestZombie <$> M.lookup (m ^. base) allZombieMap

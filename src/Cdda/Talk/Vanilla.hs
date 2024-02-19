@@ -5,60 +5,62 @@ module Cdda.Talk.Vanilla
 import Prelude hiding (id)
 
 import Define.Core
-import Define.Monster
 import Define.Talk
 import Define.EOC
 import Define.MakeFields
 
 import Cdda.Talk.Utils
-import Cdda.Talk.Config
 import Cdda.EOC
-
-import Cdda.Id.Spell
+import Cdda.EOC.Math
 
 import Data.Default
-
-import Control.Monad.Reader
+import qualified Data.Text as T
 
 import Control.Lens
 
-vanillaTalk :: Monster -> Talk
-vanillaTalk mon = runReader talkMain $ getVanillaTalkConfig mon
+vanillaTalk :: Talk
+vanillaTalk = talkMain
+
+showVal :: Val -> String
+showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
+showVal (NpcVal val) = "<npc_val:" <> T.unpack val <> ">"
+showVal (ContextVal val) = "<context_val:" <> T.unpack val <> ">"
+showVal (GlobalVal val) = "<global_val:" <> T.unpack val <> ">"
+showVal (VarVal _) = ""
 
 idMain :: Id
-idMain = Id "MAIN"
+idMain = Id "VANILLA_MAIN"
 
 idFriendTamed :: Id
-idFriendTamed = Id "FRIEND_TAMED"
+idFriendTamed = Id "VANILLA_FRIEND_TAMED"
 
-_effectsToFriend :: Id -> Int -> Reader TalkConfig [Effect]
-_effectsToFriend consumeItem n = do
-  (Id monId) <- view monsterId
-  let spellId = Id $ "spell_" <> monId <> "_to_friend"
-  return
-    [ npcCastSpell spellId False
-    , uConsumeItem consumeItem n
-    ]
+valSpellToFriend :: Val
+valSpellToFriend = ContextVal "spell_to_friend"
 
-effectsToFriend :: TalkAction [Effect]
-effectsToFriend = do
-  monId <- view monsterId
-  let spellId = idSpellToFriend monId
-  return [ npcCastSpell spellId False ]
+valIsInitialize :: Val
+valIsInitialize = NpcVal "is_initialize"
 
-talkMain :: TalkAction Talk
-talkMain = do
-  talkFriendTamed' <- talkFriendTamed
-  effectsToFriend' <- effectsToFriend
+effectsToFriend :: [Effect]
+effectsToFriend =
+  [ EffectMath $ valLevel =: (1 :: Int)
+  , EffectMath $ valNextLevel =: (2 :: Int)
+  , runEocs (initStatus ^. id)
+  , NpcAddVar valIsInitialize "yes"
+  , setStringVar valSpellToFriend (T.pack $ "spell_" <> showVal valBaseMonster <> "_to_friend") True
+  , npcCastSpell valSpellToFriend False
+  ]
+
+talkMain :: Talk
+talkMain =
   returnTalk idMain $ def
     & dynamicLine .~ DynamicLineText "(ゾンビに話しかけたときのフレーバー)"
     & responses .~
-      [ simpleResponse "友達になる" talkFriendTamed'
-          & successEffect .~ effectsToFriend'
+      [ simpleResponse "友達になる" talkFriendTamed
+          & successEffect .~ effectsToFriend
       , responseDone
       ]
 
-talkFriendTamed :: TalkAction Talk
+talkFriendTamed :: Talk
 talkFriendTamed = returnTalk idFriendTamed $ def
   & dynamicLine .~ DynamicLineText "あなたと友達になりました。"
   & responses .~ [ responseDone ]
