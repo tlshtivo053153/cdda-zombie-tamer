@@ -108,6 +108,7 @@ valConsumeExp :: Val
 valTmpTotal :: Val
 valTmpTotalV :: Val
 valSpellLevelUp :: Val
+valGetExp :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
@@ -141,6 +142,7 @@ valConsumeExp = ContextVal "consume_exp"
 valTmpTotal = ContextVal "tmp_total_exp"
 valTmpTotalV = VarVal "tmp_total_exp"
 valSpellLevelUp = ContextVal "spell_level_up"
+valGetExp = ContextVal "get_exp"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -273,15 +275,20 @@ responseFeedItem :: [Response]
 responseFeedItem =
     [ simpleResponse "1個使用" talkPreItemFed
       & successEffect .~
-        [ EffectMath $ valTmpFoodConsumeNum =: (1 :: Int) ]
+        [ EffectMath $ valTmpFoodConsumeNum =: (1 :: Int)
+        , EffectMath $ valGetExp =: valTmpFoodExp
+        ]
     , simpleResponse "すべて使用" talkPreItemFed
       & successEffect .~
-        [ EffectMath $ valTmpFoodConsumeNum =: valTmpFoodHaveNum ]
+        [ EffectMath $ valTmpFoodConsumeNum =: valTmpFoodHaveNum
+        , EffectMath $ valGetExp =: valTmpFoodHaveNum * valTmpFoodExp
+        ]
     , simpleResponse "個数を選択" talkPreItemFed
       & successEffect .~
         [ EffectMath $ valTmpFoodConsumeNum =: MathExpr "num_input('個数を入力', 0)"
         , EffectMath $ valTmpFoodConsumeNum =:
             mathFunc3 "clamp" valTmpFoodConsumeNum (0 :: Int) valTmpFoodHaveNum
+        , EffectMath $ valGetExp =: valTmpFoodConsumeNum * valTmpFoodExp
         ]
     ]
 
@@ -321,7 +328,9 @@ talkFeed =
 
 talkPreItemFed :: Talk
 talkPreItemFed =
-  let dlText = T.pack $ "使用個数: " <> showVal valTmpFoodConsumeNum
+  let dlText = T.pack $ unlines [ "使用個数: " <> showVal valTmpFoodConsumeNum
+                                , "経験値: " <> showVal valGetExp
+                                ]
    in returnTalk idPreItemFed $ def
     & dynamicLine .~ DynamicLineText dlText
     & responses .~ responsePreItemFed : [ responseBack ]
@@ -332,8 +341,8 @@ responsePreItemFed =
     & condition .~ ConditionMath (Math1 $ valTmpFoodConsumeNum > (0 :: Int))
     & successEffect .~
       [ uConsumeItem valTmpFoodId valTmpFoodConsumeNum
-      , EffectMath $ valCurrentExp += valTmpFoodConsumeNum * valTmpFoodExp
-      , EffectMath $ valTotalExp += valTmpFoodConsumeNum * valTmpFoodExp
+      , EffectMath $ valCurrentExp += valGetExp
+      , EffectMath $ valTotalExp += valGetExp
       ]
 
 talkUpgradeDone :: Talk
