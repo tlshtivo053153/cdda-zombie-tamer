@@ -1,10 +1,9 @@
-{-# LANGUAGE OverloadedStrings, TupleSections #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Cdda.Talk.Friend
   ( friendTalk
   ) where
 
-import Prelude hiding (id, (+), (-), (*), (>), (>=), (++), (==))
-import qualified Prelude as P
+import Prelude hiding (id, (+), (-), (*), (>), (>=), (++), (==), (<))
 
 import Define.Core
 import Define.Monster
@@ -71,6 +70,9 @@ idLevelUpDone = Id "LEVEL_UP_DONE"
 idLevelUp :: Id
 idLevelUp = Id "LEVEL_UP"
 
+idSelectedLevel :: Id
+idSelectedLevel = Id "SELECTED_LEVEL"
+
 idShowStatus :: Id
 idShowStatus = Id "SHOW_STATUS"
 
@@ -94,10 +96,18 @@ valTmpFoodHaveNum :: Val
 valTmpFoodConsumeNum :: Val
 valTmpFoodExp :: Val
 valTmpLevel :: Val
+valTmpNextLevel :: Val
 valNeedItemId :: Val
 valNeedItemNum :: Val
 valSpellUpgrade :: Val
 valIsInitialize :: Val
+valCanIncrease :: Val
+valCanIncreased :: Val
+valSelectLevel :: Val
+valConsumeExp :: Val
+valTmpTotal :: Val
+valTmpTotalV :: Val
+valSpellLevelUp :: Val
 
 valCurrentExp = NpcVal "zombie_current_exp"
 valTotalExp = NpcVal "zombie_total_exp"
@@ -119,10 +129,18 @@ valTmpFoodHaveNum = ContextVal "tmp_food_have_num"
 valTmpFoodConsumeNum = ContextVal "tmp_food_consume_num"
 valTmpFoodExp = ContextVal "tmp_food_exp"
 valTmpLevel = ContextVal "tmp_level"
+valTmpNextLevel = ContextVal "tmp_next_level"
 valNeedItemId = ContextVal "need_item_id"
 valNeedItemNum = ContextVal "need_item_num"
 valSpellUpgrade = ContextVal "spell_upgrade"
 valIsInitialize = NpcVal "is_initialize"
+valCanIncrease = ContextVal "can_increase"
+valCanIncreased = ContextVal "can_incresed"
+valSelectLevel = ContextVal "select_level"
+valConsumeExp = ContextVal "consume_exp"
+valTmpTotal = ContextVal "tmp_total_exp"
+valTmpTotalV = VarVal "tmp_total_exp"
+valSpellLevelUp = ContextVal "spell_level_up"
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -193,17 +211,22 @@ responseMainUpgradeRandom = simpleResponse "ランダム進化" <$> talkUpgradeR
 responseMainUpgradeStandard :: TalkAction Response
 responseMainUpgradeStandard = simpleResponse "通常進化" <$> talkUpgradeStandard
 
-responseMainLevelUp :: TalkAction (Maybe Response)
+responseMainLevelUp :: TalkAction Response
 responseMainLevelUp = do
   talkLevelUp' <- talkLevelUp
-  e <- nextLevelExp
-  return $ case e of
-            Nothing -> Nothing
-            Just e' ->
-              Just $ simpleResponse "レベルアップ可能" talkLevelUp'
-                      & condition .~ ConditionMath (Math1 $ valCurrentExp >= e')
-                      & successEffect .~
-                        [ EffectMath $ valTmpLevel =: valLevel ]
+  return $ simpleResponse "レベルアップ可能" talkLevelUp'
+    & condition .~ ConditionAnd
+      [ ConditionMath (Math1 $ valCurrentExp >= valNeedExpNextLevel)
+      , ConditionMath (Math1 $ valLevel < valMaxLevel)
+      ]
+    & successEffect .~
+      [ EffectMath $ valTmpLevel =: valLevel
+      , EffectMath $ valTmpNextLevel =: valNextLevel
+      , EffectMath $ valTmpCurrentExp =: valCurrentExp
+      , runEocs (canLevelUp ^. id)
+      , EffectMath $ valCanIncrease =: valCanLevelUp - valLevel
+      , EffectMath $ valCanIncreased =: valCanLevelUp
+      ]
 
 responseMainSpecialAction :: TalkAction (Maybe Response)
 responseMainSpecialAction = return Nothing
@@ -233,7 +256,7 @@ talkMain = do
     [ Just <$> responseMainFeed
     , Just <$> responseMainUpgradeRandom
     , Just <$> responseMainUpgradeStandard
-    , responseMainLevelUp
+    , Just <$> responseMainLevelUp
     , Just <$> responseMainShowStatus
     , return $ Just responseDone
     ]
@@ -358,6 +381,9 @@ responseUpgradeRandomMonster = do
       [ npcCastSpell valSpellUpgrade False
       , uConsumeItem valNeedItemId valNeedItemNum
       , EffectMath $ valCurrentExp =: valTotalExp
+      , EffectMath $ valLevel =: (1 :: Int)
+      , EffectMath $ valNextLevel =: (2 :: Int)
+      , runEocs (initStatus ^. id)
       ]
 
 talkUpgradeRandomMain :: TalkAction Talk
@@ -388,6 +414,9 @@ responseUpgradeStandardMonster = do
       [ npcCastSpell valSpellUpgrade False
       , uConsumeItem valNeedItemId valNeedItemNum
       , EffectMath $ valCurrentExp =: valTotalExp
+      , EffectMath $ valLevel =: (1 :: Int)
+      , EffectMath $ valNextLevel =: (2 :: Int)
+      , runEocs (initStatus ^. id)
       ]
 
 talkUpgradeStandard :: TalkAction Talk
@@ -415,20 +444,54 @@ talkLevelUp = do
 
 responseLevelUp :: TalkAction [Response]
 responseLevelUp = do
-  l <- view level
-  exps <- view needExp
-  monId <- view monsterBase
-  talkLevelUpDone' <- talkLevelUpDone
-  let levelList = mapMaybe (\x -> (x,) <$> exps V.!? (l P.+ x P.- 1)) [1,2,4,8,16,32,64,99]
-  return $ flip map levelList $ \(x, y) -> do
-    let nextLevel = l P.+ x
-        resText = "[レベル+" <> T.pack (show x) <> "] "
-                    <> "レベル" <> T.pack (show nextLevel)
-    simpleResponse resText talkLevelUpDone'
-      & condition .~ ConditionMath (Math1 $ valCurrentExp >= y)
+  talkSelectedLevel' <- talkSelectedLevel
+  return
+    [ simpleResponse (T.pack $ "[レベル+1] レベル" <> showVal valTmpNextLevel) talkSelectedLevel'
       & successEffect .~
-        [ npcCastSpell (idSpellLevelUp monId nextLevel) False
-        , EffectMath $ valCurrentExp -= y
+        [ EffectMath $ valSelectLevel =: valNextLevel
+        , EffectMath $ valConsumeExp =: valNeedExpNextLevel
+        ]
+    , simpleResponse (T.pack $ "[レベル+" <> showVal valCanIncrease <> "] レベル" <> showVal valCanIncreased) talkSelectedLevel'
+      & successEffect .~
+        [ EffectMath $ valSelectLevel =: valCanIncreased
+        , setStringVar valTmpTotal (T.pack $ "n_exp_total" <> showVal valSelectLevel) True
+        , EffectMath $ valConsumeExp =: valTmpTotalV
+        ]
+    , simpleResponse "変化後のレベルを選択" talkSelectedLevel'
+      & successEffect .~
+        [ EffectMath $ valSelectLevel =: MathExpr "num_input('変化後のレベルを入力', 0)"
+        , EffectMath $ valSelectLevel =:
+            mathFunc3 "clamp" valSelectLevel valNextLevel valCanIncreased
+        , setStringVar valTmpTotal (T.pack $ "n_exp_total" <> showVal valSelectLevel) True
+        , EffectMath $ valConsumeExp =: valTmpTotalV
+        ]
+    ]
+
+talkSelectedLevel :: TalkAction Talk
+talkSelectedLevel = do
+  res <- responseSelectedLevel
+  returnTalk idSelectedLevel $ def
+    & dynamicLine .~ DynamicLineText (T.pack $ unlines
+                                      [ "現在レベル: " <> showVal valTmpLevel
+                                      <> "、変化後のレベル: " <> showVal valSelectLevel
+                                      , "消費経験値: " <> showVal valConsumeExp
+                                      <> "、現在経験値: " <> showVal valTmpCurrentExp
+                                      ]
+                                     )
+    & responses .~ res : [responseBack]
+
+responseSelectedLevel :: TalkAction Response
+responseSelectedLevel = do
+  talkLevelUpDone' <- talkLevelUpDone
+  return $
+    simpleResponse "レベルを上げる" talkLevelUpDone'
+      & successEffect .~
+        [ setStringVar valSpellLevelUp (T.pack $ "spell_" <> showVal valBaseMonster <> "_level_" <> showVal valSelectLevel) True
+        , npcCastSpell valSpellLevelUp False
+        , EffectMath $ valCurrentExp -= valConsumeExp
+        , EffectMath $ valLevel =: valSelectLevel
+        , EffectMath $ valNextLevel =: valLevel + (1 :: Int)
+        , runEocs (initStatus ^. id)
         ]
 
 talkShowStatus :: TalkAction Talk

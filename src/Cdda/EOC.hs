@@ -11,19 +11,26 @@ module Cdda.EOC
   , eocifelse
   , valLevel
   , valNextLevel
+  , valMaxLevel
   , valDodgeMon
   , valSpeedMon
   , valMeleeSkillMon
+  , valNeedExpNextLevel
+  , valBaseMonster
+  , valCanLevelUp
   , initLevel
   , hasLevel
   , initStatus
   , initStatusMonster
+  , updateExp
+  , canLevelUp
   , allEocLevel
   , allEocStatus
+  , allEocExp
   , allEocMonster
   ) where
 
-import Prelude hiding (id, (++), (==), (<=), (+))
+import Prelude hiding (id, (++), (==), (<=), (+), (<), (>=), (-), (>))
 import Define.Core
 import Define.EOC
 import Define.Monster
@@ -32,6 +39,7 @@ import Define.MakeFields
 import Cdda.EOC.Math
 import Cdda.Monster
 import Cdda.Monster.Status
+import Cdda.Monster.Exp
 import Cdda.Id.MonsterGroup
 import Cdda.Id.Monster
 
@@ -39,7 +47,7 @@ import Data.Default
 import qualified Data.Text as T
 import Data.Maybe
 
-import Control.Lens
+import Control.Lens hiding ( (+=) )
 
 showVal :: Val -> String
 showVal (UVal val) = "<u_val:" <> T.unpack val <> ">"
@@ -89,7 +97,7 @@ idInitLevel :: Id
 idInitLevel = Id "EOC_ZT_INITIALIZE_LEVEL"
 
 idHasLevel :: Id
-idHasLevel = Id "EOC_ZE_UNTIL_HAS_LEVEL"
+idHasLevel = Id "EOC_ZT_UNTIL_HAS_LEVEL"
 
 idConditionLevelLoop :: Id
 idConditionLevelLoop = Id "condition_level"
@@ -99,6 +107,30 @@ idInitStatus = Id "EOC_ZT_INITIALIZE_STATUS"
 
 idInitStatusMonster :: Id -> Id
 idInitStatusMonster (Id monId) = Id $ "EOC_ZT_INITIALIZE_STATUS_" <> monId
+
+idUpdateExp :: Id -> Id
+idUpdateExp (Id monId) = Id $ "EOC_ZT_UPDATE_EXP_" <> monId
+
+idTotalExp :: Id
+idTotalExp = Id "EOC_ZT_TOTAL_EXP"
+
+idExpLoop1 :: Id
+idExpLoop1 = Id "EOC_ZT_EXP_LOOP_1"
+
+idExpLoop2 :: Id
+idExpLoop2 = Id "EOC_ZT_EXP_LOOP_2"
+
+idConditionExpLoop1 :: Id
+idConditionExpLoop1 = Id "condition_exp_loop_1"
+
+idConditionExpLoop2 :: Id
+idConditionExpLoop2 = Id "condition_exp_loop_2"
+
+idCanLevelUp :: Id
+idCanLevelUp = Id "EOC_CAN_LEVEL_UP"
+
+idCanLevelUpLoop :: Id
+idCanLevelUpLoop = Id "EOC_CAN_LEVEL_UP_LOOP"
 
 valLoopIndex :: Val
 valLoopIndex = UVal "loop_num"
@@ -115,14 +147,23 @@ valLevel = NpcVal "zombie_level"
 valNextLevel :: Val
 valNextLevel = NpcVal "zombie_next_level"
 
+valMaxLevel :: Val
+valMaxLevel = NpcVal "zombie_max_level"
+
 valBaseMonster :: Val
-valBaseMonster = ContextVal "base_monster_id"
+valBaseMonster = NpcVal "base_monster_id"
+
+valTmpBaseMonster :: Val
+valTmpBaseMonster = ContextVal "base_monster_id"
 
 valBaseMonsterFlag :: Val
 valBaseMonsterFlag = ContextVal "base_monster_flag"
 
 valInitStatusEocId :: Val
 valInitStatusEocId = ContextVal "init_status_eoc_id"
+
+valUpdateEocId :: Val
+valUpdateEocId = ContextVal "update_exp_eoc_id"
 
 valDodge :: Int -> Val
 valDodge l = ContextVal $ T.pack $ "dodge" <> show l
@@ -132,6 +173,12 @@ valSpeed l = ContextVal $ T.pack $ "speed" <> show l
 
 valMeleeSkill :: Int -> Val
 valMeleeSkill l = ContextVal $ T.pack $ "melee_skill" <> show l
+
+valExp :: Int -> Val
+valExp l = ContextVal $ T.pack $ "exp" <> show (succ l)
+
+valExpTotal :: Val
+valExpTotal = undefined
 
 valDodgeMon :: Val
 valDodgeMon = NpcVal "zombie_dodge"
@@ -147,6 +194,42 @@ valTmpStatus = ContextVal "tmp_status"
 
 valTmpStatusV :: Val
 valTmpStatusV = VarVal "tmp_status"
+
+valLoopIndex1 :: Val
+valLoopIndex1 = UVal "loop_index_1"
+
+valLoopIndex2 :: Val
+valLoopIndex2 = UVal "loop_index_2"
+
+valTmpSum :: Val
+valTmpSum = ContextVal "sum"
+
+valTmpSumV :: Val
+valTmpSumV = VarVal "sum"
+
+valTmpExp :: Val
+valTmpExp = ContextVal "tmp_exp"
+
+valTmpExpV :: Val
+valTmpExpV = VarVal "tmp_exp"
+
+valTmp :: Val
+valTmp = ContextVal "tmp"
+
+valTmpV :: Val
+valTmpV = VarVal "tmp"
+
+valTmpTotalExp :: Val
+valTmpTotalExp = UVal "tmp_total_exp"
+
+valNeedExpNextLevel :: Val
+valNeedExpNextLevel = NpcVal "zombie_need_exp_next_level"
+
+valCurrentExp :: Val
+valCurrentExp = NpcVal "zombie_current_exp"
+
+valCanLevelUp :: Val
+valCanLevelUp = NpcVal "zombie_can_level_up"
 
 initLevel :: Eoc
 initLevel = def
@@ -181,11 +264,14 @@ initStatus :: Eoc
 initStatus = def
   & id .~ idInitStatus
   & effect .~
-    [ Foreach "monstergroup" idFriendBase valBaseMonster
-      [ setStringVar valBaseMonsterFlag (T.pack $ "ZT_MON_IS_" <> showVal valBaseMonster) True
+    [ Foreach "monstergroup" idFriendBase valTmpBaseMonster
+      [ setStringVar valBaseMonsterFlag (T.pack $ "ZT_MON_IS_" <> showVal valTmpBaseMonster) True
       , eocif (npcHasFlag valBaseMonsterFlag)
-        [ setStringVar valInitStatusEocId (T.pack $ "EOC_ZT_INITIALIZE_STATUS_" <> showVal valBaseMonster) True
+        [ setStringVar valInitStatusEocId (T.pack $ "EOC_ZT_INITIALIZE_STATUS_" <> showVal valTmpBaseMonster) True
         , runEocs valInitStatusEocId
+        , setStringVar valUpdateEocId (T.pack $ "EOC_ZT_UPDATE_EXP_" <> showVal valTmpBaseMonster) True
+        , runEocs valUpdateEocId
+        , setStringVar valBaseMonster (T.pack $ showVal valTmpBaseMonster) True
         ]
       ]
     ]
@@ -206,6 +292,7 @@ initStatusMonster monId = do
       , EffectMath $ valSpeedMon =: valTmpStatusV
       , setStringVar valTmpStatus (T.pack $ "_melee_skill" <> showVal valLevel) True
       , EffectMath $ valMeleeSkillMon =: valTmpStatusV
+      , EffectMath $ valMaxLevel =: maxLevel'
       ]
 
 defineStatus :: (Int, Status) -> [Effect]
@@ -214,6 +301,85 @@ defineStatus (l, s) =
   , EffectMath $ valSpeed l =: (s ^. speed)
   , EffectMath $ valMeleeSkill l =: (s ^. melee.skill)
   ]
+
+updateExp :: Id -> Maybe Eoc
+updateExp monId = do
+  m <- getMonsterFriend monId
+  let maxLevel' = m ^. growth.maxLevel
+  return $ def
+    & id .~ idUpdateExp monId
+    & effect .~ map (defineExp m) [1..pred maxLevel']
+      <> [ setStringVar valTmpExp (T.pack $ "_exp" <> showVal valNextLevel) True
+         , EffectMath $ valNeedExpNextLevel =: valTmpExpV
+         ]
+      <> defineTotalExp
+
+defineExp :: Monster -> Int -> Effect
+defineExp m l = EffectMath $ valExp l =: calcExp m l
+
+defineTotalExp :: [Effect]
+defineTotalExp =
+  [ SetCondition idConditionExpLoop1
+    $ ConditionMath $ Math1 $ valLoopIndex1 <= valMaxLevel
+  , SetCondition idConditionExpLoop2
+    $ ConditionMath $ Math1 $ valLoopIndex2 <= valLoopIndex1
+  , EffectMath $ valLoopIndex1 =: valNextLevel
+  , runEocUntil idExpLoop1 idConditionExpLoop1
+  , ULoseVar valLoopIndex1
+  , ULoseVar valLoopIndex2
+  ]
+
+eocExpLoop1 :: Eoc
+eocExpLoop1 = def
+  & id .~ idExpLoop1
+  & effect .~
+    [ EffectMath $ valLoopIndex2 =: valNextLevel
+    , setStringVar valTmpSum (T.pack $ "n_exp_total" <> showVal valLoopIndex1) True
+    , EffectMath $ valTmpSumV =: (0 :: Int)
+    , runEocUntil idExpLoop2 idConditionExpLoop2
+    , EffectMath $ mathIncrement valLoopIndex1
+    ]
+
+eocExpLoop2 :: Eoc
+eocExpLoop2 = def
+  & id .~ idExpLoop2
+  & effect .~
+    [ setStringVar valTmpExp (T.pack $ "_exp" <> showVal valLoopIndex2) True
+    , EffectMath $ valTmpSumV += valTmpExpV
+    , EffectMath $ mathIncrement valLoopIndex2
+    ]
+
+canLevelUp :: Eoc
+canLevelUp = def
+  & id .~ idCanLevelUp
+  & effect .~
+    [ EffectMath $ valLoopIndex =: valNextLevel
+    , setStringVar valTmp (T.pack $ "n_exp_total" <> showVal valLoopIndex) True
+    , EffectMath $ valTmpTotalExp =: valTmpV
+    , EffectMath $ valLoopContinue =: True
+    , SetCondition idConditionLevelLoop $ ConditionMath $ Math1 $ valLoopContinue == True
+    , runEocUntil idCanLevelUpLoop idConditionLevelLoop
+    , ULoseVar valTmpTotalExp
+    , ULoseVar valLoopIndex
+    , ULoseVar valLoopContinue
+    ]
+
+canLevelUpLoop :: Eoc
+canLevelUpLoop = def
+  & id .~ idCanLevelUpLoop
+  & effect .~
+    [ eocif (ConditionMath $ Math1 $ valLoopIndex == valMaxLevel)
+        [ EffectMath $ valLoopContinue =: False
+        , EffectMath $ valCanLevelUp =: valLoopIndex
+        ]
+    , eocif (ConditionMath $ Math1 $ valTmpTotalExp > valCurrentExp)
+        [ EffectMath $ valLoopContinue =: False
+        , EffectMath $ valCanLevelUp =: valLoopIndex - (1 :: Int)
+        ]
+    , EffectMath $ mathIncrement valLoopIndex
+    , setStringVar valTmp (T.pack $ "n_exp_total" <> showVal valLoopIndex) True
+    , EffectMath $ valTmpTotalExp =: valTmpV
+    ]
 
 allEocLevel :: [Eoc]
 allEocLevel =
@@ -224,5 +390,15 @@ allEocLevel =
 allEocStatus :: [Eoc]
 allEocStatus = [ initStatus ]
 
+allEocExp :: [Eoc]
+allEocExp =
+  [ eocExpLoop1
+  , eocExpLoop2
+  , canLevelUp
+  , canLevelUpLoop
+  ]
+
 allEocMonster :: [Eoc]
-allEocMonster = mapMaybe initStatusMonster allFriendMonster
+allEocMonster =
+  mapMaybe initStatusMonster allFriendMonster
+  <> mapMaybe updateExp allFriendMonster

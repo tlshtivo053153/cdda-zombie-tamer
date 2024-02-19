@@ -207,11 +207,13 @@ makeCddaMod = J.CddaMod
   , J._cddaModFlag = (FP.getFlag, map J.convFlag allFlag)
   , J._cddaModEoc = [ (FP.getEocLevel, map J.convEoc [initLevel, hasLevel])
                     , (FP.getEocStatus, map J.convEoc allEocStatus)
+                    , (FP.getEocExp, map J.convEoc allEocExp)
                     ]
-                    ++ mapMaybe (\m -> case initStatusMonster m of
-                                    (Just initEoc) -> Just (FP.getEocMonster m, [J.convEoc initEoc])
-                                    _ -> Nothing
-                           ) I.allFriendMonster
+                    ++ mapMaybe (\m -> do
+                      initEoc <- initStatusMonster m
+                      updateEoc <- updateExp m
+                      return (FP.getEocMonster m, map J.convEoc [initEoc, updateEoc])
+                                ) I.allFriendMonster
   }
 
 outputCddaMod :: J.CddaMod -> IO ()

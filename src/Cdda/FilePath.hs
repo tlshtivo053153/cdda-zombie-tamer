@@ -22,6 +22,7 @@ module Cdda.FilePath
   , getFlag
   , getEocLevel
   , getEocStatus
+  , getEocExp
   , getEocMonster
   ) where
 
@@ -98,6 +99,9 @@ getEocLevel = "eoc"</>"level.json"
 
 getEocStatus :: FilePath
 getEocStatus = "eoc"</>"status.json"
+
+getEocExp :: FilePath
+getEocExp = "eoc"</>"exp.json"
 
 getEocMonster :: Id -> FilePath
 getEocMonster (Id monId) = "eoc"</>"monster"</> T.unpack monId <> ".json"
