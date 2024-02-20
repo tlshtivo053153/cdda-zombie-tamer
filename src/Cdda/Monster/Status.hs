@@ -2642,7 +2642,9 @@ statusWithLevel l@_level sg s =
   let gal lens1 lens2 = growthApplyLevelL lens1 lens2 l sg
    in s
     & gal hp hp
+    & hp %~ min 1000000000
     & gal speed speed
+    & speed %~ min 150
     & gal dodge dodge
     & gal (armor.bash) (armor.bash)
     & gal (armor.bullet) (armor.bullet)

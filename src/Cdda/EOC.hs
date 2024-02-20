@@ -315,7 +315,7 @@ updateExp monId = do
       <> defineTotalExp
 
 defineExp :: Monster -> Int -> Effect
-defineExp m l = EffectMath $ valExp l =: calcExp m l
+defineExp m l = EffectMath $ valExp l =: min 30000 (calcExp m l)
 
 defineTotalExp :: [Effect]
 defineTotalExp =
