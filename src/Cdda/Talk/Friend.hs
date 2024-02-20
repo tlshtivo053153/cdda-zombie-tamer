@@ -431,6 +431,7 @@ responseLevelUp =
         , EffectMath $ valConsumeExp =: valNeedExpNextLevel
         ]
     , simpleResponse (T.pack $ "[レベル+" <> showVal valCanIncrease <> "] レベル" <> showVal valCanIncreased) talkSelectedLevel
+      & condition .~ ConditionMath (Math1 $ valCanIncrease > (1 :: Int))
       & successEffect .~
         [ EffectMath $ valSelectLevel =: valCanIncreased
         , setStringVar valTmpTotal (T.pack $ "n_exp_total" <> showVal valSelectLevel) True
