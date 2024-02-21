@@ -71,7 +71,7 @@ zombieNormalGrowth = noStatusGrowth
       & armorPenetration .~ Growth 1 0.1
                     ]
   & exp .~ Growth 1.12 0
-  & maxLevel .~ 30
+  & maxLevel .~ 50
 
 zombieBruteGrowth :: StatusGrowth
 zombieBruteGrowth = zombieNormalGrowth
@@ -121,7 +121,7 @@ skeletonGrowth = noStatusGrowth
   & armor.bullet .~ Growth 1 1
   & armor.elec .~ Growth 1 0.5
   & exp .~ Growth 1.18 0
-  & maxLevel .~ 30
+  & maxLevel .~ 50
 
 skeletonBruteGrowth :: StatusGrowth
 skeletonBruteGrowth = skeletonGrowth
@@ -195,7 +195,7 @@ boomerGrowth = noStatusGrowth
       & armorPenetration .~ Growth 1 0.1
                     ]
   & exp .~ Growth 1.12 0
-  & maxLevel .~ 30
+  & maxLevel .~ 50
 
 boomerGluttonGrowth :: StatusGrowth
 boomerGluttonGrowth = boomerGrowth

@@ -281,7 +281,7 @@ instance ToJSON Effect where
   toJSON (NpcHasFlag f) = object [ "npc_has_flag" .= f ]
   toJSON (RunEocUntil eoc c) = object [ "run_eoc_until" .= eoc
                                       , "condition" .= c
-                                      , "iteration_count" .= (101 :: Int)
+                                      , "iteration_count" .= (100 :: Int)
                                       ]
   toJSON (RunEocs eoc) = object [ "run_eocs" .= eoc ]
   toJSON (If c t (Just e)) = object [ "if" .= c
